@@ -1,0 +1,5 @@
+rootProject.name = 'chaewsstore'
+include 'core'
+include 'app'
+include 'admin'
+
