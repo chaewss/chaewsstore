@@ -44,14 +44,14 @@ subprojects {
 
 project(':admin') {
     dependencies {
-        compileOnly project(':core')
+        implementation project(':core')
         implementation 'org.springframework.boot:spring-boot-starter-web'
     }
 }
 
 project(':app') {
     dependencies {
-        compileOnly project(':core')
+        implementation project(':core')
         implementation 'org.springframework.boot:spring-boot-starter-web'
     }
 }
