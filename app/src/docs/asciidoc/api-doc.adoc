@@ -1,0 +1,87 @@
+= chaewsstore API Guide
+:doctype: book
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:toc-title: 목차
+:hardbreaks:
+
+== 1. 개요
+=== Response Data
+|===
+| Field | Description
+
+| `timestamp`
+| 요청 시간
+
+| `code`
+| 응답 코드
+
+| `detail`
+| 응답 상세
+
+| `data`
+| 응답 데이터
+|===
+
+== 2. 회원
+=== 2-1. 회원가입
+==== Request
+===== Request Fields
+include::{snippets}/account-controller-unit-test/signup-test/request-fields.adoc[]
+===== Request Http Example
+include::{snippets}/account-controller-unit-test/signup-test/http-request.adoc[]
+==== Response
+===== Response Fields
+include::{snippets}/account-controller-unit-test/signup-test/response-fields.adoc[]
+===== Response Http Example
+include::{snippets}/account-controller-unit-test/signup-test/http-response.adoc[]
+
+- 유효성 검사에 실패했을 경우
+|===
+| Path | Type | Description
+| `data.email` | `String` | valid 에러 발생 이유
+| `data.password` | `String` | valid 에러 발생 이유
+| `data.nickname` | `String` | valid 에러 발생 이유
+|===
+
+===== Response Status
+|===
+| Code | Status | Detail
+| `SIGNUP_SUCCESS` | `201 CREATED` | 회원가입 성공
+| `ACCOUNT_DUPLICATION` | `409 CONFLICT` | 중복된 아이디입니다
+| `NICKNAME_DUPLICATION` | `409 CONFLICT` | 중복된 닉네임입니다
+| `VALID_ERROR` |`400 BAD REQUEST` | 유효성 검사 실패
+|===
+
+=== 2-2. 이메일 유효성 확인
+==== Request
+===== Request Path Parameters
+include::{snippets}/account-controller-unit-test/check-username-test/path-parameters.adoc[]
+===== Request Http Example
+include::{snippets}/account-controller-unit-test/check-username-test/http-request.adoc[]
+==== Response
+===== Response Http Example
+include::{snippets}/account-controller-unit-test/check-username-test/http-response.adoc[]
+===== Response Status
+|===
+| Code | Status | Detail
+| `CHECK_USERNAME_SUCCESS` | `200 OK` | 사용가능한 아이디입니다
+| `ACCOUNT_DUPLICATION` | `409 CONFLICT` | 중복된 아이디입니다
+|===
+
+=== 2-3. 닉네임 유효성 확인
+==== Request
+===== Request Path Parameters
+include::{snippets}/account-controller-unit-test/check-nickname-test/path-parameters.adoc[]
+===== Request Http Example
+include::{snippets}/account-controller-unit-test/check-nickname-test/http-request.adoc[]
+==== Response
+===== Response Http Example
+include::{snippets}/account-controller-unit-test/check-nickname-test/http-response.adoc[]
+===== Response Status
+|===
+| Code | Status | Detail
+| `CHECK_NICKNAME_SUCCESS` | `200 OK` | 사용가능한 닉네임입니다
+| `NICKNAME_DUPLICATION` | `409 CONFLICT` | 중복된 닉네임입니다
+|===
