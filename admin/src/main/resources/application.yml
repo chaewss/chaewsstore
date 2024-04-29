@@ -1,0 +1,21 @@
+server:
+  port: 8001
+
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:tcp://localhost/~/chaewsstore
+    username: sa
+
+  jpa:
+    hibernate:
+      hibernate.hbm2ddl.auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      jakarta:
+        persistence:
+          sharedCache:
+            mode: ALL
+
+logging.level.org.springframework.core.LocalVariableTableParameterNameDiscoverer: error
