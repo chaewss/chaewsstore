@@ -1,11 +1,11 @@
 package com.chaewsstore.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,28 +14,27 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Account extends BaseTimeEntity {
+public class Receipt extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(unique = true)
-    private String username;
+    private Integer price;
 
-    @NotNull
-    private String password;
+    @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private Account seller;
 
-    @NotNull
-    @Column(unique = true)
-    private String nickname;
+    @ManyToOne
+    @JoinColumn(name = "buyer_id")
+    private Account buyer;
 
     @Builder
-    public Account(Long id, String username, String password, String nickname) {
+    public Receipt(Long id, Integer price, Account seller, Account buyer) {
         this.id = id;
-        this.username = username;
-        this.password = password;
-        this.nickname = nickname;
+        this.price = price;
+        this.seller = seller;
+        this.buyer = buyer;
     }
 }
