@@ -16,10 +16,6 @@ public record SignupRequestDto(
 ) {
 
     public Account toEntity(PasswordEncoder passwordEncoder) {
-        return Account.builder()
-            .username(username)
-            .password(passwordEncoder.encode(password))
-            .nickname(nickname)
-            .build();
+        return Account.create(username, passwordEncoder.encode(password), nickname);
     }
 }
