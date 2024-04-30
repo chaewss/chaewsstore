@@ -17,8 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
-import com.chaewsstore.controller.dto.AccountResponseDto;
-import com.chaewsstore.controller.dto.SignupRequestDto;
+import com.chaewsstore.dto.account.AccountResponseDto;
+import com.chaewsstore.dto.account.SignupRequestDto;
 import com.chaewsstore.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,23 +59,14 @@ class AccountControllerUnitTest {
     @Test
     @DisplayName("회원가입 테스트")
     void signupTest() throws Exception {
-        SignupRequestDto signupRequest = SignupRequestDto.builder()
-            .username("email@gmail.com")
-            .password("aaaa1111!!")
-            .nickname("닉네임")
-            .build();
+        SignupRequestDto request = new SignupRequestDto("email@gmail.com", "aaaa1111!!", "닉네임");
+        AccountResponseDto response = new AccountResponseDto(1L, "email@gmail.com", "닉네임");
 
-        AccountResponseDto accountResponse = AccountResponseDto.builder()
-            .id(1L)
-            .username("email@gmail.com")
-            .nickname("닉네임")
-            .build();
-
-        given(accountService.signup(any())).willReturn(accountResponse);
+        given(accountService.signup(any())).willReturn(response);
 
         mockMvc.perform(post("/api/accounts/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signupRequest)))
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
             .andDo(print())
             .andDo(document("{class-name}/{method-name}",

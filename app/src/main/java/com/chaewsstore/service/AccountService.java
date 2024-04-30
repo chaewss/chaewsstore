@@ -3,8 +3,8 @@ package com.chaewsstore.service;
 import static com.chaewsstore.exception.ExceptionConstants.ACCOUNT_DUPLICATION;
 import static com.chaewsstore.exception.ExceptionConstants.NICKNAME_DUPLICATION;
 
-import com.chaewsstore.controller.dto.AccountResponseDto;
-import com.chaewsstore.controller.dto.SignupRequestDto;
+import com.chaewsstore.dto.account.AccountResponseDto;
+import com.chaewsstore.dto.account.SignupRequestDto;
 import com.chaewsstore.entity.Account;
 import com.chaewsstore.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,19 +22,19 @@ public class AccountService {
     /**
      * 사용자를 등록한다.
      *
-     * @param requestDto 회원가입할 사용자의 정보
+     * @param request 회원가입할 사용자의 정보
      * @return 회원가입 처리된 사용자 정보
      * @throws com.chaewsstore.exception.DuplicateException 아이디 혹은 닉네임이 중복된 경우
      */
     @Transactional(rollbackFor = Exception.class)
-    public AccountResponseDto signup(SignupRequestDto requestDto) {
-        checkUsername(requestDto.getUsername());
-        checkNickname(requestDto.getNickname());
+    public AccountResponseDto signup(SignupRequestDto request) {
+        checkUsername(request.username());
+        checkNickname(request.nickname());
 
-        Account account = requestDto.toAccount(passwordEncoder);
+        Account account = request.toEntity(passwordEncoder);
         accountRepository.save(account);
 
-        return AccountResponseDto.of(account);
+        return AccountResponseDto.from(account);
     }
 
     /**

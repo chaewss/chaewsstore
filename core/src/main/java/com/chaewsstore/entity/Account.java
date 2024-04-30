@@ -38,4 +38,12 @@ public class Account extends BaseTimeEntity {
         this.password = password;
         this.nickname = nickname;
     }
+
+    public static Account create(String username, String password, String nickname) {
+        return Account.builder()
+            .username(username)
+            .password(password)
+            .nickname(nickname)
+            .build();
+    }
 }
