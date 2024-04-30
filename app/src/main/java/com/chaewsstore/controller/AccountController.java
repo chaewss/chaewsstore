@@ -1,7 +1,7 @@
 package com.chaewsstore.controller;
 
-import com.chaewsstore.controller.dto.AccountResponseDto;
-import com.chaewsstore.controller.dto.SignupRequestDto;
+import com.chaewsstore.dto.account.AccountResponseDto;
+import com.chaewsstore.dto.account.SignupRequestDto;
 import com.chaewsstore.service.AccountService;
 import com.chaewsstore.util.ResponseCode;
 import com.chaewsstore.util.ResponseData;

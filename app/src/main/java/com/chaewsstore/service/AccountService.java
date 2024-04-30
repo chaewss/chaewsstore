@@ -3,8 +3,8 @@ package com.chaewsstore.service;
 import static com.chaewsstore.exception.ExceptionConstants.ACCOUNT_DUPLICATION;
 import static com.chaewsstore.exception.ExceptionConstants.NICKNAME_DUPLICATION;
 
-import com.chaewsstore.controller.dto.AccountResponseDto;
-import com.chaewsstore.controller.dto.SignupRequestDto;
+import com.chaewsstore.dto.account.AccountResponseDto;
+import com.chaewsstore.dto.account.SignupRequestDto;
 import com.chaewsstore.entity.Account;
 import com.chaewsstore.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;

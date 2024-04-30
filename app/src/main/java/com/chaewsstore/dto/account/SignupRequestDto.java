@@ -1,4 +1,4 @@
-package com.chaewsstore.controller.dto;
+package com.chaewsstore.dto.account;
 
 import static com.chaewsstore.util.VerificationUtil.NICKNAME_REGEXP;
 import static com.chaewsstore.util.VerificationUtil.PASSWORD_REGEXP;

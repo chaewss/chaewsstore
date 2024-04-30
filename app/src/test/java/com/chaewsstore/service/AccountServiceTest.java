@@ -8,7 +8,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.chaewsstore.controller.dto.SignupRequestDto;
+import com.chaewsstore.dto.account.SignupRequestDto;
 import com.chaewsstore.entity.Account;
 import com.chaewsstore.exception.DuplicateException;
 import com.chaewsstore.repository.AccountRepository;

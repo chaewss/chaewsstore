@@ -1,4 +1,4 @@
-package com.chaewsstore.controller.dto;
+package com.chaewsstore.dto.account;
 
 import com.chaewsstore.entity.Account;
 import lombok.Builder;
