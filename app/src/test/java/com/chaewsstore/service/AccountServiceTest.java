@@ -43,11 +43,7 @@ class AccountServiceTest {
     @Test
     @DisplayName("회원가입 성공")
     void signupSuccess() {
-        SignupRequestDto signupRequest = SignupRequestDto.builder()
-            .username("email@gmail.com")
-            .password("aaaa1111!!")
-            .nickname("닉네임")
-            .build();
+        SignupRequestDto request = new SignupRequestDto("email@gmail.com", "aaaa1111!!", "닉네임");
 
         // given
         given(accountRepository.existsByUsername(any())).willReturn(false);
@@ -56,7 +52,7 @@ class AccountServiceTest {
         given(accountRepository.save(any())).willReturn(account);
 
         // when
-        accountService.signup(signupRequest);
+        accountService.signup(request);
 
         // then
         then(accountRepository).should(times(1)).existsByUsername(any());
@@ -66,18 +62,14 @@ class AccountServiceTest {
     @Test
     @DisplayName("회원가입 실패 - 중복된 아이디")
     void signupFailUsernameDuplication() {
-        SignupRequestDto signupRequest = SignupRequestDto.builder()
-            .username("email@gmail.com")
-            .password("aaaa1111!!")
-            .nickname("닉네임")
-            .build();
+        SignupRequestDto request = new SignupRequestDto("email@gmail.com", "aaaa1111!!", "닉네임");
 
         // given
         given(accountRepository.existsByUsername(any())).willReturn(true);
 
         // when
         DuplicateException result = assertThrows(DuplicateException.class,
-            () -> accountService.signup(signupRequest));
+            () -> accountService.signup(request));
 
         // then
         then(accountRepository).should(times(1)).existsByUsername(any());
@@ -87,11 +79,7 @@ class AccountServiceTest {
     @Test
     @DisplayName("회원가입 실패 - 중복된 닉네임")
     void signupFailNicknameDuplication() {
-        SignupRequestDto signupRequest = SignupRequestDto.builder()
-            .username("email@gmail.com")
-            .password("aaaa1111!!")
-            .nickname("닉네임")
-            .build();
+        SignupRequestDto request = new SignupRequestDto("email@gmail.com", "aaaa1111!!", "닉네임");
 
         // given
         given(accountRepository.existsByUsername(any())).willReturn(false);
@@ -99,7 +87,7 @@ class AccountServiceTest {
 
         // when
         DuplicateException result = assertThrows(DuplicateException.class,
-            () -> accountService.signup(signupRequest));
+            () -> accountService.signup(request));
 
         // then
         then(accountRepository).should(times(1)).existsByUsername(any());
