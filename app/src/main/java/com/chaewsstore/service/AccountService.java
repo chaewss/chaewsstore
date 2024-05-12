@@ -1,5 +1,6 @@
 package com.chaewsstore.service;
 
+import static com.chaewsstore.entity.Role.ASSOCIATE;
 import static com.chaewsstore.exception.ExceptionConstants.ACCOUNT_DUPLICATION;
 import static com.chaewsstore.exception.ExceptionConstants.NICKNAME_DUPLICATION;
 
@@ -31,7 +32,7 @@ public class AccountService {
         checkUsername(request.username());
         checkNickname(request.nickname());
 
-        Account account = request.toEntity(passwordEncoder);
+        Account account = request.toEntity(passwordEncoder, ASSOCIATE);
         accountRepository.save(account);
 
         return AccountResponseDto.from(account);
