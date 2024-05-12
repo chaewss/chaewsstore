@@ -118,4 +118,14 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
     }
 
+    /**
+     * 토큰을 기반으로 로그인된 계정 조회
+     *
+     * @param accessToken 토큰
+     * @return 로그인 된 계정 {@link Optional}.
+     */
+    public Optional<Account> getLoginAccount(String accessToken) {
+        String email = parseToken(accessToken).getSubject();
+        return accountRepository.findByUsername(email);
+    }
 }
