@@ -15,6 +15,7 @@ import com.chaewsstore.repository.AccountRepository;
 import com.chaewsstore.repository.RefreshTokenRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -36,7 +37,7 @@ public class AuthService implements UserDetailsService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -60,8 +61,7 @@ public class AuthService implements UserDetailsService {
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             request.email(), request.password());
-        Authentication authentication = authenticationManagerBuilder.getObject()
-            .authenticate(authenticationToken);
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
         String accessToken = tokenProvider.createAccessToken(authentication);
         RefreshToken refreshToken = RefreshToken.create(account,
             tokenProvider.createRefreshToken());

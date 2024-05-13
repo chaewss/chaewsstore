@@ -10,6 +10,8 @@ import org.springframework.restdocs.operation.preprocess.OperationResponsePrepro
 
 public interface ApiDocumentUtils {
 
+    String documentIdentifier = "{class-name}/{method-name}";
+
     static OperationRequestPreprocessor getDocumentRequest() {
         return preprocessRequest(
             modifyUris()
