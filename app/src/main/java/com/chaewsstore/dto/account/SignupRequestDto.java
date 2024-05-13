@@ -4,6 +4,7 @@ import static com.chaewsstore.util.VerificationUtil.NICKNAME_REGEXP;
 import static com.chaewsstore.util.VerificationUtil.PASSWORD_REGEXP;
 
 import com.chaewsstore.entity.Account;
+import com.chaewsstore.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -15,7 +16,7 @@ public record SignupRequestDto(
     @NotNull(message = "닉네임은 필수 입력 항목입니다") @Pattern(regexp = NICKNAME_REGEXP, message = "닉네임은 2자 이상 10자 이하여야 합니다.") String nickname
 ) {
 
-    public Account toEntity(PasswordEncoder passwordEncoder) {
-        return Account.create(username, passwordEncoder.encode(password), nickname);
+    public Account toEntity(PasswordEncoder passwordEncoder, Role role) {
+        return Account.create(username, passwordEncoder.encode(password), nickname, role);
     }
 }

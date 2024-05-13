@@ -17,5 +17,8 @@ spring:
         persistence:
           sharedCache:
             mode: ALL
+jwt:
+  header: Authorization
+  secret: ${SECRET_KEY}
 
 logging.level.org.springframework.core.LocalVariableTableParameterNameDiscoverer: error
