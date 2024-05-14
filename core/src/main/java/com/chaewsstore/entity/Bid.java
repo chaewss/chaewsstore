@@ -40,11 +40,22 @@ public class Bid extends BaseTimeEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Account bidder, Boolean isSold, Boolean isDeleted) {
+    public Bid(Long id, Integer price, Product product, Account bidder, Boolean isSold, Boolean isDeleted) {
         this.id = id;
         this.price = price;
+        this.product = product;
         this.bidder = bidder;
         this.isSold = isSold;
         this.isDeleted = isDeleted;
+    }
+    
+    public static Bid create(Integer price, Product product, Account bidder) {
+        return Bid.builder()
+            .price(price)
+            .product(product)
+            .bidder(bidder)
+            .isSold(false)
+            .isDeleted(false)
+            .build();
     }
 }
