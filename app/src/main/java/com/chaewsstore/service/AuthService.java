@@ -13,37 +13,23 @@ import com.chaewsstore.exception.NotFoundException;
 import com.chaewsstore.exception.UnauthorizedException;
 import com.chaewsstore.repository.AccountRepository;
 import com.chaewsstore.repository.RefreshTokenRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-public class AuthService implements UserDetailsService {
+public class AuthService {
 
     private final AccountRepository accountRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return accountRepository.findByUsername(username).map(this::createUser)
-            .orElseThrow(() -> NOT_FOUND_ACCOUNT);
-    }
 
     /**
      * 로그인
@@ -69,12 +55,5 @@ public class AuthService implements UserDetailsService {
         TokenDto token = TokenDto.of(accessToken, refreshToken.getToken(), BEARER_TYPE);
 
         return new LoginResponseDto(account.getId(), token);
-    }
-
-    private User createUser(Account account) {
-        String role = account.getRole().getKey();
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role);
-        return new User(account.getUsername(), account.getPassword(),
-            List.of(grantedAuthority));
     }
 }
