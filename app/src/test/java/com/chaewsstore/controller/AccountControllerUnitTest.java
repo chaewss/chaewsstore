@@ -17,6 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
+import com.chaewsstore.auth.TokenProvider;
+import com.chaewsstore.config.RequestMatcherHolder;
 import com.chaewsstore.dto.account.AccountResponseDto;
 import com.chaewsstore.dto.account.SignupRequestDto;
 import com.chaewsstore.service.AccountService;
@@ -39,6 +41,12 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest(AccountController.class)
 class AccountControllerUnitTest {
+
+    @MockBean
+    RequestMatcherHolder requestMatcherHolder;
+
+    @MockBean
+    TokenProvider tokenProvider;
 
     @MockBean
     private AccountService accountService;
