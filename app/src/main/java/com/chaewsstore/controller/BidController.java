@@ -2,6 +2,7 @@ package com.chaewsstore.controller;
 
 import com.chaewsstore.dto.bid.CreateBidRequestDto;
 import com.chaewsstore.dto.bid.ReadProductBidResponseDto;
+import com.chaewsstore.dto.bid.UpdateBidRequestDto;
 import com.chaewsstore.entity.Account;
 import com.chaewsstore.service.BidService;
 import com.chaewsstore.util.LoginAccount;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -39,5 +41,12 @@ public class BidController {
         @RequestBody CreateBidRequestDto request) {
         bidService.createBid(account, productId, request);
         return ResponseData.of(ResponseCode.CREATE_BID_SUCCESS);
+    }
+
+    @PutMapping("/bids/{bidId}")
+    public ResponseData<Void> updateBid(@LoginAccount Account account, @PathVariable Long bidId,
+        @RequestBody UpdateBidRequestDto request) {
+        bidService.updateBid(account, bidId, request);
+        return ResponseData.of(ResponseCode.UPDATE_BID_SUCCESS);
     }
 }

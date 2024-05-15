@@ -21,6 +21,12 @@ public class GlobalExceptionHandler {
         return ResponseData.of(e.getResponseCode());
     }
 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseData handleForbiddenException(ForbiddenException e) {
+        return ResponseData.of(e.getResponseCode());
+    }
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public ResponseData handleNotFoundException(NotFoundException e) {

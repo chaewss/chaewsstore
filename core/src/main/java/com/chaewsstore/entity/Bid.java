@@ -58,4 +58,8 @@ public class Bid extends BaseTimeEntity {
             .isDeleted(false)
             .build();
     }
+
+    public void updatePrice(Integer price) {
+        this.price = price;
+    }
 }
