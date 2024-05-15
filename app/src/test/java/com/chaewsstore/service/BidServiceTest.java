@@ -13,9 +13,12 @@ import static org.mockito.Mockito.times;
 import com.chaewsstore.dto.ReadProductBidQueryDto;
 import com.chaewsstore.dto.bid.CreateBidRequestDto;
 import com.chaewsstore.dto.bid.ReadProductBidResponseDto;
+import com.chaewsstore.dto.bid.UpdateBidRequestDto;
 import com.chaewsstore.entity.Account;
+import com.chaewsstore.entity.Bid;
 import com.chaewsstore.entity.Product;
 import com.chaewsstore.exception.DuplicateException;
+import com.chaewsstore.exception.ForbiddenException;
 import com.chaewsstore.exception.NotFoundException;
 import com.chaewsstore.repository.BidRepository;
 import com.chaewsstore.repository.ProductRepository;
@@ -112,14 +115,61 @@ class BidServiceTest {
         then(bidRepository).should(times(1)).existsByProductAndBidder(any(), any());
     }
 
+    @Test
+    @DisplayName("입찰을 정상적으로 수정한다")
+    void succeed_to_update_bid() {
+        UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
+
+        given(bidRepository.findById(anyLong())).willReturn(Optional.of(bid));
+
+        bidService.updateBid(account, 1L, request);
+
+        assertEquals(request.price(), bid.getPrice());
+        then(bidRepository).should(times(1)).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFountException_when_update_bid_but_bid_does_not_exist() {
+        UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
+
+        given(bidRepository.findById(anyLong())).willThrow(NotFoundException.class);
+
+        assertThrows(NotFoundException.class, () -> bidService.updateBid(account, 1L, request));
+
+        then(bidRepository).should(times(1)).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("입찰자가 아닌 사용자가 입찰 수정을 시도할 경우 ForbiddenException이 발생한다")
+    void should_throw_ForbiddenException_when_update_bid_but_account_is_not_bidder() {
+        UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
+
+        given(bidRepository.findById(anyLong())).willReturn(Optional.of(bid));
+
+        assertThrows(ForbiddenException.class, () -> bidService.updateBid(anotherAccount, 1L, request));
+
+        then(bidRepository).should(times(1)).findById(anyLong());
+    }
+
     Account account = Account.builder()
         .id(1L)
         .username("email@gmail.com")
         .password("aaaa1111!!")
         .nickname("닉네임")
         .build();
+    Account anotherAccount = Account.builder()
+        .id(2L)
+        .username("another@gmail.com")
+        .password("aaaa1111!!")
+        .nickname("닉네임2")
+        .build();
 
     Product product = Product.builder().build();
+    Bid bid = Bid.builder()
+        .bidder(account)
+        .price(30)
+        .build();
 
     List<ReadProductBidQueryDto> productBidQueryDtoList = List.of(
         new ReadProductBidQueryDto(7000, 1L), new ReadProductBidQueryDto(8000, 3L),

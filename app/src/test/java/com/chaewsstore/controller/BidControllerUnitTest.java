@@ -9,6 +9,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -23,6 +24,7 @@ import com.chaewsstore.config.RequestMatcherHolder;
 import com.chaewsstore.dto.ReadProductBidQueryDto;
 import com.chaewsstore.dto.bid.CreateBidRequestDto;
 import com.chaewsstore.dto.bid.ReadProductBidResponseDto;
+import com.chaewsstore.dto.bid.UpdateBidRequestDto;
 import com.chaewsstore.service.BidService;
 import com.chaewsstore.util.LoginAccountArgumentResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,6 +113,27 @@ class BidControllerUnitTest {
                 getDocumentResponse(),
                 pathParameters(
                     parameterWithName("productId").description("상품 ID")
+                ),
+                requestFields(
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("입찰 수정에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_update_bid_succeed() throws Exception {
+        UpdateBidRequestDto request = new UpdateBidRequestDto(40000);
+
+        mockMvc.perform(put("/api/bids/{bidId}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk()).andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("bidId").description("입찰 ID")
                 ),
                 requestFields(
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
