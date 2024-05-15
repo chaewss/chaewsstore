@@ -23,6 +23,12 @@ subprojects {
     sourceCompatibility = '17'
     compileJava.options.encoding = 'UTF-8'
 
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
     repositories {
         mavenCentral()
     }
@@ -35,6 +41,11 @@ subprojects {
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+        implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+        annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+        annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+        annotationProcessor "jakarta.persistence:jakarta.persistence-api:3.1.0"
     }
 
     test {
