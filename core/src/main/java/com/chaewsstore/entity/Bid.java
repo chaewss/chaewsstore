@@ -13,8 +13,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Getter
+@SQLDelete(sql = "UPDATE bid SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "bidder_id"})})
@@ -40,11 +44,26 @@ public class Bid extends BaseTimeEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Account bidder, Boolean isSold, Boolean isDeleted) {
+    public Bid(Long id, Integer price, Product product, Account bidder, Boolean isSold, Boolean isDeleted) {
         this.id = id;
         this.price = price;
+        this.product = product;
         this.bidder = bidder;
         this.isSold = isSold;
         this.isDeleted = isDeleted;
+    }
+    
+    public static Bid create(Integer price, Product product, Account bidder) {
+        return Bid.builder()
+            .price(price)
+            .product(product)
+            .bidder(bidder)
+            .isSold(false)
+            .isDeleted(false)
+            .build();
+    }
+
+    public void updatePrice(Integer price) {
+        this.price = price;
     }
 }

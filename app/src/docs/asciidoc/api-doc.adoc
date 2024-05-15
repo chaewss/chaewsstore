@@ -102,3 +102,73 @@ include::{snippets}/auth-controller-test/respond_200_when_login_succeed/http-res
 | `INVALID_PASSWORD` | `401 UNAUTHORIZED` | 비밀번호가 일치하지 않습니다
 | `NOT_FOUND_USER` | `404 NOT FOUND` | 존재하지 않는 회원입니다
 |===
+
+== 4. 입찰
+=== 4-1. 상품의 입찰 목록 조회
+==== Request Path Parameters
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_succeed/path-parameters.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_succeed/http-request.adoc[]
+==== Response Fields
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_succeed/response-fields.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `READ_PRODUCT_BID_SUCCESS` | `200 OK` | 상품 입찰 목록 조회 성공
+| `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
+|===
+
+=== 4-2. 입찰 생성
+==== Request Path Parameters
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/path-parameters.adoc[]
+==== Request Fields
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `CREATE_BID_SUCCESS` | `201 CREATED` | 입찰 생성 성공
+| `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
+| `DUPLICATION_BID` | `409 CONFLICT` | 중복된 입찰입니다
+|===
+
+=== 4-3. 입찰 수정
+==== Request Path Parameters
+include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed/path-parameters.adoc[]
+==== Request Fields
+include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `UPDATE_BID_SUCCESS` | `200 OK` | 입찰 수정 성공
+| `FORBIDDEN_BID` | `403 FORBIDDEN` | 해당 입찰에 대한 권한이 없습니다
+| `NOT_FOUND_BID` | `404 NOT FOUND` | 존재하지 않는 입찰입니다
+|===
+
+=== 4-4. 입찰 삭제
+==== Request Path Parameters
+include::{snippets}/bid-controller-unit-test/respond_200_when_delete_bid_succeed/path-parameters.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_delete_bid_succeed/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_delete_bid_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `DELETE_BID_SUCCESS` | `200 OK` | 입찰 삭제 성공
+| `FORBIDDEN_BID` | `403 FORBIDDEN` | 해당 입찰에 대한 권한이 없습니다
+| `NOT_FOUND_BID` | `404 NOT FOUND` | 존재하지 않는 입찰입니다
+|===

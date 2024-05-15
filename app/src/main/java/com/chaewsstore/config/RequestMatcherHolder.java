@@ -22,6 +22,9 @@ public class RequestMatcherHolder {
         new RequestInfo(POST, "/api/auth/login", null),
         new RequestInfo(POST, "/api/accounts/signup", null),
 
+        // bid
+        new RequestInfo(GET, "/api/products/*/bids", null),
+
         // static resources
         new RequestInfo(GET, "/docs/**", null),
         new RequestInfo(GET, "/*.ico", null),
