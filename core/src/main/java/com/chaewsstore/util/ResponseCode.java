@@ -19,6 +19,7 @@ public enum ResponseCode {
     LOGIN_SUCCESS(OK, "로그인 성공"),
     CHECK_USERNAME_SUCCESS(OK, "사용가능한 아이디입니다"),
     CHECK_NICKNAME_SUCCESS(OK, "사용가능한 닉네임입니다"),
+    READ_PRODUCT_BID_SUCCESS(OK, "상품 입찰 목록 조회 성공"),
 
     /* 201 CREATED : 요청 성공, 자원 생성 */
     SIGNUP_SUCCESS(CREATED, "회원가입 성공"),
