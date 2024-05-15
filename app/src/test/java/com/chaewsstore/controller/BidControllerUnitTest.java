@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
@@ -137,6 +138,21 @@ class BidControllerUnitTest {
                 ),
                 requestFields(
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("입찰 삭제에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_delete_bid_succeed() throws Exception {
+        mockMvc.perform(delete("/api/bids/{bidId}", 1)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk()).andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("bidId").description("입찰 ID")
                 )
             ));
     }

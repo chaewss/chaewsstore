@@ -152,6 +152,37 @@ class BidServiceTest {
         then(bidRepository).should(times(1)).findById(anyLong());
     }
 
+    @Test
+    @DisplayName("특정 입찰을 정상적으로 삭제한다")
+    void succeed_to_delete_bid() {
+        given(bidRepository.findById(any())).willReturn(Optional.of(bid));
+
+        bidService.deleteBid(account, 1L);
+
+        then(bidRepository).should(times(1)).findById(anyLong());
+        then(bidRepository).should(times(1)).delete(any());
+    }
+
+    @Test
+    @DisplayName("입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFountException_when_delete_bid_but_bid_does_not_exist() {
+        given(bidRepository.findById(anyLong())).willThrow(NotFoundException.class);
+
+        assertThrows(NotFoundException.class, () -> bidService.deleteBid(account, 1L));
+
+        then(bidRepository).should(times(1)).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("입찰자가 아닌 사용자가 입찰 삭제를 시도할 경우 ForbiddenException이 발생한다")
+    void should_throw_ForbiddenException_when_delete_bid_but_account_is_not_bidder() {
+        given(bidRepository.findById(anyLong())).willReturn(Optional.of(bid));
+
+        assertThrows(ForbiddenException.class, () -> bidService.deleteBid(anotherAccount, 1L));
+
+        then(bidRepository).should(times(1)).findById(anyLong());
+    }
+
     Account account = Account.builder()
         .id(1L)
         .username("email@gmail.com")
