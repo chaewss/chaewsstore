@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,5 +49,11 @@ public class BidController {
         @RequestBody UpdateBidRequestDto request) {
         bidService.updateBid(account, bidId, request);
         return ResponseData.of(ResponseCode.UPDATE_BID_SUCCESS);
+    }
+
+    @DeleteMapping("/bids/{bidId}")
+    public ResponseData<Void> deleteBid(@LoginAccount Account account, @PathVariable Long bidId) {
+        bidService.deleteBid(account, bidId);
+        return ResponseData.of(ResponseCode.DELETE_BID_SUCCESS);
     }
 }

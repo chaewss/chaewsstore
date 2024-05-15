@@ -85,4 +85,21 @@ public class BidService {
         }
         bid.updatePrice(request.price());
     }
+
+    /**
+     * 입찰을 삭제한다.
+     *
+     * @param account 현재 사용자의 계정
+     * @param bidId   삭제할 입찰 ID
+     * @throws NotFoundException   입찰이 존재하지 않는 경우
+     * @throws ForbiddenException  현재 사용자가 해당 입찰의 입찰자가 아닌 경우
+     */
+    @Transactional
+    public void deleteBid(Account account, Long bidId) {
+        Bid bid = bidRepository.findById(bidId).orElseThrow(() -> NOT_FOUND_BID);
+        if (!account.equals(bid.getBidder())) {
+            throw FORBIDDEN_BID;
+        }
+        bidRepository.delete(bid);
+    }
 }
