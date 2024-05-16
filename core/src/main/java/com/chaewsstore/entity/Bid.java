@@ -6,9 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +20,6 @@ import org.hibernate.annotations.Where;
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "bidder_id"})})
 public class Bid extends BaseTimeEntity {
 
     @Id
@@ -44,7 +42,8 @@ public class Bid extends BaseTimeEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Product product, Account bidder, Boolean isSold, Boolean isDeleted) {
+    public Bid(Long id, Integer price, Product product, Account bidder, Boolean isSold,
+        Boolean isDeleted) {
         this.id = id;
         this.price = price;
         this.product = product;
@@ -52,7 +51,7 @@ public class Bid extends BaseTimeEntity {
         this.isSold = isSold;
         this.isDeleted = isDeleted;
     }
-    
+
     public static Bid create(Integer price, Product product, Account bidder) {
         return Bid.builder()
             .price(price)
@@ -65,5 +64,21 @@ public class Bid extends BaseTimeEntity {
 
     public void updatePrice(Integer price) {
         this.price = price;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Bid bid)) {
+            return false;
+        }
+        return getId() != null && Objects.equals(getId(), bid.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(getId());
     }
 }

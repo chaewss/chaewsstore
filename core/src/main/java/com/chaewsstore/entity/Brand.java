@@ -1,41 +1,34 @@
 package com.chaewsstore.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class RefreshToken extends BaseTimeEntity {
+public class Brand extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
-
     @NotNull
-    private String token;
+    @Column(unique = true)
+    private String name;
 
-    private RefreshToken(Account account, String token) {
-        this.account = account;
-        this.token = token;
-    }
-
-    public static RefreshToken create(Account account, String token) {
-        return new RefreshToken(account, token);
+    @Builder
+    public Brand(Long id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     @Override
@@ -43,10 +36,10 @@ public class RefreshToken extends BaseTimeEntity {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof RefreshToken refreshToken)) {
+        if (!(o instanceof Brand brand)) {
             return false;
         }
-        return getId() != null && Objects.equals(getId(), refreshToken.getId());
+        return getId() != null && Objects.equals(getId(), brand.getId());
     }
 
     @Override
