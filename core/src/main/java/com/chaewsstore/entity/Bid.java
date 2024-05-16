@@ -6,9 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,5 +64,21 @@ public class Bid extends BaseTimeEntity {
 
     public void updatePrice(Integer price) {
         this.price = price;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Bid bid)) {
+            return false;
+        }
+        return getId() != null && Objects.equals(getId(), bid.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(getId());
     }
 }

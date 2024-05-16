@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,5 +29,21 @@ public class Brand extends BaseTimeEntity {
     public Brand(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Brand brand)) {
+            return false;
+        }
+        return getId() != null && Objects.equals(getId(), brand.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(getId());
     }
 }

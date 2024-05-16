@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,5 +40,21 @@ public class Receipt extends BaseTimeEntity {
         this.product = product;
         this.bid = bid;
         this.buyer = buyer;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Receipt receipt)) {
+            return false;
+        }
+        return getId() != null && Objects.equals(getId(), receipt.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(getId());
     }
 }
