@@ -21,7 +21,6 @@ import org.hibernate.annotations.Where;
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"product_id", "bidder_id"})})
 public class Bid extends BaseTimeEntity {
 
     @Id
@@ -44,7 +43,8 @@ public class Bid extends BaseTimeEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Product product, Account bidder, Boolean isSold, Boolean isDeleted) {
+    public Bid(Long id, Integer price, Product product, Account bidder, Boolean isSold,
+        Boolean isDeleted) {
         this.id = id;
         this.price = price;
         this.product = product;
@@ -52,7 +52,7 @@ public class Bid extends BaseTimeEntity {
         this.isSold = isSold;
         this.isDeleted = isDeleted;
     }
-    
+
     public static Bid create(Integer price, Product product, Account bidder) {
         return Bid.builder()
             .price(price)

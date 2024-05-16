@@ -12,13 +12,15 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
-@EqualsAndHashCode
+@SQLDelete(sql = "UPDATE account SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Account extends BaseTimeEntity {
@@ -42,13 +44,17 @@ public class Account extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role;
 
+    private Boolean isDeleted;
+
     @Builder
-    public Account(Long id, String username, String password, String nickname, Role role) {
+    public Account(Long id, String username, String password, String nickname, Role role,
+        Boolean isDeleted) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+        this.isDeleted = isDeleted;
     }
 
     public static Account create(String username, String password, String nickname, Role role) {
@@ -57,6 +63,7 @@ public class Account extends BaseTimeEntity {
             .password(password)
             .nickname(nickname)
             .role(role)
+            .isDeleted(false)
             .build();
     }
 
