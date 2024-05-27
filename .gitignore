@@ -74,3 +74,6 @@ out/
 
 # Sonarlint plugin
 .idea/**/sonarlint/
+
+# .DS_Store
+.DS_Store
