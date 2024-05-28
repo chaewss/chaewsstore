@@ -2,7 +2,7 @@ package com.chaewsstore.apis.auth.controller;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
-import com.chaewsstore.apis.auth.service.AuthService;
+import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.core.common.util.ResponseCode;
 import com.chaewsstore.core.common.util.ResponseData;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthUseCase authUseCase;
 
     @PostMapping("/login")
     public ResponseData<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
-        return ResponseData.of(ResponseCode.LOGIN_SUCCESS, authService.login(request));
+        return ResponseData.of(ResponseCode.LOGIN_SUCCESS, authUseCase.login(request));
     }
 }

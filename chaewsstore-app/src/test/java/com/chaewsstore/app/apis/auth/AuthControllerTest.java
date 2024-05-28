@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfig
 import com.chaewsstore.apis.auth.controller.AuthController;
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
-import com.chaewsstore.apis.auth.service.AuthService;
+import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
 import com.chaewsstore.common.security.jwt.Jwts;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +42,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 class AuthControllerTest {
 
     @MockBean
-    private AuthService authService;
+    private AuthUseCase authUseCase;
 
     private MockMvc mockMvc;
 
@@ -67,7 +67,7 @@ class AuthControllerTest {
         Jwts token = Jwts.of(accessToken, refreshToken, BEARER_TYPE);
         LoginResponseDto responseDto = new LoginResponseDto(1L, token);
 
-        given(authService.login(any())).willReturn(responseDto);
+        given(authUseCase.login(any())).willReturn(responseDto);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -95,7 +95,7 @@ class AuthControllerTest {
     void respond_404_when_login_but_user_does_not_exist() throws Exception {
         LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
 
-        given(authService.login(any())).willThrow(NOT_FOUND_ACCOUNT);
+        given(authUseCase.login(any())).willThrow(NOT_FOUND_ACCOUNT);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -109,7 +109,7 @@ class AuthControllerTest {
     void respond_401_when_password_is_not_correct() throws Exception {
         LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
 
-        given(authService.login(any())).willThrow(INVALID_PASSWORD);
+        given(authUseCase.login(any())).willThrow(INVALID_PASSWORD);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)

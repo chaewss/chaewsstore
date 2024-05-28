@@ -9,7 +9,7 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public void save(RefreshToken refreshToken) {
+    public void create(RefreshToken refreshToken) {
         refreshTokenRepository.save(refreshToken);
     }
 }

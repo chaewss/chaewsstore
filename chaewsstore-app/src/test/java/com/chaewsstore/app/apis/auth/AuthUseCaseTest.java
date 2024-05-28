@@ -10,14 +10,14 @@ import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
-import com.chaewsstore.apis.auth.service.AuthService;
+import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.common.exception.NotFoundException;
 import com.chaewsstore.core.common.exception.UnauthorizedException;
 import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.AccountRepository;
+import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;
-import com.chaewsstore.core.domain.refresh.RefreshTokenRepository;
+import com.chaewsstore.core.domain.refresh.RefreshTokenService;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,10 +30,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-class AuthServiceTest {
+class AuthUseCaseTest {
 
     @InjectMocks
-    private AuthService authService;
+    private AuthUseCase authUseCase;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -45,10 +45,10 @@ class AuthServiceTest {
     private TokenProvider tokenProvider;
 
     @Mock
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
     @Mock
-    private RefreshTokenRepository refreshTokenRepository;
+    private RefreshTokenService refreshTokenService;
 
     @Test
     @DisplayName("로그인에 성공하면 토큰을 얻는다")
@@ -56,8 +56,7 @@ class AuthServiceTest {
         LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
         Authentication authentication = mock(Authentication.class);
 
-        given(accountRepository.findByUsername(requestDto.email())).willReturn(
-            Optional.of(account));
+        given(accountService.readByUsername(requestDto.email())).willReturn(Optional.of(account));
         given(passwordEncoder.matches(requestDto.password(), account.getPassword())).willReturn(
             true);
 
@@ -68,12 +67,12 @@ class AuthServiceTest {
         given(tokenProvider.generateAccessToken(any())).willReturn(accessToken);
         given(tokenProvider.generateRefreshToken()).willReturn(refreshToken);
 
-        LoginResponseDto responseDto = authService.login(requestDto);
+        LoginResponseDto responseDto = authUseCase.login(requestDto);
 
         assertThat(responseDto.token().accessToken()).isEqualTo(accessToken);
         assertThat(responseDto.token().refreshToken()).isEqualTo(refreshToken);
-        then(accountRepository).should(times(1)).findByUsername(any());
-        then(refreshTokenRepository).should(times(1)).save(any());
+        then(accountService).should(times(1)).readByUsername(any());
+        then(refreshTokenService).should(times(1)).create(any());
     }
 
     @Test
@@ -81,11 +80,11 @@ class AuthServiceTest {
     void should_throw_NotFoundException_when_user_tries_to_login_but_user_does_not_exist() {
         LoginRequestDto request = new LoginRequestDto("whoareyou@gmail.com", "password1!");
 
-        given(accountRepository.findByUsername(any())).willReturn(Optional.empty());
+        given(accountService.readByUsername(any())).willReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> authService.login(request));
+        assertThrows(NotFoundException.class, () -> authUseCase.login(request));
 
-        then(accountRepository).should(times(1)).findByUsername(any());
+        then(accountService).should(times(1)).readByUsername(any());
     }
 
     @Test
@@ -93,12 +92,11 @@ class AuthServiceTest {
     void should_throw_UnauthorizedException_when_password_is_not_correct() {
         LoginRequestDto request = new LoginRequestDto("email@gmail.com", "incorrectPassword!");
 
-        given(accountRepository.findByUsername(any())).willReturn(
-            Optional.of(account));
+        given(accountService.readByUsername(any())).willReturn(Optional.of(account));
 
-        assertThrows(UnauthorizedException.class, () -> authService.login(request));
+        assertThrows(UnauthorizedException.class, () -> authUseCase.login(request));
 
-        then(accountRepository).should(times(1)).findByUsername(any());
+        then(accountService).should(times(1)).readByUsername(any());
     }
 
     Account account = Account.builder()

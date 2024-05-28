@@ -3,9 +3,8 @@ package com.chaewsstore.apis.account.service;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
 
 import com.chaewsstore.common.security.SecurityUtil;
-import com.chaewsstore.core.common.exception.ExceptionConstants;
 import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.AccountRepository;
+import com.chaewsstore.core.domain.account.AccountService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,17 +20,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AccountDetailService implements UserDetailsService {
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return accountRepository.findByUsername(username).map(this::createUser)
+        return accountService.readByUsername(username).map(this::createUser)
             .orElseThrow(() -> NOT_FOUND_ACCOUNT);
     }
 
     @Transactional(readOnly = true)
     public Account getUserInfo() {
-        return accountRepository.findByUsername(SecurityUtil.getCurrentUserName())
+        return accountService.readByUsername(SecurityUtil.getCurrentUserName())
             .orElseThrow(() -> NOT_FOUND_ACCOUNT);
     }
 

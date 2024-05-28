@@ -24,7 +24,7 @@ import com.chaewsstore.apis.bid.controller.BidController;
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.apis.bid.service.BidService;
+import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -50,7 +50,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 class BidControllerUnitTest {
 
     @MockBean
-    private BidService bidService;
+    private BidUseCase bidUseCase;
 
     private MockMvc mockMvc;
 
@@ -70,7 +70,7 @@ class BidControllerUnitTest {
     @DisplayName("상품의 입찰 목록을 조회하면 HTTP 200을 응답한다")
     void respond_200_when_read_product_bid_list_succeed() throws Exception {
         Slice<ReadProductBidResponseDto> response = new SliceImpl<>(getProductBidResponse());
-        given(bidService.readProductBidList(any(), any())).willReturn(response);
+        given(bidUseCase.readProductBidList(any(), any())).willReturn(response);
 
         mockMvc.perform(get("/api/products/{productId}/bids", 1)
                 .contentType(MediaType.APPLICATION_JSON))

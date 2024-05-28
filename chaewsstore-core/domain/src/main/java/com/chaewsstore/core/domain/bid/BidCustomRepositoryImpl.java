@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class BidCustomRepositoryImpl implements BidCustomRepository {
+class BidCustomRepositoryImpl implements BidCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 

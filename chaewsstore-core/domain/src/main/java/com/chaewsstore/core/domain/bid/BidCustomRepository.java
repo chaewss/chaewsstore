@@ -5,7 +5,7 @@ import com.chaewsstore.core.domain.product.Product;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
-public interface BidCustomRepository {
+interface BidCustomRepository {
 
     List<ReadProductBidQueryDto> findAllByProduct(Product product, Pageable pageable);
 }

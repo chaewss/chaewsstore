@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfig
 import com.chaewsstore.apis.account.controller.AccountController;
 import com.chaewsstore.apis.account.dto.AccountResponseDto;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.apis.account.service.AccountService;
+import com.chaewsstore.apis.account.usecase.AccountUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 class AccountControllerUnitTest {
 
     @MockBean
-    private AccountService accountService;
+    private AccountUseCase accountUseCase;
 
     private MockMvc mockMvc;
 
@@ -62,7 +62,7 @@ class AccountControllerUnitTest {
         SignupRequestDto request = new SignupRequestDto("email@gmail.com", "aaaa1111!!", "닉네임");
         AccountResponseDto response = new AccountResponseDto(1L, "email@gmail.com", "닉네임");
 
-        given(accountService.signup(any())).willReturn(response);
+        given(accountUseCase.signup(any())).willReturn(response);
 
         mockMvc.perform(post("/api/accounts/signup")
                 .contentType(MediaType.APPLICATION_JSON)

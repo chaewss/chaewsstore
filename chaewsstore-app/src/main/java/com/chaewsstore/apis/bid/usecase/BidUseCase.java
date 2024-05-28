@@ -1,4 +1,4 @@
-package com.chaewsstore.apis.bid.service;
+package com.chaewsstore.apis.bid.usecase;
 
 import static com.chaewsstore.core.common.exception.ExceptionConstants.DUPLICATION_BID;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.FORBIDDEN_BID;
@@ -8,14 +8,15 @@ import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.bid.Bid;
-import com.chaewsstore.core.domain.bid.BidRepository;
-import com.chaewsstore.core.domain.product.Product;
-import com.chaewsstore.core.domain.product.ProductRepository;
 import com.chaewsstore.core.common.exception.DuplicateException;
 import com.chaewsstore.core.common.exception.ForbiddenException;
 import com.chaewsstore.core.common.exception.NotFoundException;
+import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.bid.Bid;
+import com.chaewsstore.core.domain.bid.BidService;
+import com.chaewsstore.core.domain.product.Product;
+import com.chaewsstore.core.domain.product.ProductService;
+import com.globalutils.annotation.UseCase;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-@Service
-public class BidService {
+@UseCase
+public class BidUseCase {
 
-    private final ProductRepository productRepository;
-    private final BidRepository bidRepository;
+    private final ProductService productService;
+    private final BidService bidService;
 
     /**
      * 상품의 입찰 목록을 조회한다.
@@ -41,10 +42,10 @@ public class BidService {
      */
     @Transactional(readOnly = true)
     public Slice<ReadProductBidResponseDto> readProductBidList(Long productId, Pageable pageable) {
-        Product product = productRepository.findById(productId)
+        Product product = productService.readById(productId)
             .orElseThrow(() -> NOT_FOUND_PRODUCT);
 
-        List<ReadProductBidResponseDto> response = bidRepository.findAllByProduct(product, pageable)
+        List<ReadProductBidResponseDto> response = bidService.readAllByProduct(product, pageable)
             .stream().map(ReadProductBidResponseDto::from).toList();
         return new SliceImpl<>(response);
     }
@@ -60,12 +61,12 @@ public class BidService {
      */
     @Transactional
     public void createBid(Account account, Long productId, CreateBidRequestDto request) {
-        Product product = productRepository.findById(productId)
+        Product product = productService.readById(productId)
             .orElseThrow(() -> NOT_FOUND_PRODUCT);
-        if (bidRepository.existsByProductAndBidder(product, account)) {
+        if (bidService.existsByProductAndBidder(product, account)) {
             throw DUPLICATION_BID;
         }
-        bidRepository.save(request.toEntity(product, account));
+        bidService.create(request.toEntity(product, account));
     }
 
     /**
@@ -79,7 +80,7 @@ public class BidService {
      */
     @Transactional
     public void updateBid(Account account, Long bidId, UpdateBidRequestDto request) {
-        Bid bid = bidRepository.findById(bidId).orElseThrow(() -> NOT_FOUND_BID);
+        Bid bid = bidService.readById(bidId).orElseThrow(() -> NOT_FOUND_BID);
         if (!account.equals(bid.getBidder())) {
             throw FORBIDDEN_BID;
         }
@@ -96,10 +97,10 @@ public class BidService {
      */
     @Transactional
     public void deleteBid(Account account, Long bidId) {
-        Bid bid = bidRepository.findById(bidId).orElseThrow(() -> NOT_FOUND_BID);
+        Bid bid = bidService.readById(bidId).orElseThrow(() -> NOT_FOUND_BID);
         if (!account.equals(bid.getBidder())) {
             throw FORBIDDEN_BID;
         }
-        bidRepository.delete(bid);
+        bidService.remove(bid);
     }
 }

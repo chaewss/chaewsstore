@@ -1,22 +1,24 @@
-package com.chaewsstore.apis.account.service;
+package com.chaewsstore.apis.account.usecase;
+
+import static com.chaewsstore.core.common.exception.ExceptionConstants.ACCOUNT_DUPLICATION;
+import static com.chaewsstore.core.common.exception.ExceptionConstants.NICKNAME_DUPLICATION;
 
 import com.chaewsstore.apis.account.dto.AccountResponseDto;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.AccountRepository;
-import com.chaewsstore.core.domain.account.Role;
 import com.chaewsstore.core.common.exception.DuplicateException;
-import com.chaewsstore.core.common.exception.ExceptionConstants;
+import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.account.AccountService;
+import com.chaewsstore.core.domain.account.Role;
+import com.globalutils.annotation.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-@Service
-public class AccountService {
+@UseCase
+public class AccountUseCase {
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -32,7 +34,7 @@ public class AccountService {
         checkNickname(request.nickname());
 
         Account account = request.toEntity(passwordEncoder, Role.ASSOCIATE);
-        accountRepository.save(account);
+        accountService.create(account);
 
         return AccountResponseDto.from(account);
     }
@@ -45,8 +47,8 @@ public class AccountService {
      */
     @Transactional(readOnly = true)
     public void checkUsername(String username) {
-        if (Boolean.TRUE.equals(accountRepository.existsByUsername(username))) {
-            throw ExceptionConstants.ACCOUNT_DUPLICATION;
+        if (Boolean.TRUE.equals(accountService.existsByUsername(username))) {
+            throw ACCOUNT_DUPLICATION;
         }
     }
 
@@ -58,9 +60,8 @@ public class AccountService {
      */
     @Transactional(readOnly = true)
     public void checkNickname(String nickname) {
-        if (Boolean.TRUE.equals(accountRepository.existsByNickname(nickname))) {
-            throw ExceptionConstants.NICKNAME_DUPLICATION;
+        if (Boolean.TRUE.equals(accountService.existsByNickname(nickname))) {
+            throw NICKNAME_DUPLICATION;
         }
     }
-
 }

@@ -1,8 +1,8 @@
-package com.chaewsstore.apis.auth.service;
+package com.chaewsstore.apis.auth.usecase;
 
+import static com.chaewsstore.common.security.AuthConstants.BEARER_TYPE;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.INVALID_PASSWORD;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
-import static com.chaewsstore.common.security.AuthConstants.BEARER_TYPE;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
@@ -11,23 +11,23 @@ import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.common.exception.NotFoundException;
 import com.chaewsstore.core.common.exception.UnauthorizedException;
 import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.AccountRepository;
+import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
-import com.chaewsstore.core.domain.refresh.RefreshTokenRepository;
+import com.chaewsstore.core.domain.refresh.RefreshTokenService;
+import com.globalutils.annotation.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-@Service
-public class AuthService {
+@UseCase
+public class AuthUseCase {
 
-    private final AccountRepository accountRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final AccountService accountService;
+    private final RefreshTokenService refreshTokenService;
     private final TokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
@@ -42,7 +42,7 @@ public class AuthService {
      */
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
-        Account account = accountRepository.findByUsername(request.email())
+        Account account = accountService.readByUsername(request.email())
             .orElseThrow(() -> NOT_FOUND_ACCOUNT);
         if (!passwordEncoder.matches(request.password(), account.getPassword())) {
             throw INVALID_PASSWORD;
@@ -53,7 +53,7 @@ public class AuthService {
 
         String accessToken = tokenProvider.generateAccessToken(authentication);
         String refreshToken = tokenProvider.generateRefreshToken();
-        refreshTokenRepository.save(RefreshToken.create(account, refreshToken));
+        refreshTokenService.create(RefreshToken.create(account, refreshToken));
         Jwts token = Jwts.of(accessToken, refreshToken, BEARER_TYPE);
 
         return new LoginResponseDto(account.getId(), token);
