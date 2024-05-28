@@ -1,5 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
+import static com.chaewsstore.common.security.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,7 +11,9 @@ import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
+import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.common.exception.NotFoundException;
 import com.chaewsstore.core.common.exception.UnauthorizedException;
@@ -42,13 +45,10 @@ class AuthUseCaseTest {
     private AuthenticationManager authenticationManager;
 
     @Mock
-    private TokenProvider tokenProvider;
+    private JwtAuthHelper jwtAuthHelper;
 
     @Mock
     private AccountService accountService;
-
-    @Mock
-    private RefreshTokenService refreshTokenService;
 
     @Test
     @DisplayName("로그인에 성공하면 토큰을 얻는다")
@@ -62,17 +62,14 @@ class AuthUseCaseTest {
 
         given(authenticationManager.authenticate(any())).willReturn(authentication);
 
-        String accessToken = "Bearer (accessToken)";
-        String refreshToken = "(refreshToken)";
-        given(tokenProvider.generateAccessToken(any())).willReturn(accessToken);
-        given(tokenProvider.generateRefreshToken()).willReturn(refreshToken);
+        given(jwtAuthHelper.generateTokensAndSave(any(), any())).willReturn(token);
 
         LoginResponseDto responseDto = authUseCase.login(requestDto);
 
         assertThat(responseDto.token().accessToken()).isEqualTo(accessToken);
         assertThat(responseDto.token().refreshToken()).isEqualTo(refreshToken);
         then(accountService).should(times(1)).readByUsername(any());
-        then(refreshTokenService).should(times(1)).create(any());
+        then(jwtAuthHelper).should(times(1)).generateTokensAndSave(any(), any());
     }
 
     @Test
@@ -106,4 +103,8 @@ class AuthUseCaseTest {
         .nickname("nickname")
         .role(Role.ASSOCIATE)
         .build();
+
+    String accessToken = "Bearer (accessToken)";
+    String refreshToken = "(refreshToken)";
+    Jwts token = Jwts.of(accessToken, refreshToken, BEARER_TYPE);
 }

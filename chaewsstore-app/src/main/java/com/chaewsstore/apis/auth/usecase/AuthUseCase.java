@@ -1,19 +1,16 @@
 package com.chaewsstore.apis.auth.usecase;
 
-import static com.chaewsstore.common.security.AuthConstants.BEARER_TYPE;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.INVALID_PASSWORD;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.common.security.jwt.Jwts;
-import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.common.exception.NotFoundException;
 import com.chaewsstore.core.common.exception.UnauthorizedException;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
-import com.chaewsstore.core.domain.refresh.RefreshToken;
-import com.chaewsstore.core.domain.refresh.RefreshTokenService;
 import com.globalutils.annotation.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,9 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 public class AuthUseCase {
 
+    private final JwtAuthHelper jwtAuthHelper;
     private final AccountService accountService;
-    private final RefreshTokenService refreshTokenService;
-    private final TokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,11 +46,7 @@ public class AuthUseCase {
 
         UsernamePasswordAuthenticationToken authenticationToken = request.toAuthentication();
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
-        String accessToken = tokenProvider.generateAccessToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken();
-        refreshTokenService.create(RefreshToken.create(account, refreshToken));
-        Jwts token = Jwts.of(accessToken, refreshToken, BEARER_TYPE);
+        Jwts token = jwtAuthHelper.generateTokensAndSave(account, authentication);
 
         return new LoginResponseDto(account.getId(), token);
     }
