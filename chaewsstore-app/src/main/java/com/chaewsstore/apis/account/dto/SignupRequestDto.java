@@ -24,7 +24,7 @@ public record SignupRequestDto(
     String nickname
 ) {
 
-    public Account toEntity(PasswordEncoder passwordEncoder, Role role) {
-        return Account.create(username, passwordEncoder.encode(password), nickname, role);
+    public Account toEntity(String encodedPassword, Role role) {
+        return Account.create(username, encodedPassword, nickname, role);
     }
 }

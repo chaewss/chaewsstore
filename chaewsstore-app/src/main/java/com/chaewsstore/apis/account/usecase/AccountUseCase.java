@@ -5,13 +5,13 @@ import static com.chaewsstore.core.common.exception.ExceptionConstants.NICKNAME_
 
 import com.chaewsstore.apis.account.dto.AccountResponseDto;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
+import com.chaewsstore.apis.account.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.common.exception.DuplicateException;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;
 import com.globalutils.annotation.UseCase;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountUseCase {
 
     private final AccountService accountService;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderHelper passwordEncoderHelper;
 
     /**
      * 사용자를 등록한다.
@@ -33,7 +33,8 @@ public class AccountUseCase {
         checkUsername(request.username());
         checkNickname(request.nickname());
 
-        Account account = request.toEntity(passwordEncoder, Role.ASSOCIATE);
+        String encodedPassword = passwordEncoderHelper.encodePassword(request.password());
+        Account account = request.toEntity(encodedPassword, Role.ASSOCIATE);
         accountService.create(account);
 
         return AccountResponseDto.from(account);

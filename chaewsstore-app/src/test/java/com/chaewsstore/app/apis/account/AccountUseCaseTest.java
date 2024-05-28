@@ -9,10 +9,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
+import com.chaewsstore.apis.account.helper.PasswordEncoderHelper;
 import com.chaewsstore.apis.account.usecase.AccountUseCase;
-import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.common.exception.DuplicateException;
 import com.chaewsstore.core.common.util.ResponseCode;
+import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class AccountUseCaseTest {
@@ -32,16 +32,18 @@ class AccountUseCaseTest {
     private AccountService accountService;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoderHelper passwordEncoderHelper;
 
     @Test
     @DisplayName("회원을 생성한다")
     void succeed_to_sign_in() {
         SignupRequestDto request = new SignupRequestDto("email@gmail.com", "aaaa1111!!", "닉네임");
+        String encodedPassword = "encodedPassword";
 
         // given
         given(accountService.existsByUsername(any())).willReturn(false);
         given(accountService.existsByNickname(any())).willReturn(false);
+        given(passwordEncoderHelper.encodePassword(any())).willReturn(encodedPassword);
 
         given(accountService.create(any())).willReturn(account);
 
@@ -51,6 +53,7 @@ class AccountUseCaseTest {
         // then
         then(accountService).should(times(1)).existsByUsername(any());
         then(accountService).should(times(1)).existsByNickname(any());
+        then(passwordEncoderHelper).should(times(1)).encodePassword(any());
     }
 
     @Test
