@@ -1,6 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.common.security.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.common.auth.AuthConstants.BEARER_TYPE;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.INVALID_PASSWORD;
 import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
 import static org.mockito.ArgumentMatchers.any;
