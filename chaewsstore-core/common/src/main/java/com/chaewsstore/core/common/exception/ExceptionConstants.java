@@ -15,5 +15,6 @@ public interface ExceptionConstants {
     DuplicateException ACCOUNT_DUPLICATION = new DuplicateException(ResponseCode.ACCOUNT_DUPLICATION);
     DuplicateException NICKNAME_DUPLICATION = new DuplicateException(ResponseCode.NICKNAME_DUPLICATION);
     DuplicateException DUPLICATION_BID = new DuplicateException(ResponseCode.DUPLICATION_BID);
+    DuplicateException ADMIN_DUPLICATION = new DuplicateException(ResponseCode.ADMIN_DUPLICATION);
 
 }
