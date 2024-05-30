@@ -1,0 +1,68 @@
+= chaewsstore ADMIN API Guide
+:doctype: book
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:toc-title: 목차
+:hardbreaks:
+
+== 1. 개요
+=== Response Data
+|===
+| Field | Description
+
+| `timestamp`
+| 요청 시간
+
+| `code`
+| 응답 코드
+
+| `detail`
+| 응답 상세
+
+| `data`
+| 응답 데이터
+|===
+
+== 2. 회원
+=== 2-1. 회원가입
+==== Request Fields
+include::{snippets}/admin-controller-unit-test/respond_201_when_sign_up_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/admin-controller-unit-test/respond_201_when_sign_up_succeed/http-request.adoc[]
+==== Response Fields
+include::{snippets}/admin-controller-unit-test/respond_201_when_sign_up_succeed/response-fields.adoc[]
+==== Response Http Example
+include::{snippets}/admin-controller-unit-test/respond_201_when_sign_up_succeed/http-response.adoc[]
+
+- 유효성 검사에 실패했을 경우
+|===
+| Path | Type | Description
+
+| `data.email` | `String` | valid 에러 발생 이유
+| `data.password` | `String` | valid 에러 발생 이유
+|===
+
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `SIGNUP_SUCCESS` | `201 CREATED` | 회원가입 성공
+| `ADMIN_DUPLICATION` | `409 CONFLICT` | 중복된 어드민 아이디입니다
+| `VALID_ERROR` |`400 BAD REQUEST` | 유효성 검사 실패
+|===
+
+=== 2-2. 이메일 유효성 확인
+==== Request Path Parameters
+include::{snippets}/admin-controller-unit-test/respond_200_when_username_does_not_exist/path-parameters.adoc[]
+==== Request Http Example
+include::{snippets}/admin-controller-unit-test/respond_200_when_username_does_not_exist/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/admin-controller-unit-test/respond_200_when_username_does_not_exist/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `CHECK_USERNAME_SUCCESS` | `200 OK` | 사용가능한 아이디입니다
+| `ADMIN_DUPLICATION` | `409 CONFLICT` | 중복된 어드민입니다
+|===
