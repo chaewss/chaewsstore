@@ -1,6 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.common.security.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.common.auth.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,13 +14,11 @@ import com.chaewsstore.apis.auth.dto.LoginResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.security.jwt.Jwts;
-import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.common.exception.NotFoundException;
 import com.chaewsstore.core.common.exception.UnauthorizedException;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;
-import com.chaewsstore.core.domain.refresh.RefreshTokenService;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

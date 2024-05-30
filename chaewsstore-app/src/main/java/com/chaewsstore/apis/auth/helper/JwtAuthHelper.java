@@ -1,6 +1,6 @@
 package com.chaewsstore.apis.auth.helper;
 
-import static com.chaewsstore.common.security.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.common.auth.AuthConstants.BEARER_TYPE;
 
 import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.common.security.jwt.TokenProvider;

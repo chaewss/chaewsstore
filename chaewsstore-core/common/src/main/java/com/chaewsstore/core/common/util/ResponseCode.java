@@ -49,6 +49,8 @@ public enum ResponseCode {
     ACCOUNT_DUPLICATION(CONFLICT, "중복된 아이디입니다"),
     NICKNAME_DUPLICATION(CONFLICT, "중복된 닉네임입니다"),
     DUPLICATION_BID(CONFLICT, "중복된 입찰입니다"),
+
+    ADMIN_DUPLICATION(CONFLICT, "중복된 어드민 아이디입니다"),
     ;
 
     private final HttpStatus httpStatus;

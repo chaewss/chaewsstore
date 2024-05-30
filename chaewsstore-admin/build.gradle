@@ -1,9 +1,14 @@
 plugins {
     id 'java'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 bootJar { enabled = true }
 jar { enabled = false }
+
+configurations {
+    asciidoctorExtensions
+}
 
 dependencies {
     implementation project(':global-utils')
@@ -23,8 +28,56 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // spring rest docs
+    asciidoctorExtensions 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+bootJar {
+    println "start bootJar"
+    enabled = true
+    dependsOn asciidoctor
+    copy {
+        from "${asciidoctor.outputDir}"
+        into 'build/resources/static/docs'
+    }
 }
 
 tasks.named('bootJar') {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('test') {
+    println "start test"
+    outputs.dir snippetsDir
+    finalizedBy 'asciidoctor'
+}
+
+asciidoctor {
+    println "start asciidoctor"
+    configurations 'asciidoctorExtensions'
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+asciidoctor.doFirst {
+    println "start asciidoctor.doFirst"
+    delete file("src/main/resources/static/docs")
+}
+
+task copyDocument(type: Copy) {
+    println "start copyDocument"
+    dependsOn asciidoctor
+    from file("build/docs/asciidoc")
+    into file("src/main/resources/static/docs")
+}
+
+build {
+    println "start build"
+    dependsOn copyDocument
 }

@@ -1,4 +1,4 @@
-package com.chaewsstore.common.security;
+package com.chaewsstore.core.common.auth;
 
 public interface AuthConstants {
 
