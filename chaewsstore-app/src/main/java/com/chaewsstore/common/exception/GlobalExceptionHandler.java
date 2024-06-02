@@ -1,7 +1,7 @@
-package com.chaewsstore.core.common.exception;
+package com.chaewsstore.common.exception;
 
-import com.chaewsstore.core.common.util.ResponseCode;
-import com.chaewsstore.core.common.util.ResponseData;
+import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ResponseData;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

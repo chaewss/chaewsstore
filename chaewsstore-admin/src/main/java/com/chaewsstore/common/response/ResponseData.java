@@ -1,4 +1,4 @@
-package com.chaewsstore.core.common.util;
+package com.chaewsstore.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;

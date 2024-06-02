@@ -1,8 +1,8 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.core.common.auth.AuthConstants.BEARER_TYPE;
-import static com.chaewsstore.core.common.exception.ExceptionConstants.INVALID_PASSWORD;
-import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
+import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_PASSWORD;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;

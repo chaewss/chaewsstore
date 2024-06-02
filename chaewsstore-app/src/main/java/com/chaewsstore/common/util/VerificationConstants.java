@@ -1,4 +1,4 @@
-package com.chaewsstore.core.common.util;
+package com.chaewsstore.common.util;
 
 public class VerificationConstants {
 

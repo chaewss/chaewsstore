@@ -1,9 +1,9 @@
 package com.chaewsstore.apis.account.dto;
 
-import static com.chaewsstore.core.common.util.VerificationConstants.NICKNAME_MESSAGE;
-import static com.chaewsstore.core.common.util.VerificationConstants.NICKNAME_REGEXP;
-import static com.chaewsstore.core.common.util.VerificationConstants.PASSWORD_MESSAGE;
-import static com.chaewsstore.core.common.util.VerificationConstants.PASSWORD_REGEXP;
+import static com.chaewsstore.common.util.VerificationConstants.NICKNAME_MESSAGE;
+import static com.chaewsstore.common.util.VerificationConstants.NICKNAME_REGEXP;
+import static com.chaewsstore.common.util.VerificationConstants.PASSWORD_MESSAGE;
+import static com.chaewsstore.common.util.VerificationConstants.PASSWORD_REGEXP;
 
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.Role;

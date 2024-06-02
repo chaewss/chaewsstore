@@ -1,10 +1,10 @@
 package com.chaewsstore.common.security.handler;
 
-import static com.chaewsstore.core.common.util.ResponseCode.ACCESS_DENIED;
+import static com.chaewsstore.common.response.ResponseCode.ACCESS_DENIED;
 import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.chaewsstore.core.common.util.ResponseData;
+import com.chaewsstore.common.response.ResponseData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

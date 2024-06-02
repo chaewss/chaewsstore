@@ -1,14 +1,14 @@
 package com.chaewsstore.apis.auth.usecase;
 
-import static com.chaewsstore.core.common.exception.ExceptionConstants.INVALID_PASSWORD;
-import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
+import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_PASSWORD;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.common.security.jwt.Jwts;
-import com.chaewsstore.core.common.exception.NotFoundException;
-import com.chaewsstore.core.common.exception.UnauthorizedException;
+import com.chaewsstore.common.exception.NotFoundException;
+import com.chaewsstore.common.exception.UnauthorizedException;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.globalutils.annotation.UseCase;

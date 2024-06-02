@@ -1,6 +1,6 @@
-package com.chaewsstore.core.common.exception;
+package com.chaewsstore.common.exception;
 
-import com.chaewsstore.core.common.util.ResponseCode;
+import com.chaewsstore.common.response.ResponseCode;
 
 public interface ExceptionConstants {
 

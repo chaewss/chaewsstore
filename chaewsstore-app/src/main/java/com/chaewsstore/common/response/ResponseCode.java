@@ -1,4 +1,4 @@
-package com.chaewsstore.core.common.util;
+package com.chaewsstore.common.response;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
