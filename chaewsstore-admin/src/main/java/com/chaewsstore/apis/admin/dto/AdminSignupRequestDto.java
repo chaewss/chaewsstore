@@ -1,6 +1,6 @@
 package com.chaewsstore.apis.admin.dto;
 
-import static com.chaewsstore.core.common.util.VerificationUtil.PASSWORD_REGEXP;
+import static com.chaewsstore.core.common.util.VerificationConstants.PASSWORD_REGEXP;
 
 import com.chaewsstore.core.domain.admin.Admin;
 import jakarta.validation.constraints.Email;
