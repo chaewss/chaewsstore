@@ -1,6 +1,6 @@
 package com.chaewsstore.apis.account.service;
 
-import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
 
 import com.chaewsstore.common.security.SecurityUtil;
 import com.chaewsstore.core.domain.account.Account;

@@ -1,6 +1,5 @@
 rootProject.name = 'chaewsstore'
 include 'global-utils'
-include 'chaewsstore-core:common'
 include 'chaewsstore-core:domain'
 include 'chaewsstore-core:infra'
 include 'chaewsstore-app'

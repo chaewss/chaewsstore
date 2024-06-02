@@ -1,16 +1,16 @@
 package com.chaewsstore.apis.bid.usecase;
 
-import static com.chaewsstore.core.common.exception.ExceptionConstants.DUPLICATION_BID;
-import static com.chaewsstore.core.common.exception.ExceptionConstants.FORBIDDEN_BID;
-import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_BID;
-import static com.chaewsstore.core.common.exception.ExceptionConstants.NOT_FOUND_PRODUCT;
+import static com.chaewsstore.common.exception.ExceptionConstants.DUPLICATION_BID;
+import static com.chaewsstore.common.exception.ExceptionConstants.FORBIDDEN_BID;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_PRODUCT;
 
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.core.common.exception.DuplicateException;
-import com.chaewsstore.core.common.exception.ForbiddenException;
-import com.chaewsstore.core.common.exception.NotFoundException;
+import com.chaewsstore.common.exception.DuplicateException;
+import com.chaewsstore.common.exception.ForbiddenException;
+import com.chaewsstore.common.exception.NotFoundException;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.bid.BidService;
@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor

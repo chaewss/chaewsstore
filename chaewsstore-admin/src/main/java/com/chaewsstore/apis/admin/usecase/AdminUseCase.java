@@ -1,11 +1,11 @@
 package com.chaewsstore.apis.admin.usecase;
 
-import static com.chaewsstore.core.common.exception.ExceptionConstants.ADMIN_DUPLICATION;
+import static com.chaewsstore.common.exception.ExceptionConstants.ADMIN_DUPLICATION;
 
 import com.chaewsstore.apis.admin.dto.AdminResponseDto;
 import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
 import com.chaewsstore.apis.admin.helper.PasswordEncoderHelper;
-import com.chaewsstore.core.common.exception.DuplicateException;
+import com.chaewsstore.common.exception.DuplicateException;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
 import com.globalutils.annotation.UseCase;
