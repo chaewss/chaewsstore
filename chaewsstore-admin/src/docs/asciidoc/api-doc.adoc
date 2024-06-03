@@ -66,3 +66,22 @@ include::{snippets}/admin-controller-unit-test/respond_200_when_username_does_no
 | `CHECK_USERNAME_SUCCESS` | `200 OK` | 사용가능한 아이디입니다
 | `ADMIN_DUPLICATION` | `409 CONFLICT` | 중복된 어드민입니다
 |===
+
+== 3. 인증
+=== 3-1. 로그인
+==== Request Fields
+include::{snippets}/auth-controller-test/respond_200_when_login_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/auth-controller-test/respond_200_when_login_succeed/http-request.adoc[]
+==== Response Fields
+include::{snippets}/auth-controller-test/respond_200_when_login_succeed/response-fields.adoc[]
+==== Response Http Example
+include::{snippets}/auth-controller-test/respond_200_when_login_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `LOGIN_SUCCESS` | `200 OK` | 로그인 성공
+| `INVALID_PASSWORD` | `401 UNAUTHORIZED` | 비밀번호가 일치하지 않습니다
+| `NOT_FOUND_ADMIN` | `404 NOT FOUND` | 존재하지 않는 어드민입니다
+|===
