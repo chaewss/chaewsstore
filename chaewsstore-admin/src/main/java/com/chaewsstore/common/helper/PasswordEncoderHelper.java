@@ -1,4 +1,4 @@
-package com.chaewsstore.apis.admin.helper;
+package com.chaewsstore.common.helper;
 
 import com.globalutils.annotation.Helper;
 import lombok.RequiredArgsConstructor;
@@ -12,5 +12,9 @@ public class PasswordEncoderHelper {
 
     public String encodePassword(String password) {
         return passwordEncoder.encode(password);
+    }
+
+    public boolean matches(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 }
