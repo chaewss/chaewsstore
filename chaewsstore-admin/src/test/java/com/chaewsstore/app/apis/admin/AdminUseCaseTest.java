@@ -8,7 +8,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
-import com.chaewsstore.apis.admin.helper.PasswordEncoderHelper;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.apis.admin.usecase.AdminUseCase;
 import com.chaewsstore.common.exception.DuplicateException;
 import com.chaewsstore.common.response.ResponseCode;
