@@ -18,6 +18,13 @@ public class JwtAuthHelper {
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
+    /**
+     * 새로운 액세스 토큰과 리프레시 토큰을 생성 및 저장
+     *
+     * @param account        토큰을 생성할 사용자
+     * @param authentication 인증 정보
+     * @return 생성된 액세스 토큰과 리프레시 토큰
+     */
     public Jwts generateTokensAndSave(Account account, Authentication authentication) {
         String accessToken = tokenProvider.generateAccessToken(authentication);
         String refreshToken = tokenProvider.generateRefreshToken();
