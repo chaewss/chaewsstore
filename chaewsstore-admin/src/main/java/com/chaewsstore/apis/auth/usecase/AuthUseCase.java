@@ -5,6 +5,8 @@ import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ADMI
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
+import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.common.exception.NotFoundException;
 import com.chaewsstore.common.exception.UnauthorizedException;
@@ -49,5 +51,22 @@ public class AuthUseCase {
         Jwts token = jwtAuthHelper.generateTokensAndSave(admin, authentication);
 
         return new LoginResponseDto(admin.getId(), token);
+    }
+
+    /**
+     * 토큰 재발급
+     *
+     * @param request 토큰 재발급 요청 정보
+     * @return 사용자 id, 새로 발급된 토큰 정보
+     * @throws NotFoundException 해당하는 아이디를 가진 어드민이 없는 경우
+     */
+    @Transactional
+    public ReissueTokenResponseDto reissueToken(ReissueTokenRequestDto request) {
+        String username = jwtAuthHelper.getSubjectFromToken(request.accessToken());
+        Admin admin = adminService.readByUsername(username).orElseThrow(() -> NOT_FOUND_ADMIN);
+
+        Jwts token = jwtAuthHelper.reissueToken(admin, request.refreshToken());
+
+        return new ReissueTokenResponseDto(admin.getId(), token);
     }
 }

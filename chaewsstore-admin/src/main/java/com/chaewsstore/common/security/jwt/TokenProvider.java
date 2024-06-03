@@ -101,6 +101,7 @@ public class TokenProvider {
      *
      * @param token 토큰
      * @return 사용자 정보
+     * @throws JwtException 유효하지 않은 JWT 토큰인 경우
      */
     public Claims getClaimsFromToken(String token) {
         try {
