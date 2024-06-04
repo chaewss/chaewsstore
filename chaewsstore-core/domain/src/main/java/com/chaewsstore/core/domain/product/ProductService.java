@@ -5,7 +5,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -13,6 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+
+    @Transactional
+    public Product create(Product product) {
+        return productRepository.save(product);
+    }
 
     @Transactional(readOnly = true)
     public Slice<Product> readAll(Pageable pageable) {
@@ -22,5 +26,10 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Optional<Product> readById(Long id) {
         return productRepository.findById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByName(String name) {
+        return productRepository.existsByName(name);
     }
 }

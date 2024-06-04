@@ -24,6 +24,7 @@ public enum ResponseCode {
 
     /* 201 CREATED : 요청 성공, 자원 생성 */
     SIGNUP_SUCCESS(CREATED, "회원가입 성공"),
+    CREATE_PRODUCT_SUCCESS(CREATED, "상품 생성 성공"),
 
     /* 400 BAD_REQUEST : 잘못된 요청 */
     VALID_ERROR(BAD_REQUEST, "유효성 검사 실패"),
@@ -40,9 +41,11 @@ public enum ResponseCode {
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
     NOT_FOUND_ADMIN(NOT_FOUND, "존재하지 않는 어드민입니다"),
     NOT_FOUND_REFRESH_TOKEN(NOT_FOUND, "존재하지 않는 리프레시 토큰입니다"),
+    NOT_FOUND_BRAND(NOT_FOUND, "존재하지 않는 브랜드입니다"),
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     ADMIN_DUPLICATION(CONFLICT, "중복된 아이디입니다"),
+    DUPLICATE_PRODUCT(CONFLICT, "중복된 상품입니다"),
     ;
 
     private final HttpStatus httpStatus;

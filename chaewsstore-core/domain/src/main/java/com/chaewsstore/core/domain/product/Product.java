@@ -51,6 +51,15 @@ public class Product extends BaseTimeEntity {
         this.isDeleted = isDeleted;
     }
 
+    public static Product create(String name, Integer price, Brand brand) {
+        return Product.builder()
+            .name(name)
+            .price(price)
+            .brand(brand)
+            .isDeleted(false)
+            .build();
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) {

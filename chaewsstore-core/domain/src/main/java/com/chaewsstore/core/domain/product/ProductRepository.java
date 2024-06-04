@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 interface ProductRepository extends JpaRepository<Product, Long> {
 
     Slice<Product> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    boolean existsByName(String name);
 }
