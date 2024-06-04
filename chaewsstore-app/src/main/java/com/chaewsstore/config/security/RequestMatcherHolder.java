@@ -17,7 +17,7 @@ public class RequestMatcherHolder {
 
     private static final List<RequestInfo> REQUEST_INFO_LIST = List.of(
         // auth
-        new RequestInfo(POST, "/api/auth/login", null),
+        new RequestInfo(POST, "/api/auth/**", null),
         new RequestInfo(POST, "/api/accounts/signup", null),
 
         // bid

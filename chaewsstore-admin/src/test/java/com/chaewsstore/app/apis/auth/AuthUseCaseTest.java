@@ -2,6 +2,7 @@ package com.chaewsstore.app.apis.auth;
 
 import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -11,11 +12,14 @@ import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
+import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.exception.NotFoundException;
 import com.chaewsstore.common.exception.UnauthorizedException;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
+import com.chaewsstore.common.response.ResponseCode;
 import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
@@ -49,7 +53,7 @@ class AuthUseCaseTest {
 
     @Test
     @DisplayName("로그인에 성공하면 토큰을 얻는다")
-    void should_get_tokens_when_succeed_to_login() {
+    void succeed_to_login() {
         LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
         Authentication authentication = mock(Authentication.class);
 
@@ -93,6 +97,45 @@ class AuthUseCaseTest {
         assertThrows(UnauthorizedException.class, () -> authUseCase.login(request));
 
         then(adminService).should(times(1)).readByUsername(any());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급에 성공한다")
+    void succeed_to_reissue_token() {
+        ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
+            "refresh_token");
+
+        given(jwtAuthHelper.getSubjectFromToken(request.accessToken())).willReturn(
+            admin.getUsername());
+        given(adminService.readByUsername(any())).willReturn(Optional.of(admin));
+
+        given(jwtAuthHelper.reissueToken(any(), any())).willReturn(token);
+
+        ReissueTokenResponseDto response = authUseCase.reissueToken(request);
+
+        assertThat(response.token().accessToken()).isEqualTo(accessToken);
+        assertThat(response.token().refreshToken()).isEqualTo(refreshToken);
+        then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
+        then(adminService).should(times(1)).readByUsername(any());
+        then(jwtAuthHelper).should(times(1)).reissueToken(any(), any());
+    }
+
+    @Test
+    @DisplayName("관리자 계정이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFoundException_when_reissue_token_but_admin_does_not_exist() {
+        ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
+            "refresh_token");
+
+        given(jwtAuthHelper.getSubjectFromToken(request.accessToken())).willReturn(
+            admin.getUsername());
+        given(adminService.readByUsername(any())).willReturn(Optional.empty());
+
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> authUseCase.reissueToken(request));
+
+        then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
+        then(adminService).should(times(1)).readByUsername(any());
+        assertEquals(ResponseCode.NOT_FOUND_ADMIN, result.getResponseCode());
     }
 
     Admin admin = Admin.builder()

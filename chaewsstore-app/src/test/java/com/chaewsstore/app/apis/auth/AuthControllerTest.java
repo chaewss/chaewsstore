@@ -17,6 +17,8 @@ import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfig
 import com.chaewsstore.apis.auth.controller.AuthController;
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
+import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
 import com.chaewsstore.common.security.jwt.Jwts;
@@ -116,5 +118,37 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(requestDto)))
             .andExpect(status().isUnauthorized())
             .andDo(print());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_reissue_token_succeed() throws Exception {
+        String newAccessToken = "Bearer (new accessToken)";
+        String newRefreshToken = "(new refreshToken)";
+        ReissueTokenRequestDto request = new ReissueTokenRequestDto(accessToken, refreshToken);
+        Jwts token = Jwts.of(newAccessToken, newRefreshToken, BEARER_TYPE);
+        ReissueTokenResponseDto response = new ReissueTokenResponseDto(1L, token);
+
+        given(authUseCase.reissueToken(any())).willReturn(response);
+
+        mockMvc.perform(post("/api/auth/reissue")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
+                ApiDocumentUtils.getDocumentRequest(),
+                ApiDocumentUtils.getDocumentResponse(),
+                requestFields(
+                    fieldWithPath("accessToken").type(JsonFieldType.STRING).description("액세스 토큰"),
+                    fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰")
+                ),
+                relaxedResponseFields(
+                    fieldWithPath("data.userId").type(JsonFieldType.NUMBER).description("사용자 ID"),
+                    fieldWithPath("data.token.accessToken").type(JsonFieldType.STRING).description("새로 발급된 액세스 토큰"),
+                    fieldWithPath("data.token.refreshToken").type(JsonFieldType.STRING).description("새로 발급된 리프레시 토큰"),
+                    fieldWithPath("data.token.grantType").type(JsonFieldType.STRING).description("토큰 타입")
+                )
+            ));
     }
 }

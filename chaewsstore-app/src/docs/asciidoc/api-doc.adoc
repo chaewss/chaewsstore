@@ -27,13 +27,13 @@
 == 2. 회원
 === 2-1. 회원가입
 ==== Request Fields
-include::{snippets}/account-controller-unit-test/signup-test/request-fields.adoc[]
+include::{snippets}/account-controller-unit-test/respond_201_when_sign_up_succeed/request-fields.adoc[]
 ==== Request Http Example
-include::{snippets}/account-controller-unit-test/signup-test/http-request.adoc[]
+include::{snippets}/account-controller-unit-test/respond_201_when_sign_up_succeed/http-request.adoc[]
 ==== Response Fields
-include::{snippets}/account-controller-unit-test/signup-test/response-fields.adoc[]
+include::{snippets}/account-controller-unit-test/respond_201_when_sign_up_succeed/response-fields.adoc[]
 ==== Response Http Example
-include::{snippets}/account-controller-unit-test/signup-test/http-response.adoc[]
+include::{snippets}/account-controller-unit-test/respond_201_when_sign_up_succeed/http-response.adoc[]
 
 - 유효성 검사에 실패했을 경우
 |===
@@ -56,11 +56,11 @@ include::{snippets}/account-controller-unit-test/signup-test/http-response.adoc[
 
 === 2-2. 이메일 유효성 확인
 ==== Request Path Parameters
-include::{snippets}/account-controller-unit-test/check-username-test/path-parameters.adoc[]
+include::{snippets}/account-controller-unit-test/respond_200_when_username_does_not_exist/path-parameters.adoc[]
 ==== Request Http Example
-include::{snippets}/account-controller-unit-test/check-username-test/http-request.adoc[]
+include::{snippets}/account-controller-unit-test/respond_200_when_username_does_not_exist/http-request.adoc[]
 ==== Response Http Example
-include::{snippets}/account-controller-unit-test/check-username-test/http-response.adoc[]
+include::{snippets}/account-controller-unit-test/respond_200_when_username_does_not_exist/http-response.adoc[]
 ==== Response Status
 |===
 | Code | Status | Detail
@@ -71,11 +71,11 @@ include::{snippets}/account-controller-unit-test/check-username-test/http-respon
 
 === 2-3. 닉네임 유효성 확인
 ==== Request Path Parameters
-include::{snippets}/account-controller-unit-test/check-nickname-test/path-parameters.adoc[]
+include::{snippets}/account-controller-unit-test/respond_200_when_nickname_does_not_exist/path-parameters.adoc[]
 ==== Request Http Example
-include::{snippets}/account-controller-unit-test/check-nickname-test/http-request.adoc[]
+include::{snippets}/account-controller-unit-test/respond_200_when_nickname_does_not_exist/http-request.adoc[]
 ==== Response Http Example
-include::{snippets}/account-controller-unit-test/check-nickname-test/http-response.adoc[]
+include::{snippets}/account-controller-unit-test/respond_200_when_nickname_does_not_exist/http-response.adoc[]
 ==== Response Status
 |===
 | Code | Status | Detail
@@ -101,6 +101,25 @@ include::{snippets}/auth-controller-test/respond_200_when_login_succeed/http-res
 | `LOGIN_SUCCESS` | `200 OK` | 로그인 성공
 | `INVALID_PASSWORD` | `401 UNAUTHORIZED` | 비밀번호가 일치하지 않습니다
 | `NOT_FOUND_USER` | `404 NOT FOUND` | 존재하지 않는 회원입니다
+|===
+
+=== 3-2. 토큰 재발급
+==== Request Fields
+include::{snippets}/auth-controller-test/respond_200_when_reissue_token_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/auth-controller-test/respond_200_when_reissue_token_succeed/http-request.adoc[]
+==== Response Fields
+include::{snippets}/auth-controller-test/respond_200_when_reissue_token_succeed/response-fields.adoc[]
+==== Response Http Example
+include::{snippets}/auth-controller-test/respond_200_when_reissue_token_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `REISSUE_TOKEN_SUCCESS` | `200 OK` | 토큰 재발급 성공
+| `INVALID_REFRESH_TOKEN` | `401 UNAUTHORIZED` | 잘못된 리프레시 토큰입니다
+| `NOT_FOUND_ACCOUNT` | `404 NOT FOUND` | 존재하지 않는 회원입니다
+| `NOT_FOUND_REFRESH_TOKEN` | `404 NOT FOUND` | 존재하지 않는 리프레시 토큰입니다
 |===
 
 == 4. 입찰

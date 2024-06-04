@@ -13,6 +13,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -100,6 +101,7 @@ public class TokenProvider {
      *
      * @param token 토큰
      * @return 사용자 정보
+     * @throws JwtException 유효하지 않은 JWT 토큰인 경우
      */
     public Claims getClaimsFromToken(String token) {
         try {
@@ -107,7 +109,7 @@ public class TokenProvider {
                 .verifyWith(secretKey).build()
                 .parseSignedClaims(token)
                 .getPayload();
-        } catch (SecurityException e) {
+        } catch (SignatureException e) {
             throw new JwtException("잘못된 JWT 시그니처입니다");
         } catch (MalformedJwtException e) {
             throw new JwtException("유효하지 않은 JWT 토큰입니다");
