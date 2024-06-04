@@ -50,7 +50,7 @@ class AuthUseCaseTest {
 
     @Test
     @DisplayName("로그인에 성공하면 토큰을 얻는다")
-    void should_get_tokens_when_succeed_to_login() {
+    void succeed_to_login() {
         LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
         Authentication authentication = mock(Authentication.class);
 

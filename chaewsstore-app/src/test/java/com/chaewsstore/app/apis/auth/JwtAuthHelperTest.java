@@ -36,11 +36,11 @@ class JwtAuthHelperTest {
 
     @Test
     @DisplayName("토큰을 생성하고 저장한다")
-    void should_get_tokens_when_succeed_to_login() {
         // Arrange
         String expectedAccessToken = "access_token";
         String expectedRefreshToken = "refresh_token";
         String bearerType = "Bearer";
+    void succeed_to_generate_tokens_and_save() {
         Authentication authentication = mock(Authentication.class);
 
         given(tokenProvider.generateAccessToken(authentication)).willReturn(expectedAccessToken);
