@@ -1,19 +1,25 @@
 package com.chaewsstore.app.apis.product;
 
 import static com.chaewsstore.app.ApiDocumentUtils.documentIdentifier;
+import static com.chaewsstore.app.ApiDocumentUtils.getDocumentRequest;
 import static com.chaewsstore.app.ApiDocumentUtils.getDocumentResponse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
 import com.chaewsstore.apis.product.controller.ProductController;
+import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
 import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
 import com.chaewsstore.apis.product.usecase.ProductUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,6 +78,27 @@ class ProductControllerUnitTest {
                     fieldWithPath("data.content.[].name").type(JsonFieldType.STRING).description("상품명"),
                     fieldWithPath("data.content.[].price").type(JsonFieldType.NUMBER).description("상품 출시 가격"),
                     fieldWithPath("data.content.[].brandName").type(JsonFieldType.STRING).description("브랜드명")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("상품 생성에 성공하면 HTTP 201을 응답한다")
+    void respond_201_when_create_product_succeed() throws Exception {
+        CreateProductRequestDto request = new CreateProductRequestDto("Adidas Superstar Core Black White", 139000, "Adidas");
+
+        mockMvc.perform(post("/admin/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                requestFields(
+                    fieldWithPath("name").type(JsonFieldType.STRING).description("상품명"),
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("상품 출시 가격"),
+                    fieldWithPath("brandName").type(JsonFieldType.STRING).description("브랜드명")
                 )
             ));
     }
