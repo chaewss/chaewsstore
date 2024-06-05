@@ -9,6 +9,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfig
 import com.chaewsstore.apis.product.controller.ProductController;
 import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
 import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
+import com.chaewsstore.apis.product.dto.UpdateProductRequestDto;
 import com.chaewsstore.apis.product.usecase.ProductUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -63,7 +65,7 @@ class ProductControllerUnitTest {
     }
 
     @Test
-    @DisplayName("상품의 입찰 목록을 조회하면 HTTP 200을 응답한다")
+    @DisplayName("상품 목록을 조회하면 HTTP 200을 응답한다")
     void respond_200_when_read_product_list_succeed() throws Exception {
         Slice<ReadProductResponseDto> response = new SliceImpl<>(getProductResponse());
         given(productUseCase.readProductList(any())).willReturn(response);
@@ -95,6 +97,29 @@ class ProductControllerUnitTest {
             .andDo(document(documentIdentifier,
                 getDocumentRequest(),
                 getDocumentResponse(),
+                requestFields(
+                    fieldWithPath("name").type(JsonFieldType.STRING).description("상품명"),
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("상품 출시 가격"),
+                    fieldWithPath("brandName").type(JsonFieldType.STRING).description("브랜드명")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("상품 수정에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_update_product_succeed() throws Exception {
+        UpdateProductRequestDto request = new UpdateProductRequestDto("(J) Adidas Superstar Core Black White", 139000, "Adidas");
+
+        mockMvc.perform(put("/admin/products/{productId}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk()).andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("productId").description("상품 ID")
+                ),
                 requestFields(
                     fieldWithPath("name").type(JsonFieldType.STRING).description("상품명"),
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("상품 출시 가격"),
