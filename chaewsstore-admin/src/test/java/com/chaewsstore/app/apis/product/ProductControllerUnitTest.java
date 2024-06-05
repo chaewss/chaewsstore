@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
@@ -124,6 +125,21 @@ class ProductControllerUnitTest {
                     fieldWithPath("name").type(JsonFieldType.STRING).description("상품명"),
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("상품 출시 가격"),
                     fieldWithPath("brandName").type(JsonFieldType.STRING).description("브랜드명")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("상품 삭제에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_delete_product_succeed() throws Exception {
+        mockMvc.perform(delete("/admin/products/{productId}", 1)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk()).andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("productId").description("상품 ID")
                 )
             ));
     }

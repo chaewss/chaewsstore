@@ -166,6 +166,29 @@ class ProductUseCaseTest {
         assertEquals(ResponseCode.DUPLICATE_PRODUCT, result.getResponseCode());
     }
 
+    @Test
+    @DisplayName("특정 상품을 정상적으로 삭제한다")
+    void succeed_to_delete_product() {
+        given(productService.readById(anyLong())).willReturn(Optional.of(product1));
+
+        productUseCase.deleteProduct(1L);
+
+        then(productService).should(times(1)).readById(anyLong());
+        then(productService).should(times(1)).remove(any());
+    }
+
+    @Test
+    @DisplayName("상품 삭제 중 상품이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFountException_when_delete_product_but_product_does_not_exist() {
+        given(productService.readById(anyLong())).willReturn(Optional.empty());
+
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> productUseCase.deleteProduct(99L));
+
+        then(productService).should(times(1)).readById(anyLong());
+        assertEquals(ResponseCode.NOT_FOUND_PRODUCT, result.getResponseCode());
+    }
+
     Brand brand = Brand.builder().name("브랜드1").build();
     Product product1 = Product.builder().id(1L).name("상품 1").price(600).brand(brand).build();
     Product product2 = Product.builder().name("중복될 상품").brand(brand).build();
