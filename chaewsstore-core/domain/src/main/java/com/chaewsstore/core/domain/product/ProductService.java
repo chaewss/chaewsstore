@@ -32,4 +32,9 @@ public class ProductService {
     public boolean existsByName(String name) {
         return productRepository.existsByName(name);
     }
+
+    @Transactional
+    public void remove(Product product) {
+        productRepository.delete(product);
+    }
 }

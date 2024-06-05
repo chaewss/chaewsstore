@@ -73,6 +73,18 @@ public class ProductUseCase {
         product.updateProduct(request.name(), request.price(), brand);
     }
 
+    /**
+     * 상품을 삭제한다.
+     *
+     * @param productId   삭제할 상품 ID
+     * @throws NotFoundException   상품이 존재하지 않는 경우
+     */
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = findProductById(productId);
+        productService.remove(product);
+    }
+
     private Brand findBrandByName(String brandName) {
         return brandService.readByName(brandName).orElseThrow(() -> NOT_FOUND_BRAND);
     }

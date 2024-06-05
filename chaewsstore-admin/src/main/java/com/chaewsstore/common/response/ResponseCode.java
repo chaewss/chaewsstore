@@ -23,6 +23,7 @@ public enum ResponseCode {
 
     READ_PRODUCTS_SUCCESS(OK, "상품 리스트 조회 성공"),
     UPDATE_PRODUCT_SUCCESS(OK, "상품 수정 성공"),
+    DELETE_PRODUCT_SUCCESS(OK, "상품 삭제 성공"),
 
     /* 201 CREATED : 요청 성공, 자원 생성 */
     SIGNUP_SUCCESS(CREATED, "회원가입 성공"),

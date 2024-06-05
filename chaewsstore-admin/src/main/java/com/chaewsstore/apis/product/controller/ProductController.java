@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,5 +45,11 @@ public class ProductController {
         @RequestBody UpdateProductRequestDto request) {
         productUseCase.updateProduct(productId, request);
         return ResponseData.from(ResponseCode.UPDATE_PRODUCT_SUCCESS);
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseData<Void> deleteProduct(@PathVariable Long productId) {
+        productUseCase.deleteProduct(productId);
+        return ResponseData.from(ResponseCode.DELETE_PRODUCT_SUCCESS);
     }
 }
