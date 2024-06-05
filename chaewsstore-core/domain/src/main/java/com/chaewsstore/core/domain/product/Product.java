@@ -60,6 +60,12 @@ public class Product extends BaseTimeEntity {
             .build();
     }
 
+    public void updateProduct(String name, Integer price, Brand brand) {
+        this.name = name;
+        this.price = price;
+        this.brand = brand;
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) {

@@ -20,7 +20,9 @@ public enum ResponseCode {
     LOGIN_SUCCESS(OK, "로그인 성공"),
     CHECK_USERNAME_SUCCESS(OK, "사용가능한 아이디입니다"),
     REISSUE_TOKEN_SUCCESS(OK, "토큰 재발급 성공"),
+
     READ_PRODUCTS_SUCCESS(OK, "상품 리스트 조회 성공"),
+    UPDATE_PRODUCT_SUCCESS(OK, "상품 수정 성공"),
 
     /* 201 CREATED : 요청 성공, 자원 생성 */
     SIGNUP_SUCCESS(CREATED, "회원가입 성공"),
@@ -42,6 +44,7 @@ public enum ResponseCode {
     NOT_FOUND_ADMIN(NOT_FOUND, "존재하지 않는 어드민입니다"),
     NOT_FOUND_REFRESH_TOKEN(NOT_FOUND, "존재하지 않는 리프레시 토큰입니다"),
     NOT_FOUND_BRAND(NOT_FOUND, "존재하지 않는 브랜드입니다"),
+    NOT_FOUND_PRODUCT(NOT_FOUND, "존재하지 않는 상품입니다"),
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     ADMIN_DUPLICATION(CONFLICT, "중복된 아이디입니다"),
