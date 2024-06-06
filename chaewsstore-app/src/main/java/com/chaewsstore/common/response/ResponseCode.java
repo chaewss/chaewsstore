@@ -21,6 +21,7 @@ public enum ResponseCode {
     CHECK_USERNAME_SUCCESS(OK, "사용가능한 아이디입니다"),
     CHECK_NICKNAME_SUCCESS(OK, "사용가능한 닉네임입니다"),
     REISSUE_TOKEN_SUCCESS(OK, "토큰 재발급 성공"),
+    LOGOUT_SUCCESS(OK, "로그아웃 성공"),
 
     READ_PRODUCT_BID_SUCCESS(OK, "상품 입찰 목록 조회 성공"),
     UPDATE_BID_SUCCESS(OK, "입찰 수정 성공"),

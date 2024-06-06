@@ -28,6 +28,12 @@ public class AdminDetailService implements UserDetailsService {
             .orElseThrow(() -> NOT_FOUND_ADMIN);
     }
 
+    @Transactional(readOnly = true)
+    public Admin getUserInfo() {
+        return adminService.readByUsername(SecurityUtil.getCurrentUserName())
+            .orElseThrow(() -> NOT_FOUND_ADMIN);
+    }
+
     private User createUser(Admin admin) {
         String role = admin.getRole().getKey();
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role);

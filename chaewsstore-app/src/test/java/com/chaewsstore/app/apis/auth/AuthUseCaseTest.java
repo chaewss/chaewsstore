@@ -7,19 +7,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
-import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.common.exception.NotFoundException;
 import com.chaewsstore.common.exception.UnauthorizedException;
+import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;
@@ -135,6 +137,18 @@ class AuthUseCaseTest {
         then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
         then(accountService).should(times(1)).readByUsername(any());
         assertEquals(ResponseCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("로그아웃에 성공한다")
+    void succeed_to_logout() {
+        LogoutRequestDto request = new LogoutRequestDto(refreshToken);
+
+        willDoNothing().given(jwtAuthHelper).removeRefreshToken(any(), any());
+
+        authUseCase.logout(account, request);
+
+        then(jwtAuthHelper).should(times(1)).removeRefreshToken(any(), any());
     }
 
     Account account = Account.builder()

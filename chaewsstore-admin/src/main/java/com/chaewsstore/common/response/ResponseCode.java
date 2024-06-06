@@ -3,7 +3,6 @@ package com.chaewsstore.common.response;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -20,6 +19,7 @@ public enum ResponseCode {
     LOGIN_SUCCESS(OK, "로그인 성공"),
     CHECK_USERNAME_SUCCESS(OK, "사용가능한 아이디입니다"),
     REISSUE_TOKEN_SUCCESS(OK, "토큰 재발급 성공"),
+    LOGOUT_SUCCESS(OK, "로그아웃 성공"),
 
     READ_PRODUCTS_SUCCESS(OK, "상품 리스트 조회 성공"),
     UPDATE_PRODUCT_SUCCESS(OK, "상품 수정 성공"),
