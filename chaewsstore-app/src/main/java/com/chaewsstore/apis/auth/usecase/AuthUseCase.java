@@ -5,6 +5,7 @@ import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCO
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
@@ -69,5 +70,15 @@ public class AuthUseCase {
         Jwts token = jwtAuthHelper.reissueToken(account, request.refreshToken());
 
         return new ReissueTokenResponseDto(account.getId(), token);
+    }
+
+    /**
+     * 로그아웃
+     *
+     * @param account 로그아웃할 사용자
+     * @param request 로그아웃 요청 정보
+     */
+    public void logout(Account account, LogoutRequestDto request) {
+        jwtAuthHelper.removeRefreshToken(account, request.refreshToken());
     }
 }

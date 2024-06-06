@@ -48,7 +48,7 @@ public class JwtAuthHelper {
      * @return 새로운 액세스 토큰과 리프레시 토큰
      */
     public Jwts reissueToken(Account account, String refreshToken) {
-        validateRefreshToken(account, refreshToken);
+        validateAndDeleteRefreshToken(account, refreshToken);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
             account.getUsername(), null,
@@ -67,14 +67,26 @@ public class JwtAuthHelper {
     }
 
     /**
-     * 리프레시 토큰 검증
+     * 리프레시 토큰 삭제
+     *
+     * @param account      리프레시 토큰을 삭제할 사용자
+     * @param refreshToken 삭제할 리프레시 토큰
+     * @throws NotFoundException     리프레시 토큰이 존재하지 않는 경우
+     * @throws UnauthorizedException 리프레시 토큰이 사용자의 토큰과 일치하지 않는 경우
+     */
+    public void removeRefreshToken(Account account, String refreshToken) {
+        validateAndDeleteRefreshToken(account, refreshToken);
+    }
+
+    /**
+     * 리프레시 토큰 검증 및 삭제
      *
      * @param account      검증할 사용자
      * @param refreshToken 검증할 리프레시 토큰
      * @throws NotFoundException     리프레시 토큰이 존재하지 않는 경우
      * @throws UnauthorizedException 리프레시 토큰이 사용자의 토큰과 일치하지 않는 경우
      */
-    private void validateRefreshToken(Account account, String refreshToken) {
+    private void validateAndDeleteRefreshToken(Account account, String refreshToken) {
         RefreshToken matchRefreshToken = refreshTokenService.readByToken(refreshToken)
             .orElseThrow(() -> NOT_FOUND_REFRESH_TOKEN);
 
