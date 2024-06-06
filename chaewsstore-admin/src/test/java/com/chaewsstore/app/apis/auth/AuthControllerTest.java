@@ -9,6 +9,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,6 +19,7 @@ import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfig
 import com.chaewsstore.apis.auth.controller.AuthController;
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
@@ -33,6 +36,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -148,6 +152,24 @@ class AuthControllerTest {
                     fieldWithPath("data.token.accessToken").type(JsonFieldType.STRING).description("새로 발급된 액세스 토큰"),
                     fieldWithPath("data.token.refreshToken").type(JsonFieldType.STRING).description("새로 발급된 리프레시 토큰"),
                     fieldWithPath("data.token.grantType").type(JsonFieldType.STRING).description("토큰 타입")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("로그아웃에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_logout_succeed() throws Exception {
+        LogoutRequestDto request = new LogoutRequestDto(refreshToken);
+        mockMvc.perform(post("/admin/auth/logout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
+                ApiDocumentUtils.getDocumentRequest(),
+                ApiDocumentUtils.getDocumentResponse(),
+                requestFields(
+                    fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰")
                 )
             ));
     }

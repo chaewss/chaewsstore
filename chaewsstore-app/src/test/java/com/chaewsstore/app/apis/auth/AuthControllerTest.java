@@ -1,8 +1,8 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
 import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_PASSWORD;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
+import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfig
 import com.chaewsstore.apis.auth.controller.AuthController;
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
@@ -148,6 +149,24 @@ class AuthControllerTest {
                     fieldWithPath("data.token.accessToken").type(JsonFieldType.STRING).description("새로 발급된 액세스 토큰"),
                     fieldWithPath("data.token.refreshToken").type(JsonFieldType.STRING).description("새로 발급된 리프레시 토큰"),
                     fieldWithPath("data.token.grantType").type(JsonFieldType.STRING).description("토큰 타입")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("로그아웃에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_logout_succeed() throws Exception {
+        LogoutRequestDto request = new LogoutRequestDto(refreshToken);
+        mockMvc.perform(post("/api/auth/logout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
+                ApiDocumentUtils.getDocumentRequest(),
+                ApiDocumentUtils.getDocumentResponse(),
+                requestFields(
+                    fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰")
                 )
             ));
     }

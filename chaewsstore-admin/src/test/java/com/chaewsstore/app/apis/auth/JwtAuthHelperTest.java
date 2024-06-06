@@ -4,27 +4,21 @@ import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.common.exception.DuplicateException;
 import com.chaewsstore.common.exception.NotFoundException;
 import com.chaewsstore.common.exception.UnauthorizedException;
 import com.chaewsstore.common.response.ResponseCode;
 import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.common.security.jwt.TokenProvider;
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.Role;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshToken;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshTokenService;
-import com.chaewsstore.core.domain.refresh.RefreshToken;
-import com.chaewsstore.core.domain.refresh.RefreshTokenService;
-import io.jsonwebtoken.Claims;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -104,6 +98,46 @@ class JwtAuthHelperTest {
 
         UnauthorizedException result = assertThrows(UnauthorizedException.class,
             () -> jwtAuthHelper.reissueToken(admin, refreshTokenValue));
+
+        then(refreshTokenService).should(times(1)).readByToken(any());
+        assertEquals(ResponseCode.INVALID_REFRESH_TOKEN, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("토큰을 정상적으로 삭제한다")
+    void succeed_to_remove_refresh_token() {
+        AdminRefreshToken refreshToken = AdminRefreshToken.create(admin, refreshTokenValue);
+
+        given(refreshTokenService.readByToken(any())).willReturn(Optional.of(refreshToken));
+        willDoNothing().given(refreshTokenService).remove(any());
+
+        jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue);
+
+        then(refreshTokenService).should(times(1)).readByToken(any());
+        then(refreshTokenService).should(times(1)).remove(any(AdminRefreshToken.class));
+    }
+
+    @Test
+    @DisplayName("로그아웃 중 리프레시 토큰이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFoundException_when_logout_but_refresh_token_does_not_exist() {
+        given(refreshTokenService.readByToken(any())).willReturn(Optional.empty());
+
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue));
+
+        then(refreshTokenService).should(times(1)).readByToken(any());
+        assertEquals(ResponseCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("로그아웃 중 리프레시 토큰이 관리자의 토큰과 일치하지 않는 경우 UnauthorizedException이 발생한다")
+    void should_throw_UnauthorizedException_when_logout_but_admin_does_not_match() {
+        AdminRefreshToken refreshToken = AdminRefreshToken.create(anotherAdmin, refreshTokenValue);
+
+        given(refreshTokenService.readByToken(any())).willReturn(Optional.of(refreshToken));
+
+        UnauthorizedException result = assertThrows(UnauthorizedException.class,
+            () -> jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
         assertEquals(ResponseCode.INVALID_REFRESH_TOKEN, result.getResponseCode());

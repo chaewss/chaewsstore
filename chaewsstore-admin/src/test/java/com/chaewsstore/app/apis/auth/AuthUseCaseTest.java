@@ -7,11 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
@@ -136,6 +139,18 @@ class AuthUseCaseTest {
         then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
         then(adminService).should(times(1)).readByUsername(any());
         assertEquals(ResponseCode.NOT_FOUND_ADMIN, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("로그아웃에 성공한다")
+    void succeed_to_logout() {
+        LogoutRequestDto request = new LogoutRequestDto(refreshToken);
+
+        willDoNothing().given(jwtAuthHelper).removeRefreshToken(any(), any());
+
+        authUseCase.logout(admin, request);
+
+        then(jwtAuthHelper).should(times(1)).removeRefreshToken(any(), any());
     }
 
     Admin admin = Admin.builder()
