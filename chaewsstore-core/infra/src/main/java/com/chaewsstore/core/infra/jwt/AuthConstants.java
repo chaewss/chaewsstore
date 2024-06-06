@@ -1,4 +1,4 @@
-package com.chaewsstore.common.util;
+package com.chaewsstore.core.infra.jwt;
 
 public class AuthConstants {
 

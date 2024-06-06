@@ -1,9 +1,9 @@
 package com.chaewsstore.common.security.jwt;
 
-import static com.chaewsstore.common.util.AuthConstants.ACCESS_TOKEN_TTL_MILLISECOND;
-import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
-import static com.chaewsstore.common.util.AuthConstants.REFRESH_TOKEN_TTL_MILLISECOND;
-import static com.chaewsstore.common.util.AuthConstants.ROLE_KEY;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.ACCESS_TOKEN_TTL_MILLISECOND;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.REFRESH_TOKEN_TTL_MILLISECOND;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.ROLE_KEY;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

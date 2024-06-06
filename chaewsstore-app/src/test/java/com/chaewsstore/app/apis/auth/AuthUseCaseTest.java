@@ -1,6 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
