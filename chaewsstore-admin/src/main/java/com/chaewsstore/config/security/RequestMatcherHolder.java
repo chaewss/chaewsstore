@@ -17,7 +17,7 @@ public class RequestMatcherHolder {
 
     private static final List<RequestInfo> REQUEST_INFO_LIST = List.of(
         // auth
-        new RequestInfo(POST, "/admin/auth/**", null),
+        new RequestInfo(POST, "/admin/auth/login", null),
 
         // admin
         new RequestInfo(POST, "/admin/signup", null),

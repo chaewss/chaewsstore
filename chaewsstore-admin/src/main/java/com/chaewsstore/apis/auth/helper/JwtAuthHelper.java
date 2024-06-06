@@ -48,7 +48,7 @@ public class JwtAuthHelper {
      * @return 새로운 액세스 토큰과 리프레시 토큰
      */
     public Jwts reissueToken(Admin admin, String refreshToken) {
-        validateRefreshToken(admin, refreshToken);
+        validateAndDeleteRefreshToken(admin, refreshToken);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(admin.getUsername(),
             null, List.of(new SimpleGrantedAuthority(admin.getRole().getKey())));
@@ -66,14 +66,26 @@ public class JwtAuthHelper {
     }
 
     /**
-     * 리프레시 토큰 검증
+     * 리프레시 토큰 삭제
+     *
+     * @param admin        리프레시 토큰을 삭제할 관리자
+     * @param refreshToken 삭제할 리프레시 토큰
+     * @throws NotFoundException     리프레시 토큰이 존재하지 않는 경우
+     * @throws UnauthorizedException 리프레시 토큰이 관리자의 토큰과 일치하지 않는 경우
+     */
+    public void removeRefreshToken(Admin admin, String refreshToken) {
+        validateAndDeleteRefreshToken(admin, refreshToken);
+    }
+
+    /**
+     * 리프레시 토큰 검증 및 삭제
      *
      * @param admin        검증할 관리자
      * @param refreshToken 검증할 리프레시 토큰
      * @throws NotFoundException     리프레시 토큰이 존재하지 않는 경우
      * @throws UnauthorizedException 리프레시 토큰이 관리자의 토큰과 일치하지 않는 경우
      */
-    private void validateRefreshToken(Admin admin, String refreshToken) {
+    private void validateAndDeleteRefreshToken(Admin admin, String refreshToken) {
         AdminRefreshToken matchRefreshToken = refreshTokenService.readByToken(refreshToken)
             .orElseThrow(() -> NOT_FOUND_REFRESH_TOKEN);
 

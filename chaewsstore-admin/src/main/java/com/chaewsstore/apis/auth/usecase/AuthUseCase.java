@@ -5,6 +5,7 @@ import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ADMI
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
@@ -68,5 +69,15 @@ public class AuthUseCase {
         Jwts token = jwtAuthHelper.reissueToken(admin, request.refreshToken());
 
         return new ReissueTokenResponseDto(admin.getId(), token);
+    }
+
+    /**
+     * 로그아웃
+     *
+     * @param admin   로그아웃할 관리자
+     * @param request 로그아웃 요청 정보
+     */
+    public void logout(Admin admin, LogoutRequestDto request) {
+        jwtAuthHelper.removeRefreshToken(admin, request.refreshToken());
     }
 }
