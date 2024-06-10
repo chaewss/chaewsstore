@@ -63,7 +63,7 @@ public class AuthUseCase {
      */
     @Transactional
     public ReissueTokenResponseDto reissueToken(ReissueTokenRequestDto request) {
-        String username = jwtAuthHelper.getSubjectFromToken(request.accessToken());
+        String username = jwtAuthHelper.getSubject(request.accessToken());
         Account account = accountService.readByUsername(username)
             .orElseThrow(() -> NOT_FOUND_ACCOUNT);
 

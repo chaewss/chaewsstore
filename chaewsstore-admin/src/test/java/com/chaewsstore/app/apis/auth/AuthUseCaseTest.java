@@ -107,7 +107,7 @@ class AuthUseCaseTest {
         ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
             "refresh_token");
 
-        given(jwtAuthHelper.getSubjectFromToken(request.accessToken())).willReturn(
+        given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
             admin.getUsername());
         given(adminService.readByUsername(any())).willReturn(Optional.of(admin));
 
@@ -117,7 +117,7 @@ class AuthUseCaseTest {
 
         assertThat(response.token().accessToken()).isEqualTo(accessToken);
         assertThat(response.token().refreshToken()).isEqualTo(refreshToken);
-        then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
+        then(jwtAuthHelper).should(times(1)).getSubject(any());
         then(adminService).should(times(1)).readByUsername(any());
         then(jwtAuthHelper).should(times(1)).reissueToken(any(), any());
     }
@@ -128,14 +128,14 @@ class AuthUseCaseTest {
         ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
             "refresh_token");
 
-        given(jwtAuthHelper.getSubjectFromToken(request.accessToken())).willReturn(
+        given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
             admin.getUsername());
         given(adminService.readByUsername(any())).willReturn(Optional.empty());
 
         NotFoundException result = assertThrows(NotFoundException.class,
             () -> authUseCase.reissueToken(request));
 
-        then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
+        then(jwtAuthHelper).should(times(1)).getSubject(any());
         then(adminService).should(times(1)).readByUsername(any());
         assertEquals(ResponseCode.NOT_FOUND_ADMIN, result.getResponseCode());
     }

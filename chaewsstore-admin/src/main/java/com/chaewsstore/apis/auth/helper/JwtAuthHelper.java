@@ -61,8 +61,8 @@ public class JwtAuthHelper {
      * @param token JWT 토큰
      * @return 토큰에서 추출된 주체(subject)
      */
-    public String getSubjectFromToken(String token) {
-        return tokenProvider.getClaimsFromToken(token).getSubject();
+    public String getSubject(String token) {
+        return tokenProvider.getSubjectFromToken(token);
     }
 
     /**

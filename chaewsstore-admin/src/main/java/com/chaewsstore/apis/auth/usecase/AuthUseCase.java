@@ -63,7 +63,7 @@ public class AuthUseCase {
      */
     @Transactional
     public ReissueTokenResponseDto reissueToken(ReissueTokenRequestDto request) {
-        String username = jwtAuthHelper.getSubjectFromToken(request.accessToken());
+        String username = jwtAuthHelper.getSubject(request.accessToken());
         Admin admin = adminService.readByUsername(username).orElseThrow(() -> NOT_FOUND_ADMIN);
 
         Jwts token = jwtAuthHelper.reissueToken(admin, request.refreshToken());
