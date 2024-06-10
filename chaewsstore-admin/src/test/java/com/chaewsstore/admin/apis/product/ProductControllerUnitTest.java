@@ -1,11 +1,7 @@
-package com.chaewsstore.app.apis.product;
+package com.chaewsstore.admin.apis.product;
 
-import static com.chaewsstore.app.ApiDocumentUtils.documentIdentifier;
-import static com.chaewsstore.app.ApiDocumentUtils.getDocumentRequest;
-import static com.chaewsstore.app.ApiDocumentUtils.getDocumentResponse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -20,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
+import com.chaewsstore.admin.ApiDocumentUtils;
 import com.chaewsstore.apis.product.controller.ProductController;
 import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
 import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
@@ -38,6 +35,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -74,8 +72,9 @@ class ProductControllerUnitTest {
         mockMvc.perform(get("/admin/products")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk()).andDo(print())
-            .andDo(document(documentIdentifier,
-                getDocumentResponse(),
+            .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
+                ApiDocumentUtils.getDocumentRequest(),
+                ApiDocumentUtils.getDocumentResponse(),
                 relaxedResponseFields(
                     fieldWithPath("data.content.[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
                     fieldWithPath("data.content.[].name").type(JsonFieldType.STRING).description("상품명"),
@@ -95,9 +94,9 @@ class ProductControllerUnitTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
             .andDo(print())
-            .andDo(document(documentIdentifier,
-                getDocumentRequest(),
-                getDocumentResponse(),
+            .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
+                ApiDocumentUtils.getDocumentRequest(),
+                ApiDocumentUtils.getDocumentResponse(),
                 requestFields(
                     fieldWithPath("name").type(JsonFieldType.STRING).description("상품명"),
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("상품 출시 가격"),
@@ -115,9 +114,9 @@ class ProductControllerUnitTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk()).andDo(print())
-            .andDo(document(documentIdentifier,
-                getDocumentRequest(),
-                getDocumentResponse(),
+            .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
+                ApiDocumentUtils.getDocumentRequest(),
+                ApiDocumentUtils.getDocumentResponse(),
                 pathParameters(
                     parameterWithName("productId").description("상품 ID")
                 ),
@@ -135,9 +134,9 @@ class ProductControllerUnitTest {
         mockMvc.perform(delete("/admin/products/{productId}", 1)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk()).andDo(print())
-            .andDo(document(documentIdentifier,
-                getDocumentRequest(),
-                getDocumentResponse(),
+            .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
+                ApiDocumentUtils.getDocumentRequest(),
+                ApiDocumentUtils.getDocumentResponse(),
                 pathParameters(
                     parameterWithName("productId").description("상품 ID")
                 )

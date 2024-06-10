@@ -1,4 +1,4 @@
-package com.chaewsstore.app;
+package com.chaewsstore.admin;
 
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.modifyUris;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;

@@ -1,4 +1,4 @@
-package com.chaewsstore.app.apis.auth;
+package com.chaewsstore.admin.apis.auth;
 
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,14 +11,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.common.exception.NotFoundException;
-import com.chaewsstore.common.exception.UnauthorizedException;
 import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.security.jwt.Jwts;
-import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshToken;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshTokenService;
+import com.chaewsstore.core.infra.jwt.Jwts;
+import com.chaewsstore.core.infra.jwt.TokenProvider;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

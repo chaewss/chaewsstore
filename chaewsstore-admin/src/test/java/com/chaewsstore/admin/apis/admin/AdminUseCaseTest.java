@@ -1,4 +1,4 @@
-package com.chaewsstore.app.apis.admin;
+package com.chaewsstore.admin.apis.admin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,12 +8,12 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
-import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.apis.admin.usecase.AdminUseCase;
-import com.chaewsstore.common.exception.DuplicateException;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.common.response.ResponseCode;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
+import com.globalutils.exception.DuplicateException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

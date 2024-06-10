@@ -1,4 +1,4 @@
-package com.chaewsstore.app.apis.product;
+package com.chaewsstore.admin.apis.product;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -12,13 +12,13 @@ import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
 import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
 import com.chaewsstore.apis.product.dto.UpdateProductRequestDto;
 import com.chaewsstore.apis.product.usecase.ProductUseCase;
-import com.chaewsstore.common.exception.DuplicateException;
-import com.chaewsstore.common.exception.NotFoundException;
 import com.chaewsstore.common.response.ResponseCode;
 import com.chaewsstore.core.domain.brand.Brand;
 import com.chaewsstore.core.domain.brand.BrandService;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductService;
+import com.globalutils.exception.DuplicateException;
+import com.globalutils.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

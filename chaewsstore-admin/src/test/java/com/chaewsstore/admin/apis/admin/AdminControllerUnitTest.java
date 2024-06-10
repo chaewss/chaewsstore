@@ -1,4 +1,4 @@
-package com.chaewsstore.app.apis.admin;
+package com.chaewsstore.admin.apis.admin;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -14,11 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
+import com.chaewsstore.admin.ApiDocumentUtils;
 import com.chaewsstore.apis.admin.controller.AdminController;
 import com.chaewsstore.apis.admin.dto.AdminResponseDto;
 import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
 import com.chaewsstore.apis.admin.usecase.AdminUseCase;
-import com.chaewsstore.app.ApiDocumentUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
