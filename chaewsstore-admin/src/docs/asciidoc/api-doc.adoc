@@ -47,7 +47,6 @@ include::{snippets}/admin-controller-unit-test/respond_201_when_sign_up_succeed/
 |===
 | Code | Status | Detail
 
-| `SIGNUP_SUCCESS` | `201 CREATED` | 회원가입 성공
 | `ADMIN_DUPLICATION` | `409 CONFLICT` | 중복된 어드민 아이디입니다
 | `VALID_ERROR` |`400 BAD REQUEST` | 유효성 검사 실패
 |===
@@ -63,7 +62,6 @@ include::{snippets}/admin-controller-unit-test/respond_200_when_username_does_no
 |===
 | Code | Status | Detail
 
-| `CHECK_USERNAME_SUCCESS` | `200 OK` | 사용가능한 아이디입니다
 | `ADMIN_DUPLICATION` | `409 CONFLICT` | 중복된 어드민입니다
 |===
 
@@ -81,7 +79,6 @@ include::{snippets}/auth-controller-test/respond_200_when_login_succeed/http-res
 |===
 | Code | Status | Detail
 
-| `LOGIN_SUCCESS` | `200 OK` | 로그인 성공
 | `INVALID_PASSWORD` | `401 UNAUTHORIZED` | 비밀번호가 일치하지 않습니다
 | `NOT_FOUND_ADMIN` | `404 NOT FOUND` | 존재하지 않는 어드민입니다
 |===
@@ -99,7 +96,6 @@ include::{snippets}/auth-controller-test/respond_200_when_reissue_token_succeed/
 |===
 | Code | Status | Detail
 
-| `REISSUE_TOKEN_SUCCESS` | `200 OK` | 토큰 재발급 성공
 | `WITHOUT_OWNERSHIP_REFRESH_TOKEN` | `401 UNAUTHORIZED` | 소유권이 없는 리프레시 토큰입니다
 | `NOT_FOUND_ADMIN` | `404 NOT FOUND` | 존재하지 않는 어드민입니다
 | `NOT_FOUND_REFRESH_TOKEN` | `404 NOT FOUND` | 존재하지 않는 리프레시 토큰입니다
@@ -116,7 +112,6 @@ include::{snippets}/auth-controller-test/respond_200_when_logout_succeed/http-re
 |===
 | Code | Status | Detail
 
-| `LOGOUT_SUCCESS` | `200 OK` | 로그아웃 성공
 | `WITHOUT_OWNERSHIP_REFRESH_TOKEN` | `401 UNAUTHORIZED` | 소유권이 없는 리프레시 토큰입니다
 | `NOT_FOUND_REFRESH_TOKEN` | `404 NOT FOUND` | 존재하지 않는 리프레시 토큰입니다
 |===
@@ -129,12 +124,6 @@ include::{snippets}/product-controller-unit-test/respond_200_when_read_product_l
 include::{snippets}/product-controller-unit-test/respond_200_when_read_product_list_succeed/response-fields.adoc[]
 ==== Response Http Example
 include::{snippets}/product-controller-unit-test/respond_200_when_read_product_list_succeed/http-response.adoc[]
-==== Response Status
-|===
-| Code | Status | Detail
-
-| `READ_PRODUCTS_SUCCESS` | `200 OK` | 상품 리스트 조회 성공
-|===
 
 === 4-2. 상품 생성
 ==== Request Fields
@@ -147,7 +136,6 @@ include::{snippets}/product-controller-unit-test/respond_201_when_create_product
 |===
 | Code | Status | Detail
 
-| `CREATE_PRODUCT_SUCCESS` | `201 CREATED` | 상품 생성 성공
 | `NOT_FOUND_BRAND` | `404 NOT FOUND` | 존재하지 않는 브랜드입니다
 | `DUPLICATE_PRODUCT` | `409 CONFLICT` | 중복된 상품입니다
 |===
@@ -165,7 +153,6 @@ include::{snippets}/product-controller-unit-test/respond_200_when_update_product
 |===
 | Code | Status | Detail
 
-| `UPDATE_PRODUCT_SUCCESS` | `200 OK` | 상품 수정 성공
 | `NOT_FOUND_BRAND` | `404 NOT FOUND` | 존재하지 않는 브랜드입니다
 | `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
 | `DUPLICATE_PRODUCT` | `409 CONFLICT` | 중복된 상품입니다
@@ -182,6 +169,5 @@ include::{snippets}/product-controller-unit-test/respond_200_when_delete_product
 |===
 | Code | Status | Detail
 
-| `DELETE_PRODUCT_SUCCESS` | `200 OK` | 상품 삭제 성공
 | `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
 |===

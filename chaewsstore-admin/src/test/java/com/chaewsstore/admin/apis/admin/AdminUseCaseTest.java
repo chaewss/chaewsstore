@@ -10,7 +10,7 @@ import static org.mockito.Mockito.times;
 import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
 import com.chaewsstore.apis.admin.usecase.AdminUseCase;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
 import com.globalutils.exception.DuplicateException;
@@ -67,7 +67,7 @@ class AdminUseCaseTest {
 
         // then
         then(adminService).should(times(1)).existsByUsername(any());
-        assertEquals(ResponseCode.ADMIN_DUPLICATION, result.getResponseCode());
+        assertEquals(ErrorCode.ADMIN_DUPLICATION, result.getResponseCode());
     }
 
     @Test
@@ -95,7 +95,7 @@ class AdminUseCaseTest {
 
         // then
         then(adminService).should(times(1)).existsByUsername(any());
-        assertEquals(ResponseCode.ADMIN_DUPLICATION, result.getResponseCode());
+        assertEquals(ErrorCode.ADMIN_DUPLICATION, result.getResponseCode());
     }
 
     Admin admin = Admin.builder()

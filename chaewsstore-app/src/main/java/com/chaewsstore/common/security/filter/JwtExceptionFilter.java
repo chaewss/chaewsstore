@@ -4,7 +4,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.chaewsstore.core.infra.exception.JwtErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.globalutils.ResponseData;
+import com.globalutils.response.ErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,9 +28,8 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             response.setStatus(ex.getErrorCode().getStatusCode().getCode());
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(
-                objectMapper.writeValueAsString(
-                    ResponseData.of(ex.getErrorCode(), ex.getMessage())));
+            response.getWriter()
+                .write(objectMapper.writeValueAsString(ErrorResponse.from(ex.getErrorCode())));
         }
     }
 }

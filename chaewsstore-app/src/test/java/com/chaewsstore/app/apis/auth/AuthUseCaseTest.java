@@ -21,7 +21,7 @@ import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
@@ -137,7 +137,7 @@ class AuthUseCaseTest {
 
         then(jwtAuthHelper).should(times(1)).getSubject(any());
         then(accountService).should(times(1)).readByUsername(any());
-        assertEquals(ResponseCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
     }
 
     @Test

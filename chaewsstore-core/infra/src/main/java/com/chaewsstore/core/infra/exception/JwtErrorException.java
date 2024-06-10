@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class JwtErrorException extends GlobalErrorException {
 
-    private final JwtResponseCode errorCode;
+    private final JwtErrorCode errorCode;
 
-    public JwtErrorException(JwtResponseCode jwtErrorCode) {
+    public JwtErrorException(JwtErrorCode jwtErrorCode) {
         super(jwtErrorCode);
         this.errorCode = jwtErrorCode;
     }

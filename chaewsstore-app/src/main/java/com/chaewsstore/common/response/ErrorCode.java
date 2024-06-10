@@ -2,35 +2,18 @@ package com.chaewsstore.common.response;
 
 import static com.globalutils.exception.StatusCode.BAD_REQUEST;
 import static com.globalutils.exception.StatusCode.CONFLICT;
-import static com.globalutils.exception.StatusCode.CREATED;
 import static com.globalutils.exception.StatusCode.FORBIDDEN;
 import static com.globalutils.exception.StatusCode.NOT_FOUND;
-import static com.globalutils.exception.StatusCode.OK;
 import static com.globalutils.exception.StatusCode.UNAUTHORIZED;
 
-import com.globalutils.exception.BaseResponseCode;
+import com.globalutils.exception.BaseErrorCode;
 import com.globalutils.exception.StatusCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum ResponseCode implements BaseResponseCode {
-
-    /* 200 OK : 요청 성공 */
-    LOGIN_SUCCESS(OK, "로그인 성공"),
-    CHECK_USERNAME_SUCCESS(OK, "사용가능한 아이디입니다"),
-    CHECK_NICKNAME_SUCCESS(OK, "사용가능한 닉네임입니다"),
-    REISSUE_TOKEN_SUCCESS(OK, "토큰 재발급 성공"),
-    LOGOUT_SUCCESS(OK, "로그아웃 성공"),
-
-    READ_PRODUCT_BID_SUCCESS(OK, "상품 입찰 목록 조회 성공"),
-    UPDATE_BID_SUCCESS(OK, "입찰 수정 성공"),
-    DELETE_BID_SUCCESS(OK, "입찰 삭제 성공"),
-
-    /* 201 CREATED : 요청 성공, 자원 생성 */
-    SIGNUP_SUCCESS(CREATED, "회원가입 성공"),
-    CREATE_BID_SUCCESS(CREATED, "입찰 생성 성공"),
+public enum ErrorCode implements BaseErrorCode {
 
     /* 400 BAD_REQUEST : 잘못된 요청 */
     VALID_ERROR(BAD_REQUEST, "유효성 검사 실패"),

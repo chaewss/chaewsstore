@@ -3,8 +3,7 @@ package com.chaewsstore.apis.account.controller;
 import com.chaewsstore.apis.account.dto.AccountResponseDto;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
 import com.chaewsstore.apis.account.usecase.AccountUseCase;
-import com.chaewsstore.common.response.ResponseCode;
-import com.globalutils.ResponseData;
+import com.globalutils.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,20 +24,19 @@ public class AccountController {
 
     @PostMapping("signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseData<AccountResponseDto> signup(@Valid @RequestBody SignupRequestDto request) {
-        AccountResponseDto data = accountUseCase.signup(request);
-        return ResponseData.of(ResponseCode.SIGNUP_SUCCESS, data);
+    public SuccessResponse<AccountResponseDto> signup(@Valid @RequestBody SignupRequestDto request) {
+        return SuccessResponse.from(accountUseCase.signup(request));
     }
 
     @GetMapping("check-username/{username}/exists")
-    public ResponseData checkUsername(@PathVariable String username) {
+    public SuccessResponse checkUsername(@PathVariable String username) {
         accountUseCase.checkUsername(username);
-        return ResponseData.from(ResponseCode.CHECK_USERNAME_SUCCESS);
+        return SuccessResponse.create();
     }
 
     @GetMapping("check-nickname/{nickname}/exists")
-    public ResponseData checkNickname(@PathVariable String nickname) {
+    public SuccessResponse checkNickname(@PathVariable String nickname) {
         accountUseCase.checkNickname(nickname);
-        return ResponseData.from(ResponseCode.CHECK_NICKNAME_SUCCESS);
+        return SuccessResponse.create();
     }
 }

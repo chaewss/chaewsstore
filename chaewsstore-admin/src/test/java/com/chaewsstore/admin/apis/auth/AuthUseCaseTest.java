@@ -19,7 +19,7 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
 import com.chaewsstore.core.infra.jwt.Jwts;
@@ -137,7 +137,7 @@ class AuthUseCaseTest {
 
         then(jwtAuthHelper).should(times(1)).getSubject(any());
         then(adminService).should(times(1)).readByUsername(any());
-        assertEquals(ResponseCode.NOT_FOUND_ADMIN, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_ADMIN, result.getResponseCode());
     }
 
     @Test

@@ -6,14 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.chaewsstore.core.infra.exception.JwtErrorException;
-import com.chaewsstore.core.infra.exception.JwtResponseCode;
+import com.chaewsstore.core.infra.exception.JwtErrorCode;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import javax.crypto.SecretKey;
@@ -22,9 +20,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -137,7 +132,7 @@ class TokenProviderTest {
         JwtErrorException result = assertThrows(JwtErrorException.class,
             () -> tokenProvider.getClaimsFromToken(malformedToken));
 
-        assertEquals(JwtResponseCode.MALFORMED_TOKEN, result.getErrorCode());
+        assertEquals(JwtErrorCode.MALFORMED_TOKEN, result.getErrorCode());
     }
 
     @Test
@@ -151,7 +146,7 @@ class TokenProviderTest {
         JwtErrorException result = assertThrows(JwtErrorException.class,
             () -> tokenProvider.getClaimsFromToken(token));
 
-        assertEquals(JwtResponseCode.INVALID_SIGNATURE, result.getErrorCode());
+        assertEquals(JwtErrorCode.INVALID_SIGNATURE, result.getErrorCode());
     }
 
     @Test
@@ -166,7 +161,7 @@ class TokenProviderTest {
         JwtErrorException result = assertThrows(JwtErrorException.class,
             () -> tokenProvider.getClaimsFromToken(token));
 
-        assertEquals(JwtResponseCode.EXPIRED_TOKEN, result.getErrorCode());
+        assertEquals(JwtErrorCode.EXPIRED_TOKEN, result.getErrorCode());
     }
 
     @Test
@@ -177,6 +172,6 @@ class TokenProviderTest {
         JwtErrorException result = assertThrows(JwtErrorException.class,
             () -> tokenProvider.getClaimsFromToken(illegalToken));
 
-        assertEquals(JwtResponseCode.ILLEGAL_TOKEN, result.getErrorCode());
+        assertEquals(JwtErrorCode.ILLEGAL_TOKEN, result.getErrorCode());
     }
 }

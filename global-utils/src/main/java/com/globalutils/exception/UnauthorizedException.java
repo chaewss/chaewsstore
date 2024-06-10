@@ -7,5 +7,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UnauthorizedException extends RuntimeException {
 
-    private final BaseResponseCode responseCode;
+    private final BaseErrorCode responseCode;
 }

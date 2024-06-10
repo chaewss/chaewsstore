@@ -2,14 +2,14 @@ package com.chaewsstore.core.infra.exception;
 
 import static com.globalutils.exception.StatusCode.UNAUTHORIZED;
 
-import com.globalutils.exception.BaseResponseCode;
+import com.globalutils.exception.BaseErrorCode;
 import com.globalutils.exception.StatusCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum JwtResponseCode implements BaseResponseCode {
+public enum JwtErrorCode implements BaseErrorCode {
 
     EMPTY_ACCESS_TOKEN(UNAUTHORIZED, "토큰이 비어있습니다"),
     INVALID_SIGNATURE(UNAUTHORIZED, "서명이 조작된 토큰입니다"),

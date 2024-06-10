@@ -1,16 +1,12 @@
 package com.chaewsstore.common.exception;
 
-import com.chaewsstore.common.response.ResponseCode;
-import com.globalutils.ResponseData;
+import com.chaewsstore.common.response.ErrorCode;
+import com.globalutils.response.ErrorResponse;
 import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,37 +17,32 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseData handleUnauthorizedException(UnauthorizedException e) {
-        return ResponseData.from(e.getResponseCode());
+    public ErrorResponse handleUnauthorizedException(UnauthorizedException e) {
+        return ErrorResponse.from(e.getResponseCode());
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseData handleForbiddenException(ForbiddenException e) {
-        return ResponseData.from(e.getResponseCode());
+    public ErrorResponse handleForbiddenException(ForbiddenException e) {
+        return ErrorResponse.from(e.getResponseCode());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
-    public ResponseData handleNotFoundException(NotFoundException e) {
-        return ResponseData.from(e.getResponseCode());
+    public ErrorResponse handleNotFoundException(NotFoundException e) {
+        return ErrorResponse.from(e.getResponseCode());
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DuplicateException.class)
-    protected ResponseData handleDuplicateException(DuplicateException e) {
-        return ResponseData.from(e.getResponseCode());
+    protected ErrorResponse handleDuplicateException(DuplicateException e) {
+        return ErrorResponse.from(e.getResponseCode());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseData handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        List<FieldError> allFieldErrors = e.getBindingResult().getFieldErrors();
-        Map<String, String> data = new HashMap<>();
-        for (FieldError fieldError : allFieldErrors) {
-            data.put(fieldError.getField(), fieldError.getDefaultMessage());
-        }
-        return ResponseData.of(ResponseCode.VALID_ERROR, data);
+    protected ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        return ErrorResponse.of(ErrorCode.VALID_ERROR, e.getFieldError().getDefaultMessage());
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -59,5 +50,4 @@ public class GlobalExceptionHandler {
     public String handleUnexpectedException(Exception e) {
         return e.getMessage();
     }
-
 }

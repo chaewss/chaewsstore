@@ -13,7 +13,7 @@ import static org.mockito.Mockito.times;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.Role;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
@@ -87,7 +87,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -101,7 +101,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -127,7 +127,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -141,7 +141,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     Account account = Account.builder()

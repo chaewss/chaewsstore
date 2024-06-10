@@ -1,11 +1,11 @@
 package com.chaewsstore.core.infra.jwt;
 
-import static com.chaewsstore.core.infra.exception.JwtResponseCode.EMPTY_ACCESS_TOKEN;
-import static com.chaewsstore.core.infra.exception.JwtResponseCode.EXPIRED_TOKEN;
-import static com.chaewsstore.core.infra.exception.JwtResponseCode.ILLEGAL_TOKEN;
-import static com.chaewsstore.core.infra.exception.JwtResponseCode.INVALID_SIGNATURE;
-import static com.chaewsstore.core.infra.exception.JwtResponseCode.MALFORMED_TOKEN;
-import static com.chaewsstore.core.infra.exception.JwtResponseCode.UNSUPPORTED_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtErrorCode.EMPTY_ACCESS_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtErrorCode.EXPIRED_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtErrorCode.ILLEGAL_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtErrorCode.INVALID_SIGNATURE;
+import static com.chaewsstore.core.infra.exception.JwtErrorCode.MALFORMED_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtErrorCode.UNSUPPORTED_TOKEN;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.ACCESS_TOKEN_TTL_MILLISECOND;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.REFRESH_TOKEN_TTL_MILLISECOND;

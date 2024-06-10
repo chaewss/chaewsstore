@@ -4,8 +4,7 @@ import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
 import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
 import com.chaewsstore.apis.product.dto.UpdateProductRequestDto;
 import com.chaewsstore.apis.product.usecase.ProductUseCase;
-import com.chaewsstore.common.response.ResponseCode;
-import com.globalutils.ResponseData;
+import com.globalutils.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -28,28 +27,27 @@ public class ProductController {
     private final ProductUseCase productUseCase;
 
     @GetMapping()
-    public ResponseData<Slice<ReadProductResponseDto>> readProducts(Pageable pageable) {
-        return ResponseData.of(ResponseCode.READ_PRODUCTS_SUCCESS,
-            productUseCase.readProductList(pageable));
+    public SuccessResponse<Slice<ReadProductResponseDto>> readProducts(Pageable pageable) {
+        return SuccessResponse.from(productUseCase.readProductList(pageable));
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseData<Void> createProduct(@RequestBody CreateProductRequestDto request) {
+    public SuccessResponse<Void> createProduct(@RequestBody CreateProductRequestDto request) {
         productUseCase.createProduct(request);
-        return ResponseData.from(ResponseCode.CREATE_PRODUCT_SUCCESS);
+        return SuccessResponse.create();
     }
 
     @PutMapping("/{productId}")
-    public ResponseData<Void> updateProduct(@PathVariable Long productId,
+    public SuccessResponse<Void> updateProduct(@PathVariable Long productId,
         @RequestBody UpdateProductRequestDto request) {
         productUseCase.updateProduct(productId, request);
-        return ResponseData.from(ResponseCode.UPDATE_PRODUCT_SUCCESS);
+        return SuccessResponse.create();
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseData<Void> deleteProduct(@PathVariable Long productId) {
+    public SuccessResponse<Void> deleteProduct(@PathVariable Long productId) {
         productUseCase.deleteProduct(productId);
-        return ResponseData.from(ResponseCode.DELETE_PRODUCT_SUCCESS);
+        return SuccessResponse.create();
     }
 }

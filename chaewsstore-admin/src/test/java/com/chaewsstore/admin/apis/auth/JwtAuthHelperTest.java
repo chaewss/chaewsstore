@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshToken;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshTokenService;
@@ -86,7 +86,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -100,7 +100,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -126,7 +126,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -140,7 +140,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     Admin admin = Admin.builder()

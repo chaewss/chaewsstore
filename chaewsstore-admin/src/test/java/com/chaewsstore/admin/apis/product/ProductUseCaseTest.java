@@ -12,7 +12,7 @@ import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
 import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
 import com.chaewsstore.apis.product.dto.UpdateProductRequestDto;
 import com.chaewsstore.apis.product.usecase.ProductUseCase;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.domain.brand.Brand;
 import com.chaewsstore.core.domain.brand.BrandService;
 import com.chaewsstore.core.domain.product.Product;
@@ -82,7 +82,7 @@ class ProductUseCaseTest {
             () -> productUseCase.createProduct(request));
 
         then(brandService).should(times(1)).readByName(any());
-        assertEquals(ResponseCode.NOT_FOUND_BRAND, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_BRAND, result.getResponseCode());
     }
 
     @Test
@@ -98,7 +98,7 @@ class ProductUseCaseTest {
 
         then(brandService).should(times(1)).readByName(any());
         then(productService).should(times(1)).existsByName(any());
-        assertEquals(ResponseCode.DUPLICATE_PRODUCT, result.getResponseCode());
+        assertEquals(ErrorCode.DUPLICATE_PRODUCT, result.getResponseCode());
     }
 
     @Test
@@ -129,7 +129,7 @@ class ProductUseCaseTest {
             () -> productUseCase.updateProduct(product1.getId(), request));
 
         then(brandService).should(times(1)).readByName(any());
-        assertEquals(ResponseCode.NOT_FOUND_BRAND, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_BRAND, result.getResponseCode());
     }
 
     @Test
@@ -145,7 +145,7 @@ class ProductUseCaseTest {
 
         then(brandService).should(times(1)).readByName(any());
         then(productService).should(times(1)).readById(any());
-        assertEquals(ResponseCode.NOT_FOUND_PRODUCT, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
     }
 
     @Test
@@ -163,7 +163,7 @@ class ProductUseCaseTest {
         then(brandService).should(times(1)).readByName(any());
         then(productService).should(times(1)).readById(anyLong());
         then(productService).should(times(1)).existsByName(any());
-        assertEquals(ResponseCode.DUPLICATE_PRODUCT, result.getResponseCode());
+        assertEquals(ErrorCode.DUPLICATE_PRODUCT, result.getResponseCode());
     }
 
     @Test
@@ -186,7 +186,7 @@ class ProductUseCaseTest {
             () -> productUseCase.deleteProduct(99L));
 
         then(productService).should(times(1)).readById(anyLong());
-        assertEquals(ResponseCode.NOT_FOUND_PRODUCT, result.getResponseCode());
+        assertEquals(ErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
     }
 
     Brand brand = Brand.builder().name("브랜드1").build();

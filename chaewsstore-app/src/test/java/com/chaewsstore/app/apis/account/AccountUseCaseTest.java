@@ -12,7 +12,7 @@ import com.chaewsstore.apis.account.dto.SignupRequestDto;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.apis.account.usecase.AccountUseCase;
 import com.globalutils.exception.DuplicateException;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import org.junit.jupiter.api.DisplayName;
@@ -70,7 +70,7 @@ class AccountUseCaseTest {
 
         // then
         then(accountService).should(times(1)).existsByUsername(any());
-        assertEquals(ResponseCode.ACCOUNT_DUPLICATION, result.getResponseCode());
+        assertEquals(ErrorCode.ACCOUNT_DUPLICATION, result.getResponseCode());
     }
 
     @Test
@@ -89,7 +89,7 @@ class AccountUseCaseTest {
         // then
         then(accountService).should(times(1)).existsByUsername(any());
         then(accountService).should(times(1)).existsByNickname(any());
-        assertEquals(ResponseCode.NICKNAME_DUPLICATION, result.getResponseCode());
+        assertEquals(ErrorCode.NICKNAME_DUPLICATION, result.getResponseCode());
     }
 
     @Test
@@ -117,7 +117,7 @@ class AccountUseCaseTest {
 
         // then
         then(accountService).should(times(1)).existsByUsername(any());
-        assertEquals(ResponseCode.ACCOUNT_DUPLICATION, result.getResponseCode());
+        assertEquals(ErrorCode.ACCOUNT_DUPLICATION, result.getResponseCode());
     }
 
     @Test
@@ -145,7 +145,7 @@ class AccountUseCaseTest {
 
         // then
         verify(accountService, times(1)).existsByNickname(any());
-        assertEquals(ResponseCode.NICKNAME_DUPLICATION, result.getResponseCode());
+        assertEquals(ErrorCode.NICKNAME_DUPLICATION, result.getResponseCode());
     }
 
 

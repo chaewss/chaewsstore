@@ -1,10 +1,10 @@
 package com.chaewsstore.common.security.handler;
 
-import static com.chaewsstore.common.response.ResponseCode.ACCESS_DENIED;
+import static com.chaewsstore.common.response.ErrorCode.ACCESS_DENIED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.globalutils.ResponseData;
+import com.globalutils.response.ErrorResponse;
 import com.globalutils.exception.StatusCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +26,6 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(
-            ResponseData.of(ACCESS_DENIED, accessDeniedException.getMessage())));
+            ErrorResponse.of(ACCESS_DENIED, accessDeniedException.getMessage())));
     }
 }

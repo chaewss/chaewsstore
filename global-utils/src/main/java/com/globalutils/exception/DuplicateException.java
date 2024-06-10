@@ -7,5 +7,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DuplicateException extends RuntimeException {
 
-    private final BaseResponseCode responseCode;
+    private final BaseErrorCode responseCode;
 }
