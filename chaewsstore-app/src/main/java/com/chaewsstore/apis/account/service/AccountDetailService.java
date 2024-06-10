@@ -2,7 +2,7 @@ package com.chaewsstore.apis.account.service;
 
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
 
-import com.chaewsstore.common.security.SecurityUtil;
+import com.chaewsstore.core.infra.jwt.SecurityUtil;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import java.util.List;

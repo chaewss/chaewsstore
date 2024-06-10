@@ -1,4 +1,4 @@
-package com.chaewsstore.common.security;
+package com.chaewsstore.core.infra.jwt;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

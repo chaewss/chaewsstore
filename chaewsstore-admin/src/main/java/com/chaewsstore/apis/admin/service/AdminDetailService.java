@@ -2,7 +2,7 @@ package com.chaewsstore.apis.admin.service;
 
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ADMIN;
 
-import com.chaewsstore.common.security.SecurityUtil;
+import com.chaewsstore.core.infra.jwt.SecurityUtil;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
 import java.util.List;
