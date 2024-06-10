@@ -18,6 +18,7 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
 import com.chaewsstore.common.response.ResponseCode;
@@ -34,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class AuthUseCaseTest {
@@ -43,7 +43,7 @@ class AuthUseCaseTest {
     private AuthUseCase authUseCase;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoderHelper passwordEncoderHelper;
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -61,7 +61,7 @@ class AuthUseCaseTest {
         Authentication authentication = mock(Authentication.class);
 
         given(accountService.readByUsername(requestDto.email())).willReturn(Optional.of(account));
-        given(passwordEncoder.matches(requestDto.password(), account.getPassword())).willReturn(
+        given(passwordEncoderHelper.matches(requestDto.password(), account.getPassword())).willReturn(
             true);
 
         given(authenticationManager.authenticate(any())).willReturn(authentication);
@@ -73,6 +73,7 @@ class AuthUseCaseTest {
         assertThat(responseDto.token().accessToken()).isEqualTo(accessToken);
         assertThat(responseDto.token().refreshToken()).isEqualTo(refreshToken);
         then(accountService).should(times(1)).readByUsername(any());
+        then(passwordEncoderHelper).should(times(1)).matches(any(), any());
         then(jwtAuthHelper).should(times(1)).generateTokensAndSave(any(), any());
     }
 

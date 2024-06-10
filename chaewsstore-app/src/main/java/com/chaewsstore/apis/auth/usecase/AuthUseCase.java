@@ -9,6 +9,7 @@ import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.infra.jwt.Jwts;
@@ -19,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class AuthUseCase {
     private final JwtAuthHelper jwtAuthHelper;
     private final AccountService accountService;
     private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderHelper passwordEncoderHelper;
 
     /**
      * 로그인
@@ -43,7 +43,7 @@ public class AuthUseCase {
     public LoginResponseDto login(LoginRequestDto request) {
         Account account = accountService.readByUsername(request.email())
             .orElseThrow(() -> NOT_FOUND_ACCOUNT);
-        if (!passwordEncoder.matches(request.password(), account.getPassword())) {
+        if (!passwordEncoderHelper.matches(request.password(), account.getPassword())) {
             throw INVALID_PASSWORD;
         }
 

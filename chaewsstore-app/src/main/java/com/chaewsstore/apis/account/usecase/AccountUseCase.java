@@ -5,7 +5,7 @@ import static com.chaewsstore.common.exception.ExceptionConstants.NICKNAME_DUPLI
 
 import com.chaewsstore.apis.account.dto.AccountResponseDto;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.apis.account.helper.PasswordEncoderHelper;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;

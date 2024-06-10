@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.apis.account.helper.PasswordEncoderHelper;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.apis.account.usecase.AccountUseCase;
 import com.globalutils.exception.DuplicateException;
 import com.chaewsstore.common.response.ResponseCode;
