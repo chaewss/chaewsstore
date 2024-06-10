@@ -11,9 +11,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.common.response.ErrorCode;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshToken;
+import com.chaewsstore.core.domain.adminRefresh.AdminRefreshTokenErrorCode;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshTokenService;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
@@ -86,7 +86,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(AdminRefreshTokenErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -100,7 +100,8 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(AdminRefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN,
+            result.getResponseCode());
     }
 
     @Test
@@ -126,7 +127,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(AdminRefreshTokenErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -140,7 +141,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(AdminRefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     Admin admin = Admin.builder()

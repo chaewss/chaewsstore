@@ -1,10 +1,9 @@
 package com.chaewsstore.common.exception;
 
-import com.chaewsstore.common.response.ErrorCode;
-import com.globalutils.response.ErrorResponse;
 import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
+import com.globalutils.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,7 +34,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        return ErrorResponse.of(ErrorCode.VALID_ERROR, e.getFieldError().getDefaultMessage());
+        return ErrorResponse.of("VALID_ERROR", e.getFieldError().getDefaultMessage());
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -21,4 +21,8 @@ public class ErrorResponse extends Response {
     public static ErrorResponse of(BaseErrorCode errorCode, String message) {
         return new ErrorResponse(errorCode.statusCode(), message);
     }
+
+    public static ErrorResponse of(String code, String message) {
+        return new ErrorResponse(code, message);
+    }
 }

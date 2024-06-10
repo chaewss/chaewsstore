@@ -1,6 +1,6 @@
 package com.chaewsstore.common.security.handler;
 
-import static com.chaewsstore.common.response.ErrorCode.ACCESS_DENIED;
+import static com.chaewsstore.core.infra.exception.JwtErrorCode.ACCESS_DENIED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

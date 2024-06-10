@@ -19,13 +19,13 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.globalutils.exception.NotFoundException;
-import com.globalutils.exception.UnauthorizedException;
-import com.chaewsstore.common.response.ErrorCode;
-import com.chaewsstore.core.infra.jwt.Jwts;
 import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.account.AccountErrorCode;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.infra.jwt.Jwts;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -137,7 +137,7 @@ class AuthUseCaseTest {
 
         then(jwtAuthHelper).should(times(1)).getSubject(any());
         then(accountService).should(times(1)).readByUsername(any());
-        assertEquals(ErrorCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
+        assertEquals(AccountErrorCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
     }
 
     @Test
