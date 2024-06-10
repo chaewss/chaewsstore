@@ -5,10 +5,10 @@ import static com.chaewsstore.common.exception.ExceptionConstants.ADMIN_DUPLICAT
 import com.chaewsstore.apis.admin.dto.AdminResponseDto;
 import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.common.exception.DuplicateException;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
 import com.globalutils.annotation.UseCase;
+import com.globalutils.exception.DuplicateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 

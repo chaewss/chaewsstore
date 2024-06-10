@@ -9,12 +9,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.apis.account.helper.PasswordEncoderHelper;
 import com.chaewsstore.apis.account.usecase.AccountUseCase;
-import com.chaewsstore.common.exception.DuplicateException;
-import com.chaewsstore.common.response.ResponseCode;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.account.AccountErrorCode;
 import com.chaewsstore.core.domain.account.AccountService;
+import com.globalutils.exception.DuplicateException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +70,7 @@ class AccountUseCaseTest {
 
         // then
         then(accountService).should(times(1)).existsByUsername(any());
-        assertEquals(ResponseCode.ACCOUNT_DUPLICATION, result.getResponseCode());
+        assertEquals(AccountErrorCode.ACCOUNT_DUPLICATION, result.getResponseCode());
     }
 
     @Test
@@ -89,7 +89,7 @@ class AccountUseCaseTest {
         // then
         then(accountService).should(times(1)).existsByUsername(any());
         then(accountService).should(times(1)).existsByNickname(any());
-        assertEquals(ResponseCode.NICKNAME_DUPLICATION, result.getResponseCode());
+        assertEquals(AccountErrorCode.NICKNAME_DUPLICATION, result.getResponseCode());
     }
 
     @Test
@@ -117,7 +117,7 @@ class AccountUseCaseTest {
 
         // then
         then(accountService).should(times(1)).existsByUsername(any());
-        assertEquals(ResponseCode.ACCOUNT_DUPLICATION, result.getResponseCode());
+        assertEquals(AccountErrorCode.ACCOUNT_DUPLICATION, result.getResponseCode());
     }
 
     @Test
@@ -145,7 +145,7 @@ class AccountUseCaseTest {
 
         // then
         verify(accountService, times(1)).existsByNickname(any());
-        assertEquals(ResponseCode.NICKNAME_DUPLICATION, result.getResponseCode());
+        assertEquals(AccountErrorCode.NICKNAME_DUPLICATION, result.getResponseCode());
     }
 
 

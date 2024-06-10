@@ -21,4 +21,4 @@ jwt:
   header: Authorization
   secret: ${SECRET_KEY}
 
-#logging.level.org.springframework.core.LocalVariableTableParameterNameDiscoverer: error
+logging.level.org.springframework.core.LocalVariableTableParameterNameDiscoverer: error

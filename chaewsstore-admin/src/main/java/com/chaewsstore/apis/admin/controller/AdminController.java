@@ -3,8 +3,7 @@ package com.chaewsstore.apis.admin.controller;
 import com.chaewsstore.apis.admin.dto.AdminResponseDto;
 import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
 import com.chaewsstore.apis.admin.usecase.AdminUseCase;
-import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
+import com.globalutils.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,15 +24,15 @@ public class AdminController {
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseData<AdminResponseDto> signup(
+    public SuccessResponse<AdminResponseDto> signup(
         @Valid @RequestBody AdminSignupRequestDto request) {
         AdminResponseDto data = adminUseCase.signup(request);
-        return ResponseData.of(ResponseCode.SIGNUP_SUCCESS, data);
+        return SuccessResponse.from(data);
     }
 
     @GetMapping("/check-username/{username}/exists")
-    public ResponseData checkUsername(@PathVariable String username) {
+    public SuccessResponse checkUsername(@PathVariable String username) {
         adminUseCase.checkUsername(username);
-        return ResponseData.from(ResponseCode.CHECK_USERNAME_SUCCESS);
+        return SuccessResponse.create();
     }
 }

@@ -9,13 +9,13 @@ import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.common.exception.NotFoundException;
-import com.chaewsstore.common.exception.UnauthorizedException;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminService;
+import com.chaewsstore.core.infra.jwt.Jwts;
 import com.globalutils.annotation.UseCase;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -63,7 +63,7 @@ public class AuthUseCase {
      */
     @Transactional
     public ReissueTokenResponseDto reissueToken(ReissueTokenRequestDto request) {
-        String username = jwtAuthHelper.getSubjectFromToken(request.accessToken());
+        String username = jwtAuthHelper.getSubject(request.accessToken());
         Admin admin = adminService.readByUsername(username).orElseThrow(() -> NOT_FOUND_ADMIN);
 
         Jwts token = jwtAuthHelper.reissueToken(admin, request.refreshToken());

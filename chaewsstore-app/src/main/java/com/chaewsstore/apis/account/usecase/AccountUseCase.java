@@ -5,12 +5,12 @@ import static com.chaewsstore.common.exception.ExceptionConstants.NICKNAME_DUPLI
 
 import com.chaewsstore.apis.account.dto.AccountResponseDto;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.apis.account.helper.PasswordEncoderHelper;
-import com.chaewsstore.common.exception.DuplicateException;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;
 import com.globalutils.annotation.UseCase;
+import com.globalutils.exception.DuplicateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 

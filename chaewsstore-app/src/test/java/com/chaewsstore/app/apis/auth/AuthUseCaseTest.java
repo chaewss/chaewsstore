@@ -1,6 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,13 +18,14 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
-import com.chaewsstore.common.exception.NotFoundException;
-import com.chaewsstore.common.exception.UnauthorizedException;
-import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.security.jwt.Jwts;
+import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.account.AccountErrorCode;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.infra.jwt.Jwts;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class AuthUseCaseTest {
@@ -43,7 +43,7 @@ class AuthUseCaseTest {
     private AuthUseCase authUseCase;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoderHelper passwordEncoderHelper;
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -61,7 +61,7 @@ class AuthUseCaseTest {
         Authentication authentication = mock(Authentication.class);
 
         given(accountService.readByUsername(requestDto.email())).willReturn(Optional.of(account));
-        given(passwordEncoder.matches(requestDto.password(), account.getPassword())).willReturn(
+        given(passwordEncoderHelper.matches(requestDto.password(), account.getPassword())).willReturn(
             true);
 
         given(authenticationManager.authenticate(any())).willReturn(authentication);
@@ -73,6 +73,7 @@ class AuthUseCaseTest {
         assertThat(responseDto.token().accessToken()).isEqualTo(accessToken);
         assertThat(responseDto.token().refreshToken()).isEqualTo(refreshToken);
         then(accountService).should(times(1)).readByUsername(any());
+        then(passwordEncoderHelper).should(times(1)).matches(any(), any());
         then(jwtAuthHelper).should(times(1)).generateTokensAndSave(any(), any());
     }
 
@@ -106,7 +107,7 @@ class AuthUseCaseTest {
         ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
             "refresh_token");
 
-        given(jwtAuthHelper.getSubjectFromToken(request.accessToken())).willReturn(
+        given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
             account.getUsername());
         given(accountService.readByUsername(any())).willReturn(Optional.of(account));
 
@@ -116,7 +117,7 @@ class AuthUseCaseTest {
 
         assertThat(response.token().accessToken()).isEqualTo(accessToken);
         assertThat(response.token().refreshToken()).isEqualTo(refreshToken);
-        then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
+        then(jwtAuthHelper).should(times(1)).getSubject(any());
         then(accountService).should(times(1)).readByUsername(any());
         then(jwtAuthHelper).should(times(1)).reissueToken(any(), any());
     }
@@ -127,16 +128,16 @@ class AuthUseCaseTest {
         ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
             "refresh_token");
 
-        given(jwtAuthHelper.getSubjectFromToken(request.accessToken())).willReturn(
+        given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
             account.getUsername());
         given(accountService.readByUsername(any())).willReturn(Optional.empty());
 
         NotFoundException result = assertThrows(NotFoundException.class,
             () -> authUseCase.reissueToken(request));
 
-        then(jwtAuthHelper).should(times(1)).getSubjectFromToken(any());
+        then(jwtAuthHelper).should(times(1)).getSubject(any());
         then(accountService).should(times(1)).readByUsername(any());
-        assertEquals(ResponseCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
+        assertEquals(AccountErrorCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
     }
 
     @Test

@@ -7,9 +7,8 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.annotation.LoginAccount;
-import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
 import com.chaewsstore.core.domain.account.Account;
+import com.globalutils.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,21 +24,20 @@ public class AuthController {
     private final AuthUseCase authUseCase;
 
     @PostMapping("/login")
-    public ResponseData<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
-        return ResponseData.of(ResponseCode.LOGIN_SUCCESS, authUseCase.login(request));
+    public SuccessResponse<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
+        return SuccessResponse.from(authUseCase.login(request));
     }
 
     @PostMapping("/reissue")
-    public ResponseData<ReissueTokenResponseDto> reissueToken(
+    public SuccessResponse<ReissueTokenResponseDto> reissueToken(
         @RequestBody @Valid ReissueTokenRequestDto request) {
-        ReissueTokenResponseDto data = authUseCase.reissueToken(request);
-        return ResponseData.of(ResponseCode.REISSUE_TOKEN_SUCCESS, data);
+        return SuccessResponse.from(authUseCase.reissueToken(request));
     }
 
     @PostMapping("/logout")
-    public ResponseData<Void> logout(@LoginAccount Account account,
+    public SuccessResponse<Void> logout(@LoginAccount Account account,
         @Valid @RequestBody LogoutRequestDto request) {
         authUseCase.logout(account, request);
-        return ResponseData.from(ResponseCode.LOGOUT_SUCCESS);
+        return SuccessResponse.create();
     }
 }

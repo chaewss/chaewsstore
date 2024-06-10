@@ -2,7 +2,7 @@ package com.chaewsstore.app.apis.auth;
 
 import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_PASSWORD;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
-import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -22,7 +22,7 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
-import com.chaewsstore.common.security.jwt.Jwts;
+import com.chaewsstore.core.infra.jwt.Jwts;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

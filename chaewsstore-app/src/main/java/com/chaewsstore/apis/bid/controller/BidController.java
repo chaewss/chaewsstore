@@ -6,8 +6,7 @@ import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
 import com.chaewsstore.common.annotation.LoginAccount;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
+import com.globalutils.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -30,30 +29,30 @@ public class BidController {
     private final BidUseCase bidUseCase;
 
     @GetMapping("/products/{productId}/bids")
-    public ResponseData<Slice<ReadProductBidResponseDto>> readProductBids(
+    public SuccessResponse<Slice<ReadProductBidResponseDto>> readProductBids(
         @PathVariable Long productId, Pageable pageable) {
-        return ResponseData.of(ResponseCode.READ_PRODUCT_BID_SUCCESS,
-            bidUseCase.readProductBidList(productId, pageable));
+        return SuccessResponse.from(bidUseCase.readProductBidList(productId, pageable));
     }
 
     @PostMapping("/products/{productId}/bids")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseData<Void> createBid(@LoginAccount Account account, @PathVariable Long productId,
-        @RequestBody CreateBidRequestDto request) {
+    public SuccessResponse<Void> createBid(@LoginAccount Account account,
+        @PathVariable Long productId, @RequestBody CreateBidRequestDto request) {
         bidUseCase.createBid(account, productId, request);
-        return ResponseData.from(ResponseCode.CREATE_BID_SUCCESS);
+        return SuccessResponse.create();
     }
 
     @PutMapping("/bids/{bidId}")
-    public ResponseData<Void> updateBid(@LoginAccount Account account, @PathVariable Long bidId,
+    public SuccessResponse<Void> updateBid(@LoginAccount Account account, @PathVariable Long bidId,
         @RequestBody UpdateBidRequestDto request) {
         bidUseCase.updateBid(account, bidId, request);
-        return ResponseData.from(ResponseCode.UPDATE_BID_SUCCESS);
+        return SuccessResponse.create();
     }
 
     @DeleteMapping("/bids/{bidId}")
-    public ResponseData<Void> deleteBid(@LoginAccount Account account, @PathVariable Long bidId) {
+    public SuccessResponse<Void> deleteBid(@LoginAccount Account account,
+        @PathVariable Long bidId) {
         bidUseCase.deleteBid(account, bidId);
-        return ResponseData.from(ResponseCode.DELETE_BID_SUCCESS);
+        return SuccessResponse.create();
     }
 }

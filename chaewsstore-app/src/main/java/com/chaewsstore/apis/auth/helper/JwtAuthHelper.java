@@ -1,17 +1,17 @@
 package com.chaewsstore.apis.auth.helper;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_REFRESH_TOKEN;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_REFRESH_TOKEN;
-import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.common.exception.ExceptionConstants.WITHOUT_OWNERSHIP_REFRESH_TOKEN;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 
-import com.chaewsstore.common.exception.NotFoundException;
-import com.chaewsstore.common.exception.UnauthorizedException;
-import com.chaewsstore.common.security.jwt.Jwts;
-import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
 import com.chaewsstore.core.domain.refresh.RefreshTokenService;
+import com.chaewsstore.core.infra.jwt.Jwts;
+import com.chaewsstore.core.infra.jwt.TokenProvider;
 import com.globalutils.annotation.Helper;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,8 +62,8 @@ public class JwtAuthHelper {
      * @param token JWT 토큰
      * @return 토큰에서 추출된 주체(subject)
      */
-    public String getSubjectFromToken(String token) {
-        return tokenProvider.getClaimsFromToken(token).getSubject();
+    public String getSubject(String token) {
+        return tokenProvider.getSubjectFromToken(token);
     }
 
     /**
@@ -91,7 +91,7 @@ public class JwtAuthHelper {
             .orElseThrow(() -> NOT_FOUND_REFRESH_TOKEN);
 
         if (!matchRefreshToken.getAccount().equals(account)) {
-            throw INVALID_REFRESH_TOKEN;
+            throw WITHOUT_OWNERSHIP_REFRESH_TOKEN;
         }
 
         refreshTokenService.remove(matchRefreshToken);

@@ -1,6 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.common.util.AuthConstants.BEARER_TYPE;
+import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,15 +11,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.common.exception.NotFoundException;
-import com.chaewsstore.common.exception.UnauthorizedException;
-import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.security.jwt.Jwts;
-import com.chaewsstore.common.security.jwt.TokenProvider;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.Role;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
+import com.chaewsstore.core.domain.refresh.RefreshTokenErrorCode;
 import com.chaewsstore.core.domain.refresh.RefreshTokenService;
+import com.chaewsstore.core.infra.jwt.Jwts;
+import com.chaewsstore.core.infra.jwt.TokenProvider;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -87,7 +87,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(RefreshTokenErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -101,7 +101,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.INVALID_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(RefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -127,7 +127,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(RefreshTokenErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -141,7 +141,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(account, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.INVALID_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(RefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     Account account = Account.builder()
