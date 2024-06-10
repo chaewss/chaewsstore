@@ -100,7 +100,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.reissueToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.INVALID_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ResponseCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     @Test
@@ -140,7 +140,7 @@ class JwtAuthHelperTest {
             () -> jwtAuthHelper.removeRefreshToken(admin, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
-        assertEquals(ResponseCode.INVALID_REFRESH_TOKEN, result.getResponseCode());
+        assertEquals(ResponseCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
     Admin admin = Admin.builder()

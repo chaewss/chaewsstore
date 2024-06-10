@@ -1,7 +1,7 @@
 package com.chaewsstore.apis.auth.helper;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_REFRESH_TOKEN;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_REFRESH_TOKEN;
+import static com.chaewsstore.common.exception.ExceptionConstants.WITHOUT_OWNERSHIP_REFRESH_TOKEN;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 
 import com.chaewsstore.core.domain.admin.Admin;

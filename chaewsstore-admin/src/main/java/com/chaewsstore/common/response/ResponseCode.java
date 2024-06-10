@@ -34,10 +34,9 @@ public enum ResponseCode implements BaseResponseCode {
     VALID_ERROR(BAD_REQUEST, "유효성 검사 실패"),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
-    INVALID_TOKEN(UNAUTHORIZED, "토큰 관련 오류입니다"),
     ACCESS_DENIED(UNAUTHORIZED, "액세스가 거부되었습니다"),
     INVALID_PASSWORD(UNAUTHORIZED, "비밀번호가 일치하지 않습니다"),
-    INVALID_REFRESH_TOKEN(UNAUTHORIZED, "잘못된 리프레시 토큰입니다"),
+    WITHOUT_OWNERSHIP_REFRESH_TOKEN(UNAUTHORIZED, "소유권이 없는 리프레시 토큰입니다"),
 
     /* 403 FORBIDDEN : 권한이 없는 사용자 */
 

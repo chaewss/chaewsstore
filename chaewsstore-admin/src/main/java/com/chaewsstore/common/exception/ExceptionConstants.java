@@ -8,7 +8,7 @@ import com.globalutils.exception.UnauthorizedException;
 public interface ExceptionConstants {
 
     UnauthorizedException INVALID_PASSWORD = new UnauthorizedException(ResponseCode.INVALID_PASSWORD);
-    UnauthorizedException INVALID_REFRESH_TOKEN = new UnauthorizedException(ResponseCode.INVALID_REFRESH_TOKEN);
+    UnauthorizedException WITHOUT_OWNERSHIP_REFRESH_TOKEN = new UnauthorizedException(ResponseCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN);
 
     NotFoundException NOT_FOUND_ADMIN = new NotFoundException(ResponseCode.NOT_FOUND_ADMIN);
     NotFoundException NOT_FOUND_REFRESH_TOKEN = new NotFoundException(ResponseCode.NOT_FOUND_REFRESH_TOKEN);
