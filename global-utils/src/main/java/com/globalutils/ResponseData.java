@@ -1,6 +1,7 @@
-package com.chaewsstore.common.response;
+package com.globalutils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.globalutils.exception.BaseResponseCode;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,17 +18,17 @@ public class ResponseData<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
 
-    public static ResponseData from(ResponseCode responseCode) {
+    public static ResponseData from(BaseResponseCode responseCode) {
         return ResponseData.builder()
-            .code(responseCode.name())
-            .detail(responseCode.getDetail())
+            .code(responseCode.statusCode())
+            .detail(responseCode.getExplainDetail())
             .build();
     }
 
-    public static <T> ResponseData<T> of(ResponseCode responseCode, T data) {
+    public static <T> ResponseData<T> of(BaseResponseCode responseCode, T data) {
         return ResponseData.<T>builder()
-            .code(responseCode.name())
-            .detail(responseCode.getDetail())
+            .code(responseCode.statusCode())
+            .detail(responseCode.getExplainDetail())
             .data(data)
             .build();
     }

@@ -1,20 +1,21 @@
 package com.chaewsstore.common.response;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static com.globalutils.exception.StatusCode.BAD_REQUEST;
+import static com.globalutils.exception.StatusCode.CONFLICT;
+import static com.globalutils.exception.StatusCode.CREATED;
+import static com.globalutils.exception.StatusCode.FORBIDDEN;
+import static com.globalutils.exception.StatusCode.NOT_FOUND;
+import static com.globalutils.exception.StatusCode.OK;
+import static com.globalutils.exception.StatusCode.UNAUTHORIZED;
 
+import com.globalutils.exception.BaseResponseCode;
+import com.globalutils.exception.StatusCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ResponseCode {
+public enum ResponseCode implements BaseResponseCode {
 
     /* 200 OK : 요청 성공 */
     LOGIN_SUCCESS(OK, "로그인 성공"),
@@ -57,6 +58,16 @@ public enum ResponseCode {
     ADMIN_DUPLICATION(CONFLICT, "중복된 어드민 아이디입니다"),
     ;
 
-    private final HttpStatus httpStatus;
+    private final StatusCode statusCode;
     private final String detail;
+
+    @Override
+    public String statusCode() {
+        return name();
+    }
+
+    @Override
+    public String getExplainDetail() {
+        return detail;
+    }
 }

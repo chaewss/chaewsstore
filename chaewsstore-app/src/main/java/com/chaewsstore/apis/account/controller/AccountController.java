@@ -4,7 +4,7 @@ import com.chaewsstore.apis.account.dto.AccountResponseDto;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
 import com.chaewsstore.apis.account.usecase.AccountUseCase;
 import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
+import com.globalutils.ResponseData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

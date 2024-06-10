@@ -1,12 +1,10 @@
 package com.chaewsstore.common.security.filter;
 
-import static com.chaewsstore.common.response.ResponseCode.INVALID_TOKEN;
-import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.chaewsstore.common.response.ResponseData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
+import com.globalutils.ResponseData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

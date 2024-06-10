@@ -8,7 +8,7 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.annotation.LoginAccount;
 import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
+import com.globalutils.ResponseData;
 import com.chaewsstore.core.domain.account.Account;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

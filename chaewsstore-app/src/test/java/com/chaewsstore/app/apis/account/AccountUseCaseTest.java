@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import com.chaewsstore.apis.account.dto.SignupRequestDto;
 import com.chaewsstore.apis.account.helper.PasswordEncoderHelper;
 import com.chaewsstore.apis.account.usecase.AccountUseCase;
-import com.chaewsstore.common.exception.DuplicateException;
+import com.globalutils.exception.DuplicateException;
 import com.chaewsstore.common.response.ResponseCode;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;

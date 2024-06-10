@@ -5,7 +5,7 @@ import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
 import com.chaewsstore.apis.product.dto.UpdateProductRequestDto;
 import com.chaewsstore.apis.product.usecase.ProductUseCase;
 import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
+import com.globalutils.ResponseData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

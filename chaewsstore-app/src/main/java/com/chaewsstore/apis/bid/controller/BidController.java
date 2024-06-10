@@ -7,7 +7,7 @@ import com.chaewsstore.common.annotation.LoginAccount;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
+import com.globalutils.ResponseData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

@@ -1,6 +1,5 @@
-package com.chaewsstore.common.exception;
+package com.globalutils.exception;
 
-import com.chaewsstore.common.response.ResponseCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -8,6 +7,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotFoundException extends RuntimeException {
 
-    private final ResponseCode responseCode;
-
+    private final BaseResponseCode responseCode;
 }

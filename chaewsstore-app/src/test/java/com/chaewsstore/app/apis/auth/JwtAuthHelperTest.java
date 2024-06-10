@@ -11,8 +11,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.common.exception.NotFoundException;
-import com.chaewsstore.common.exception.UnauthorizedException;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import com.chaewsstore.common.response.ResponseCode;
 import com.chaewsstore.common.security.jwt.Jwts;
 import com.chaewsstore.common.security.jwt.TokenProvider;

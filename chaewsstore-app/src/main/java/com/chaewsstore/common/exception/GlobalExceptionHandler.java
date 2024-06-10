@@ -1,7 +1,11 @@
 package com.chaewsstore.common.exception;
 
 import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.response.ResponseData;
+import com.globalutils.ResponseData;
+import com.globalutils.exception.DuplicateException;
+import com.globalutils.exception.ForbiddenException;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
