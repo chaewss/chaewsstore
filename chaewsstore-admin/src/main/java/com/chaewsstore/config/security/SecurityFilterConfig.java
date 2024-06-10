@@ -2,7 +2,7 @@ package com.chaewsstore.config.security;
 
 import com.chaewsstore.common.security.filter.JwtAuthenticationFilter;
 import com.chaewsstore.common.security.filter.JwtExceptionFilter;
-import com.chaewsstore.common.security.jwt.TokenProvider;
+import com.chaewsstore.core.infra.jwt.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

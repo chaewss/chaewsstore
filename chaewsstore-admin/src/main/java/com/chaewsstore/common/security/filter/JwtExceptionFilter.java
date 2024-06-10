@@ -1,11 +1,9 @@
 package com.chaewsstore.common.security.filter;
 
-import static com.chaewsstore.common.response.ResponseCode.INVALID_TOKEN;
-import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.chaewsstore.core.infra.exception.JwtErrorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwtException;
 import com.globalutils.ResponseData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,13 +23,14 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (JwtException ex) {
+        } catch (JwtErrorException ex) {
 
-            response.setStatus(SC_UNAUTHORIZED);
+            response.setStatus(ex.getErrorCode().getStatusCode().getCode());
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(
-                objectMapper.writeValueAsString(ResponseData.of(INVALID_TOKEN, ex.getMessage())));
+                objectMapper.writeValueAsString(
+                    ResponseData.of(ex.getErrorCode(), ex.getMessage())));
         }
     }
 }

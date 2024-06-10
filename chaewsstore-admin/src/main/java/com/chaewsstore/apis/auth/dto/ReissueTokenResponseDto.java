@@ -1,6 +1,6 @@
 package com.chaewsstore.apis.auth.dto;
 
-import com.chaewsstore.common.security.jwt.Jwts;
+import com.chaewsstore.core.infra.jwt.Jwts;
 
 public record ReissueTokenResponseDto(
     Long adminId,

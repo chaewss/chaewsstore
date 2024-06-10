@@ -21,7 +21,7 @@ import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
 import com.chaewsstore.common.response.ResponseCode;
-import com.chaewsstore.common.security.jwt.Jwts;
+import com.chaewsstore.core.infra.jwt.Jwts;
 import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.account.AccountService;
 import com.chaewsstore.core.domain.account.Role;

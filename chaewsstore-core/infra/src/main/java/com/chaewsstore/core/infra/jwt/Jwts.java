@@ -1,4 +1,4 @@
-package com.chaewsstore.common.security.jwt;
+package com.chaewsstore.core.infra.jwt;
 
 public record Jwts(
     String accessToken,

@@ -22,7 +22,7 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
-import com.chaewsstore.common.security.jwt.Jwts;
+import com.chaewsstore.core.infra.jwt.Jwts;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

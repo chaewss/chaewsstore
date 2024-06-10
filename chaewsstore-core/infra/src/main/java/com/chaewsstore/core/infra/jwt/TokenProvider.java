@@ -1,10 +1,17 @@
-package com.chaewsstore.common.security.jwt;
+package com.chaewsstore.core.infra.jwt;
 
+import static com.chaewsstore.core.infra.exception.JwtResponseCode.EMPTY_ACCESS_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtResponseCode.EXPIRED_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtResponseCode.ILLEGAL_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtResponseCode.INVALID_SIGNATURE;
+import static com.chaewsstore.core.infra.exception.JwtResponseCode.MALFORMED_TOKEN;
+import static com.chaewsstore.core.infra.exception.JwtResponseCode.UNSUPPORTED_TOKEN;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.ACCESS_TOKEN_TTL_MILLISECOND;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.REFRESH_TOKEN_TTL_MILLISECOND;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.ROLE_KEY;
 
+import com.chaewsstore.core.infra.exception.JwtErrorException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -47,7 +54,7 @@ public class TokenProvider {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith(BEARER_TYPE)) {
             return authHeader.substring(7);
         }
-        throw new JwtException("토큰이 없습니다");
+        throw new JwtErrorException(EMPTY_ACCESS_TOKEN);
     }
 
     /**
@@ -96,6 +103,10 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
     }
 
+    public String getSubjectFromToken(String token) {
+        return getClaimsFromToken(token).getSubject();
+    }
+
     /**
      * 토큰에서 클레임들을 추출하여 Claims 객체로 반환
      *
@@ -110,15 +121,15 @@ public class TokenProvider {
                 .parseSignedClaims(token)
                 .getPayload();
         } catch (SignatureException e) {
-            throw new JwtException("잘못된 JWT 시그니처입니다");
+            throw new JwtErrorException(INVALID_SIGNATURE);
         } catch (MalformedJwtException e) {
-            throw new JwtException("유효하지 않은 JWT 토큰입니다");
+            throw new JwtErrorException(MALFORMED_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new JwtException("만료된 JWT 토큰입니다");
+            throw new JwtErrorException(EXPIRED_TOKEN);
         } catch (UnsupportedJwtException e) {
-            throw new JwtException("지원되지 않는 JWT 토큰입니다");
+            throw new JwtErrorException(UNSUPPORTED_TOKEN);
         } catch (IllegalArgumentException e) {
-            throw new JwtException("JWT 토큰이 잘못되었습니다");
+            throw new JwtErrorException(ILLEGAL_TOKEN);
         }
     }
 }

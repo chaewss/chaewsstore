@@ -1,6 +1,10 @@
 package com.chaewsstore.common.exception;
 
 import com.chaewsstore.common.response.ResponseCode;
+import com.globalutils.exception.DuplicateException;
+import com.globalutils.exception.ForbiddenException;
+import com.globalutils.exception.NotFoundException;
+import com.globalutils.exception.UnauthorizedException;
 
 public interface ExceptionConstants {
 
