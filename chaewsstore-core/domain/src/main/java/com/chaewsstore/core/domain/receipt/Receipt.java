@@ -1,7 +1,7 @@
 package com.chaewsstore.core.domain.receipt;
 
+import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.bid.Bid;
-import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.product.Product;
 import jakarta.persistence.Entity;
@@ -35,10 +35,10 @@ public class Receipt extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "buyer_id")
-    private Account buyer;
+    private User buyer;
 
     @Builder
-    public Receipt(Long id, Product product, Bid bid, Account buyer) {
+    public Receipt(Long id, Product product, Bid bid, User buyer) {
         this.id = id;
         this.product = product;
         this.bid = bid;

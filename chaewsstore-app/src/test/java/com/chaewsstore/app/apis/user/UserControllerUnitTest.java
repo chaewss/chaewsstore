@@ -1,4 +1,4 @@
-package com.chaewsstore.app.apis.account;
+package com.chaewsstore.app.apis.user;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -14,10 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
-import com.chaewsstore.apis.account.controller.AccountController;
-import com.chaewsstore.apis.account.dto.AccountResponseDto;
-import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.apis.account.usecase.AccountUseCase;
+import com.chaewsstore.apis.user.controller.UserController;
+import com.chaewsstore.apis.user.dto.UserResponseDto;
+import com.chaewsstore.apis.user.dto.SignupRequestDto;
+import com.chaewsstore.apis.user.usecase.UserUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,11 +37,11 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 @ExtendWith(RestDocumentationExtension.class)
-@WebMvcTest(AccountController.class)
-class AccountControllerUnitTest {
+@WebMvcTest(UserController.class)
+class UserControllerUnitTest {
 
     @MockBean
-    private AccountUseCase accountUseCase;
+    private UserUseCase userUseCase;
 
     private MockMvc mockMvc;
 
@@ -60,11 +60,11 @@ class AccountControllerUnitTest {
     @DisplayName("회원가입에 성공하면 201을 응답한다")
     void respond_201_when_sign_up_succeed() throws Exception {
         SignupRequestDto request = new SignupRequestDto("email@gmail.com", "aaaa1111!!", "닉네임");
-        AccountResponseDto response = new AccountResponseDto(1L, "email@gmail.com", "닉네임");
+        UserResponseDto response = new UserResponseDto(1L, "email@gmail.com", "닉네임");
 
-        given(accountUseCase.signup(any())).willReturn(response);
+        given(userUseCase.signup(any())).willReturn(response);
 
-        mockMvc.perform(post("/api/accounts/signup")
+        mockMvc.perform(post("/api/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
@@ -90,7 +90,7 @@ class AccountControllerUnitTest {
     void respond_200_when_username_does_not_exist() throws Exception {
         final String username = "aaaa1111!!";
 
-        mockMvc.perform(get("/api/accounts/check-username/{username}/exists", username).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/users/check-username/{username}/exists", username).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
                 ApiDocumentUtils.getDocumentRequest(),
@@ -106,7 +106,7 @@ class AccountControllerUnitTest {
     void respond_200_when_nickname_does_not_exist() throws Exception {
         final String nickname = "닉네임";
 
-        mockMvc.perform(get("/api/accounts/check-nickname/{nickname}/exists", nickname).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/users/check-nickname/{nickname}/exists", nickname).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
                 ApiDocumentUtils.getDocumentRequest(),

@@ -3,7 +3,7 @@ package com.chaewsstore.config.security;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
-import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.domain.user.Role;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;

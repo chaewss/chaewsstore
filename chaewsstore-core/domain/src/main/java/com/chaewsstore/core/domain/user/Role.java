@@ -1,4 +1,4 @@
-package com.chaewsstore.core.domain.account;
+package com.chaewsstore.core.domain.user;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

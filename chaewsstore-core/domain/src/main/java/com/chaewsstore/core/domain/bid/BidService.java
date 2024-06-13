@@ -1,6 +1,6 @@
 package com.chaewsstore.core.domain.bid;
 
-import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
 import com.chaewsstore.core.domain.product.Product;
 import com.globalutils.annotation.DomainService;
@@ -27,8 +27,8 @@ public class BidService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean existsByProductAndBidder(Product product, Account account) {
-        return bidRepository.existsByProductAndBidder(product, account);
+    public Boolean existsByProductAndBidder(Product product, User user) {
+        return bidRepository.existsByProductAndBidder(product, user);
     }
 
     @Transactional(readOnly = true)

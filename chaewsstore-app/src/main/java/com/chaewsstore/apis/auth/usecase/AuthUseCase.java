@@ -1,7 +1,7 @@
 package com.chaewsstore.apis.auth.usecase;
 
 import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_PASSWORD;
-import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_USER;
 
 import com.chaewsstore.apis.auth.dto.LoginRequestDto;
 import com.chaewsstore.apis.auth.dto.LoginResponseDto;
@@ -10,8 +10,8 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.AccountService;
+import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.user.UserService;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.globalutils.annotation.UseCase;
 import com.globalutils.exception.NotFoundException;
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthUseCase {
 
     private final JwtAuthHelper jwtAuthHelper;
-    private final AccountService accountService;
+    private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoderHelper passwordEncoderHelper;
 
@@ -41,17 +41,17 @@ public class AuthUseCase {
      */
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
-        Account account = accountService.readByUsername(request.email())
-            .orElseThrow(() -> NOT_FOUND_ACCOUNT);
-        if (!passwordEncoderHelper.matches(request.password(), account.getPassword())) {
+        User user = userService.readByUsername(request.email())
+            .orElseThrow(() -> NOT_FOUND_USER);
+        if (!passwordEncoderHelper.matches(request.password(), user.getPassword())) {
             throw INVALID_PASSWORD;
         }
 
         UsernamePasswordAuthenticationToken authenticationToken = request.toAuthentication();
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        Jwts token = jwtAuthHelper.generateTokensAndSave(account, authentication);
+        Jwts token = jwtAuthHelper.generateTokensAndSave(user, authentication);
 
-        return new LoginResponseDto(account.getId(), token);
+        return new LoginResponseDto(user.getId(), token);
     }
 
     /**
@@ -64,21 +64,21 @@ public class AuthUseCase {
     @Transactional
     public ReissueTokenResponseDto reissueToken(ReissueTokenRequestDto request) {
         String username = jwtAuthHelper.getSubject(request.accessToken());
-        Account account = accountService.readByUsername(username)
-            .orElseThrow(() -> NOT_FOUND_ACCOUNT);
+        User user = userService.readByUsername(username)
+            .orElseThrow(() -> NOT_FOUND_USER);
 
-        Jwts token = jwtAuthHelper.reissueToken(account, request.refreshToken());
+        Jwts token = jwtAuthHelper.reissueToken(user, request.refreshToken());
 
-        return new ReissueTokenResponseDto(account.getId(), token);
+        return new ReissueTokenResponseDto(user.getId(), token);
     }
 
     /**
      * 로그아웃
      *
-     * @param account 로그아웃할 사용자
+     * @param user 로그아웃할 사용자
      * @param request 로그아웃 요청 정보
      */
-    public void logout(Account account, LogoutRequestDto request) {
-        jwtAuthHelper.removeRefreshToken(account, request.refreshToken());
+    public void logout(User user, LogoutRequestDto request) {
+        jwtAuthHelper.removeRefreshToken(user, request.refreshToken());
     }
 }

@@ -1,6 +1,5 @@
-package com.chaewsstore.core.domain.account;
+package com.chaewsstore.core.domain.user;
 
-import static com.globalutils.exception.StatusCode.BAD_REQUEST;
 import static com.globalutils.exception.StatusCode.CONFLICT;
 import static com.globalutils.exception.StatusCode.NOT_FOUND;
 import static com.globalutils.exception.StatusCode.UNAUTHORIZED;
@@ -12,16 +11,16 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum AccountErrorCode implements BaseErrorCode {
+public enum UserErrorCode implements BaseErrorCode {
 
     /* 401 UNAUTHORIZED */
     INVALID_PASSWORD(UNAUTHORIZED, "비밀번호가 일치하지 않습니다"),
 
     /* 404 NOT_FOUND */
-    NOT_FOUND_ACCOUNT(NOT_FOUND, "존재하지 않는 회원입니다"),
+    NOT_FOUND_USER(NOT_FOUND, "존재하지 않는 회원입니다"),
 
     /* 409 CONFLICT */
-    ACCOUNT_DUPLICATION(CONFLICT, "중복된 아이디입니다"),
+    USER_DUPLICATION(CONFLICT, "중복된 아이디입니다"),
     NICKNAME_DUPLICATION(CONFLICT, "중복된 닉네임입니다"),
     ;
 

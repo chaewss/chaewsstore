@@ -1,7 +1,7 @@
 package com.chaewsstore.app.apis.auth;
 
 import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_PASSWORD;
-import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_ACCOUNT;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_USER;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -98,7 +98,7 @@ class AuthControllerTest {
     void respond_404_when_login_but_user_does_not_exist() throws Exception {
         LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
 
-        given(authUseCase.login(any())).willThrow(NOT_FOUND_ACCOUNT);
+        given(authUseCase.login(any())).willThrow(NOT_FOUND_USER);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -1,7 +1,7 @@
 package com.chaewsstore.core.domain.refresh;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
-import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,19 +25,19 @@ public class RefreshToken extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @NotNull
     private String token;
 
-    private RefreshToken(Account account, String token) {
-        this.account = account;
+    private RefreshToken(User user, String token) {
+        this.user = user;
         this.token = token;
     }
 
-    public static RefreshToken create(Account account, String token) {
-        return new RefreshToken(account, token);
+    public static RefreshToken create(User user, String token) {
+        return new RefreshToken(user, token);
     }
 
     @Override
