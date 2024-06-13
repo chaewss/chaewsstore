@@ -1,12 +1,12 @@
-package com.chaewsstore.apis.account.dto;
+package com.chaewsstore.apis.user.dto;
 
 import static com.chaewsstore.common.util.VerificationConstants.NICKNAME_MESSAGE;
 import static com.chaewsstore.common.util.VerificationConstants.NICKNAME_REGEXP;
 import static com.chaewsstore.common.util.VerificationConstants.PASSWORD_MESSAGE;
 import static com.chaewsstore.common.util.VerificationConstants.PASSWORD_REGEXP;
 
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.user.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -25,7 +25,7 @@ public record SignupRequestDto(
     String nickname
 ) {
 
-    public Account toEntity(String encodedPassword, Role role) {
-        return Account.create(username, encodedPassword, nickname, role);
+    public User toEntity(String encodedPassword, Role role) {
+        return User.create(username, encodedPassword, nickname, role);
     }
 }

@@ -19,10 +19,10 @@ import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.AccountErrorCode;
-import com.chaewsstore.core.domain.account.AccountService;
-import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.user.UserErrorCode;
+import com.chaewsstore.core.domain.user.UserService;
+import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
@@ -52,7 +52,7 @@ class AuthUseCaseTest {
     private JwtAuthHelper jwtAuthHelper;
 
     @Mock
-    private AccountService accountService;
+    private UserService userService;
 
     @Test
     @DisplayName("로그인에 성공하면 토큰을 얻는다")
@@ -60,8 +60,8 @@ class AuthUseCaseTest {
         LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
         Authentication authentication = mock(Authentication.class);
 
-        given(accountService.readByUsername(requestDto.email())).willReturn(Optional.of(account));
-        given(passwordEncoderHelper.matches(requestDto.password(), account.getPassword())).willReturn(
+        given(userService.readByUsername(requestDto.email())).willReturn(Optional.of(user));
+        given(passwordEncoderHelper.matches(requestDto.password(), user.getPassword())).willReturn(
             true);
 
         given(authenticationManager.authenticate(any())).willReturn(authentication);
@@ -72,7 +72,7 @@ class AuthUseCaseTest {
 
         assertThat(responseDto.token().accessToken()).isEqualTo(accessToken);
         assertThat(responseDto.token().refreshToken()).isEqualTo(refreshToken);
-        then(accountService).should(times(1)).readByUsername(any());
+        then(userService).should(times(1)).readByUsername(any());
         then(passwordEncoderHelper).should(times(1)).matches(any(), any());
         then(jwtAuthHelper).should(times(1)).generateTokensAndSave(any(), any());
     }
@@ -82,11 +82,11 @@ class AuthUseCaseTest {
     void should_throw_NotFoundException_when_user_tries_to_login_but_user_does_not_exist() {
         LoginRequestDto request = new LoginRequestDto("whoareyou@gmail.com", "password1!");
 
-        given(accountService.readByUsername(any())).willReturn(Optional.empty());
+        given(userService.readByUsername(any())).willReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> authUseCase.login(request));
 
-        then(accountService).should(times(1)).readByUsername(any());
+        then(userService).should(times(1)).readByUsername(any());
     }
 
     @Test
@@ -94,11 +94,11 @@ class AuthUseCaseTest {
     void should_throw_UnauthorizedException_when_password_is_not_correct() {
         LoginRequestDto request = new LoginRequestDto("email@gmail.com", "incorrectPassword!");
 
-        given(accountService.readByUsername(any())).willReturn(Optional.of(account));
+        given(userService.readByUsername(any())).willReturn(Optional.of(user));
 
         assertThrows(UnauthorizedException.class, () -> authUseCase.login(request));
 
-        then(accountService).should(times(1)).readByUsername(any());
+        then(userService).should(times(1)).readByUsername(any());
     }
 
     @Test
@@ -108,8 +108,8 @@ class AuthUseCaseTest {
             "refresh_token");
 
         given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
-            account.getUsername());
-        given(accountService.readByUsername(any())).willReturn(Optional.of(account));
+            user.getUsername());
+        given(userService.readByUsername(any())).willReturn(Optional.of(user));
 
         given(jwtAuthHelper.reissueToken(any(), any())).willReturn(token);
 
@@ -118,26 +118,26 @@ class AuthUseCaseTest {
         assertThat(response.token().accessToken()).isEqualTo(accessToken);
         assertThat(response.token().refreshToken()).isEqualTo(refreshToken);
         then(jwtAuthHelper).should(times(1)).getSubject(any());
-        then(accountService).should(times(1)).readByUsername(any());
+        then(userService).should(times(1)).readByUsername(any());
         then(jwtAuthHelper).should(times(1)).reissueToken(any(), any());
     }
 
     @Test
     @DisplayName("사용자 계정이 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_reissue_token_but_account_does_not_exist() {
+    void should_throw_NotFoundException_when_reissue_token_but_user_does_not_exist() {
         ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
             "refresh_token");
 
         given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
-            account.getUsername());
-        given(accountService.readByUsername(any())).willReturn(Optional.empty());
+            user.getUsername());
+        given(userService.readByUsername(any())).willReturn(Optional.empty());
 
         NotFoundException result = assertThrows(NotFoundException.class,
             () -> authUseCase.reissueToken(request));
 
         then(jwtAuthHelper).should(times(1)).getSubject(any());
-        then(accountService).should(times(1)).readByUsername(any());
-        assertEquals(AccountErrorCode.NOT_FOUND_ACCOUNT, result.getResponseCode());
+        then(userService).should(times(1)).readByUsername(any());
+        assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
     }
 
     @Test
@@ -147,12 +147,12 @@ class AuthUseCaseTest {
 
         willDoNothing().given(jwtAuthHelper).removeRefreshToken(any(), any());
 
-        authUseCase.logout(account, request);
+        authUseCase.logout(user, request);
 
         then(jwtAuthHelper).should(times(1)).removeRefreshToken(any(), any());
     }
 
-    Account account = Account.builder()
+    User user = User.builder()
         .id(1L)
         .username("email@gmail.com")
         .password("password1!")

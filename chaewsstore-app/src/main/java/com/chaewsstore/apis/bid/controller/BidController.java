@@ -3,9 +3,9 @@ package com.chaewsstore.apis.bid.controller;
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.common.annotation.LoginAccount;
+import com.chaewsstore.common.annotation.LoginUser;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
-import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.user.User;
 import com.globalutils.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -36,23 +36,23 @@ public class BidController {
 
     @PostMapping("/products/{productId}/bids")
     @ResponseStatus(HttpStatus.CREATED)
-    public SuccessResponse<Void> createBid(@LoginAccount Account account,
+    public SuccessResponse<Void> createBid(@LoginUser User user,
         @PathVariable Long productId, @RequestBody CreateBidRequestDto request) {
-        bidUseCase.createBid(account, productId, request);
+        bidUseCase.createBid(user, productId, request);
         return SuccessResponse.create();
     }
 
     @PutMapping("/bids/{bidId}")
-    public SuccessResponse<Void> updateBid(@LoginAccount Account account, @PathVariable Long bidId,
+    public SuccessResponse<Void> updateBid(@LoginUser User user, @PathVariable Long bidId,
         @RequestBody UpdateBidRequestDto request) {
-        bidUseCase.updateBid(account, bidId, request);
+        bidUseCase.updateBid(user, bidId, request);
         return SuccessResponse.create();
     }
 
     @DeleteMapping("/bids/{bidId}")
-    public SuccessResponse<Void> deleteBid(@LoginAccount Account account,
+    public SuccessResponse<Void> deleteBid(@LoginUser User user,
         @PathVariable Long bidId) {
-        bidUseCase.deleteBid(account, bidId);
+        bidUseCase.deleteBid(user, bidId);
         return SuccessResponse.create();
     }
 }

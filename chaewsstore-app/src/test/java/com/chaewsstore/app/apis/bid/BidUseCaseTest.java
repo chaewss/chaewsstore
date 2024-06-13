@@ -10,13 +10,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
+import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.bid.BidService;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.core.domain.account.Account;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.product.Product;
 import com.globalutils.exception.DuplicateException;
@@ -83,7 +83,7 @@ class BidUseCaseTest {
         given(bidService.existsByProductAndBidder(any(), any())).willReturn(false);
         given(bidService.create(any())).willReturn(any());
 
-        bidUseCase.createBid(account, 1L, request);
+        bidUseCase.createBid(user, 1L, request);
 
         then(productService).should(times(1)).readById(anyLong());
         then(bidService).should(times(1)).existsByProductAndBidder(any(), any());
@@ -97,20 +97,20 @@ class BidUseCaseTest {
 
         given(productService.readById(anyLong())).willThrow(NotFoundException.class);
 
-        assertThrows(NotFoundException.class, () -> bidUseCase.createBid(account, 999L, request));
+        assertThrows(NotFoundException.class, () -> bidUseCase.createBid(user, 999L, request));
 
         then(productService).should(times(1)).readById(anyLong());
     }
 
     @Test
     @DisplayName("사용자가 해당 상품의 입찰을 이미 생성한 경우 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_create_bid_but_account_has_already_create_bid() {
+    void should_throw_DuplicateException_when_create_bid_but_user_has_already_create_bid() {
         CreateBidRequestDto request = new CreateBidRequestDto(6000);
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
         given(bidService.existsByProductAndBidder(any(), any())).willReturn(true);
 
-        assertThrows(DuplicateException.class, () -> bidUseCase.createBid(account, 1L, request));
+        assertThrows(DuplicateException.class, () -> bidUseCase.createBid(user, 1L, request));
 
         then(productService).should(times(1)).readById(anyLong());
         then(bidService).should(times(1)).existsByProductAndBidder(any(), any());
@@ -123,7 +123,7 @@ class BidUseCaseTest {
 
         given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
 
-        bidUseCase.updateBid(account, 1L, request);
+        bidUseCase.updateBid(user, 1L, request);
 
         assertEquals(request.price(), bid.getPrice());
         then(bidService).should(times(1)).readById(anyLong());
@@ -136,19 +136,19 @@ class BidUseCaseTest {
 
         given(bidService.readById(anyLong())).willThrow(NotFoundException.class);
 
-        assertThrows(NotFoundException.class, () -> bidUseCase.updateBid(account, 1L, request));
+        assertThrows(NotFoundException.class, () -> bidUseCase.updateBid(user, 1L, request));
 
         then(bidService).should(times(1)).readById(anyLong());
     }
 
     @Test
     @DisplayName("입찰자가 아닌 사용자가 입찰 수정을 시도할 경우 ForbiddenException이 발생한다")
-    void should_throw_ForbiddenException_when_update_bid_but_account_is_not_bidder() {
+    void should_throw_ForbiddenException_when_update_bid_but_user_is_not_bidder() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
         given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
 
-        assertThrows(ForbiddenException.class, () -> bidUseCase.updateBid(anotherAccount, 1L, request));
+        assertThrows(ForbiddenException.class, () -> bidUseCase.updateBid(anotherUser, 1L, request));
 
         then(bidService).should(times(1)).readById(anyLong());
     }
@@ -158,7 +158,7 @@ class BidUseCaseTest {
     void succeed_to_delete_bid() {
         given(bidService.readById(any())).willReturn(Optional.of(bid));
 
-        bidUseCase.deleteBid(account, 1L);
+        bidUseCase.deleteBid(user, 1L);
 
         then(bidService).should(times(1)).readById(anyLong());
         then(bidService).should(times(1)).remove(any());
@@ -169,28 +169,28 @@ class BidUseCaseTest {
     void should_throw_NotFountException_when_delete_bid_but_bid_does_not_exist() {
         given(bidService.readById(anyLong())).willThrow(NotFoundException.class);
 
-        assertThrows(NotFoundException.class, () -> bidUseCase.deleteBid(account, 1L));
+        assertThrows(NotFoundException.class, () -> bidUseCase.deleteBid(user, 1L));
 
         then(bidService).should(times(1)).readById(anyLong());
     }
 
     @Test
     @DisplayName("입찰자가 아닌 사용자가 입찰 삭제를 시도할 경우 ForbiddenException이 발생한다")
-    void should_throw_ForbiddenException_when_delete_bid_but_account_is_not_bidder() {
+    void should_throw_ForbiddenException_when_delete_bid_but_user_is_not_bidder() {
         given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
 
-        assertThrows(ForbiddenException.class, () -> bidUseCase.deleteBid(anotherAccount, 1L));
+        assertThrows(ForbiddenException.class, () -> bidUseCase.deleteBid(anotherUser, 1L));
 
         then(bidService).should(times(1)).readById(anyLong());
     }
 
-    Account account = Account.builder()
+    User user = User.builder()
         .id(1L)
         .username("email@gmail.com")
         .password("aaaa1111!!")
         .nickname("닉네임")
         .build();
-    Account anotherAccount = Account.builder()
+    User anotherUser = User.builder()
         .id(2L)
         .username("another@gmail.com")
         .password("aaaa1111!!")
@@ -199,7 +199,7 @@ class BidUseCaseTest {
 
     Product product = Product.builder().build();
     Bid bid = Bid.builder()
-        .bidder(account)
+        .bidder(user)
         .price(30)
         .build();
 

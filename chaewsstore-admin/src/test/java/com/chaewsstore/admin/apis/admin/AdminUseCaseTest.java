@@ -55,7 +55,7 @@ class AdminUseCaseTest {
 
     @Test
     @DisplayName("이미 존재하는 이메일이면 회원가입시 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_create_account_username_is_duplicate() {
+    void should_throw_DuplicateException_when_create_user_username_is_duplicate() {
         AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com", "aaaa1111!!", "어드민");
 
         // given

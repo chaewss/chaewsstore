@@ -11,8 +11,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
 import com.chaewsstore.core.domain.refresh.RefreshTokenErrorCode;
 import com.chaewsstore.core.domain.refresh.RefreshTokenService;
@@ -49,7 +49,7 @@ class JwtAuthHelperTest {
         given(tokenProvider.generateAccessToken(authentication)).willReturn(accessToken);
         given(tokenProvider.generateRefreshToken()).willReturn(refreshTokenValue);
 
-        Jwts result = jwtAuthHelper.generateTokensAndSave(account, authentication);
+        Jwts result = jwtAuthHelper.generateTokensAndSave(user, authentication);
 
         assertEquals(accessToken, result.accessToken());
         assertEquals(refreshTokenValue, result.refreshToken());
@@ -60,7 +60,7 @@ class JwtAuthHelperTest {
     @Test
     @DisplayName("토큰을 정상적으로 재발급한다")
     void succeed_to_reissue_token() {
-        RefreshToken refreshToken = RefreshToken.create(account, refreshTokenValue);
+        RefreshToken refreshToken = RefreshToken.create(user, refreshTokenValue);
         String newAccessToken = "new_access_token";
         String newRefreshTokenValue = "new_refresh_token";
 
@@ -68,7 +68,7 @@ class JwtAuthHelperTest {
         given(tokenProvider.generateAccessToken(any())).willReturn(newAccessToken);
         given(tokenProvider.generateRefreshToken()).willReturn(newRefreshTokenValue);
 
-        Jwts result = jwtAuthHelper.reissueToken(account, refreshTokenValue);
+        Jwts result = jwtAuthHelper.reissueToken(user, refreshTokenValue);
 
         assertEquals(newAccessToken, result.accessToken());
         assertEquals(newRefreshTokenValue, result.refreshToken());
@@ -84,7 +84,7 @@ class JwtAuthHelperTest {
         given(refreshTokenService.readByToken(any())).willReturn(Optional.empty());
 
         NotFoundException result = assertThrows(NotFoundException.class,
-            () -> jwtAuthHelper.reissueToken(account, refreshTokenValue));
+            () -> jwtAuthHelper.reissueToken(user, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
         assertEquals(RefreshTokenErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
@@ -92,13 +92,13 @@ class JwtAuthHelperTest {
 
     @Test
     @DisplayName("리프레시 토큰이 사용자의 토큰과 일치하지 않는 경우 UnauthorizedException이 발생한다")
-    void should_throw_UnauthorizedException_when_reissue_token_but_account_does_not_match() {
-        RefreshToken refreshToken = RefreshToken.create(anotherAccount, refreshTokenValue);
+    void should_throw_UnauthorizedException_when_reissue_token_but_user_does_not_match() {
+        RefreshToken refreshToken = RefreshToken.create(anotherUser, refreshTokenValue);
 
         given(refreshTokenService.readByToken(any())).willReturn(Optional.of(refreshToken));
 
         UnauthorizedException result = assertThrows(UnauthorizedException.class,
-            () -> jwtAuthHelper.reissueToken(account, refreshTokenValue));
+            () -> jwtAuthHelper.reissueToken(user, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
         assertEquals(RefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
@@ -107,12 +107,12 @@ class JwtAuthHelperTest {
     @Test
     @DisplayName("토큰을 정상적으로 삭제한다")
     void succeed_to_remove_refresh_token() {
-        RefreshToken refreshToken = RefreshToken.create(account, refreshTokenValue);
+        RefreshToken refreshToken = RefreshToken.create(user, refreshTokenValue);
 
         given(refreshTokenService.readByToken(any())).willReturn(Optional.of(refreshToken));
         willDoNothing().given(refreshTokenService).remove(any());
 
-        jwtAuthHelper.removeRefreshToken(account, refreshTokenValue);
+        jwtAuthHelper.removeRefreshToken(user, refreshTokenValue);
 
         then(refreshTokenService).should(times(1)).readByToken(any());
         then(refreshTokenService).should(times(1)).remove(any(RefreshToken.class));
@@ -124,7 +124,7 @@ class JwtAuthHelperTest {
         given(refreshTokenService.readByToken(any())).willReturn(Optional.empty());
 
         NotFoundException result = assertThrows(NotFoundException.class,
-            () -> jwtAuthHelper.removeRefreshToken(account, refreshTokenValue));
+            () -> jwtAuthHelper.removeRefreshToken(user, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
         assertEquals(RefreshTokenErrorCode.NOT_FOUND_REFRESH_TOKEN, result.getResponseCode());
@@ -133,18 +133,18 @@ class JwtAuthHelperTest {
     @Test
     @DisplayName("로그아웃 중 리프레시 토큰이 관리자의 토큰과 일치하지 않는 경우 UnauthorizedException이 발생한다")
     void should_throw_UnauthorizedException_when_logout_but_admin_does_not_match() {
-        RefreshToken refreshToken = RefreshToken.create(anotherAccount, refreshTokenValue);
+        RefreshToken refreshToken = RefreshToken.create(anotherUser, refreshTokenValue);
 
         given(refreshTokenService.readByToken(any())).willReturn(Optional.of(refreshToken));
 
         UnauthorizedException result = assertThrows(UnauthorizedException.class,
-            () -> jwtAuthHelper.removeRefreshToken(account, refreshTokenValue));
+            () -> jwtAuthHelper.removeRefreshToken(user, refreshTokenValue));
 
         then(refreshTokenService).should(times(1)).readByToken(any());
         assertEquals(RefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
     }
 
-    Account account = Account.builder()
+    User user = User.builder()
         .id(1L)
         .username("email@gmail.com")
         .password("password1!")
@@ -152,7 +152,7 @@ class JwtAuthHelperTest {
         .role(Role.ASSOCIATE)
         .build();
 
-    Account anotherAccount = Account.builder()
+    User anotherUser = User.builder()
         .id(2L)
         .username("anotherEmail@gmail.com")
         .password("password1!")

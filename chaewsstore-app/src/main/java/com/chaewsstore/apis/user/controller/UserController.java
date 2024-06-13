@@ -1,8 +1,8 @@
-package com.chaewsstore.apis.account.controller;
+package com.chaewsstore.apis.user.controller;
 
-import com.chaewsstore.apis.account.dto.AccountResponseDto;
-import com.chaewsstore.apis.account.dto.SignupRequestDto;
-import com.chaewsstore.apis.account.usecase.AccountUseCase;
+import com.chaewsstore.apis.user.dto.UserResponseDto;
+import com.chaewsstore.apis.user.dto.SignupRequestDto;
+import com.chaewsstore.apis.user.usecase.UserUseCase;
 import com.globalutils.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,26 +17,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api/accounts")
-public class AccountController {
+@RequestMapping("api/users")
+public class UserController {
 
-    private final AccountUseCase accountUseCase;
+    private final UserUseCase userUseCase;
 
     @PostMapping("signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public SuccessResponse<AccountResponseDto> signup(@Valid @RequestBody SignupRequestDto request) {
-        return SuccessResponse.from(accountUseCase.signup(request));
+    public SuccessResponse<UserResponseDto> signup(@Valid @RequestBody SignupRequestDto request) {
+        return SuccessResponse.from(userUseCase.signup(request));
     }
 
     @GetMapping("check-username/{username}/exists")
     public SuccessResponse checkUsername(@PathVariable String username) {
-        accountUseCase.checkUsername(username);
+        userUseCase.checkUsername(username);
         return SuccessResponse.create();
     }
 
     @GetMapping("check-nickname/{nickname}/exists")
     public SuccessResponse checkNickname(@PathVariable String nickname) {
-        accountUseCase.checkNickname(nickname);
+        userUseCase.checkNickname(nickname);
         return SuccessResponse.create();
     }
 }

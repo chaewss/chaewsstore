@@ -1,4 +1,4 @@
-package com.chaewsstore.core.domain.account;
+package com.chaewsstore.core.domain.user;
 
 import com.globalutils.annotation.DomainService;
 import java.util.Optional;
@@ -7,27 +7,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @DomainService
-public class AccountService {
+public class UserService {
 
-    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public Account create(Account account) {
-        return accountRepository.save(account);
+    public User create(User user) {
+        return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Account> readByUsername(String username) {
-        return accountRepository.findByUsername(username);
+    public Optional<User> readByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     @Transactional(readOnly = true)
     public Boolean existsByUsername(String username) {
-        return accountRepository.existsByUsername(username);
+        return userRepository.existsByUsername(username);
     }
 
     @Transactional(readOnly = true)
     public Boolean existsByNickname(String nickname) {
-        return accountRepository.existsByNickname(nickname);
+        return userRepository.existsByNickname(nickname);
     }
 }

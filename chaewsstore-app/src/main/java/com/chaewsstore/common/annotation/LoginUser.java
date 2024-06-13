@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @Target({ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@AuthenticationPrincipal(expression = "@accountDetailService.getUserInfo()")
-public @interface LoginAccount {
+@AuthenticationPrincipal(expression = "@userDetailServiceImpl.getUserInfo()")
+public @interface LoginUser {
 
 }

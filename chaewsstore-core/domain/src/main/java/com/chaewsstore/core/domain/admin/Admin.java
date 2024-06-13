@@ -1,7 +1,7 @@
 package com.chaewsstore.core.domain.admin;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
-import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.domain.user.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

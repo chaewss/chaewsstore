@@ -1,14 +1,14 @@
-package com.chaewsstore.apis.account.usecase;
+package com.chaewsstore.apis.user.usecase;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.ACCOUNT_DUPLICATION;
+import static com.chaewsstore.common.exception.ExceptionConstants.USER_DUPLICATION;
 import static com.chaewsstore.common.exception.ExceptionConstants.NICKNAME_DUPLICATION;
 
-import com.chaewsstore.apis.account.dto.AccountResponseDto;
-import com.chaewsstore.apis.account.dto.SignupRequestDto;
+import com.chaewsstore.apis.user.dto.UserResponseDto;
+import com.chaewsstore.apis.user.dto.SignupRequestDto;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.core.domain.account.Account;
-import com.chaewsstore.core.domain.account.AccountService;
-import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.domain.user.Role;
+import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.user.UserService;
 import com.globalutils.annotation.UseCase;
 import com.globalutils.exception.DuplicateException;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @UseCase
-public class AccountUseCase {
+public class UserUseCase {
 
-    private final AccountService accountService;
+    private final UserService userService;
     private final PasswordEncoderHelper passwordEncoderHelper;
 
     /**
@@ -29,15 +29,15 @@ public class AccountUseCase {
      * @throws DuplicateException 아이디 혹은 닉네임이 중복된 경우
      */
     @Transactional(rollbackFor = Exception.class)
-    public AccountResponseDto signup(SignupRequestDto request) {
+    public UserResponseDto signup(SignupRequestDto request) {
         checkUsername(request.username());
         checkNickname(request.nickname());
 
         String encodedPassword = passwordEncoderHelper.encodePassword(request.password());
-        Account account = request.toEntity(encodedPassword, Role.ASSOCIATE);
-        accountService.create(account);
+        User user = request.toEntity(encodedPassword, Role.ASSOCIATE);
+        userService.create(user);
 
-        return AccountResponseDto.from(account);
+        return UserResponseDto.from(user);
     }
 
     /**
@@ -48,8 +48,8 @@ public class AccountUseCase {
      */
     @Transactional(readOnly = true)
     public void checkUsername(String username) {
-        if (Boolean.TRUE.equals(accountService.existsByUsername(username))) {
-            throw ACCOUNT_DUPLICATION;
+        if (Boolean.TRUE.equals(userService.existsByUsername(username))) {
+            throw USER_DUPLICATION;
         }
     }
 
@@ -61,7 +61,7 @@ public class AccountUseCase {
      */
     @Transactional(readOnly = true)
     public void checkNickname(String nickname) {
-        if (Boolean.TRUE.equals(accountService.existsByNickname(nickname))) {
+        if (Boolean.TRUE.equals(userService.existsByNickname(nickname))) {
             throw NICKNAME_DUPLICATION;
         }
     }

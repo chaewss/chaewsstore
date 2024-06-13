@@ -1,4 +1,4 @@
-package com.chaewsstore.core.domain.account;
+package com.chaewsstore.core.domain.user;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -18,11 +18,11 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Getter
-@SQLDelete(sql = "UPDATE account SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Account extends BaseTimeEntity {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +46,7 @@ public class Account extends BaseTimeEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Account(Long id, String username, String password, String nickname, Role role,
+    public User(Long id, String username, String password, String nickname, Role role,
         Boolean isDeleted) {
         this.id = id;
         this.username = username;
@@ -56,8 +56,8 @@ public class Account extends BaseTimeEntity {
         this.isDeleted = isDeleted;
     }
 
-    public static Account create(String username, String password, String nickname, Role role) {
-        return Account.builder()
+    public static User create(String username, String password, String nickname, Role role) {
+        return User.builder()
             .username(username)
             .password(password)
             .nickname(nickname)
@@ -71,10 +71,10 @@ public class Account extends BaseTimeEntity {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Account account)) {
+        if (!(o instanceof User user)) {
             return false;
         }
-        return getId() != null && Objects.equals(getId(), account.getId());
+        return getId() != null && Objects.equals(getId(), user.getId());
     }
 
     @Override

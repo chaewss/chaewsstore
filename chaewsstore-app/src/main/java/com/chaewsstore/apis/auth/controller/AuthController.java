@@ -6,8 +6,8 @@ import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
 import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.apis.auth.usecase.AuthUseCase;
-import com.chaewsstore.common.annotation.LoginAccount;
-import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.common.annotation.LoginUser;
+import com.chaewsstore.core.domain.user.User;
 import com.globalutils.response.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +35,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public SuccessResponse<Void> logout(@LoginAccount Account account,
+    public SuccessResponse<Void> logout(@LoginUser User user,
         @Valid @RequestBody LogoutRequestDto request) {
-        authUseCase.logout(account, request);
+        authUseCase.logout(user, request);
         return SuccessResponse.create();
     }
 }

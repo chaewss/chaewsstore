@@ -3,7 +3,7 @@ package com.chaewsstore.config.security;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
-import com.chaewsstore.core.domain.account.Role;
+import com.chaewsstore.core.domain.user.Role;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
@@ -19,10 +19,10 @@ public class RequestMatcherHolder {
         // auth
         new RequestInfo(POST, "/api/auth/login", null),
 
-        // account
-        new RequestInfo(GET, "/api/accounts/check-username/**/exists", null),
-        new RequestInfo(GET, "/api/accounts/check-nickname/**/exists", null),
-        new RequestInfo(POST, "/api/accounts/signup", null),
+        // user
+        new RequestInfo(GET, "/api/users/check-username/**/exists", null),
+        new RequestInfo(GET, "/api/users/check-nickname/**/exists", null),
+        new RequestInfo(POST, "/api/users/signup", null),
 
         // bid
         new RequestInfo(GET, "/api/products/*/bids", null),

@@ -1,6 +1,6 @@
 package com.chaewsstore.core.domain.bid;
 
-import com.chaewsstore.core.domain.account.Account;
+import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.product.Product;
 import jakarta.persistence.Entity;
@@ -38,14 +38,14 @@ public class Bid extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "bidder_id")
-    private Account bidder;
+    private User bidder;
 
     private Boolean isSold;
 
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Product product, Account bidder, Boolean isSold,
+    public Bid(Long id, Integer price, Product product, User bidder, Boolean isSold,
         Boolean isDeleted) {
         this.id = id;
         this.price = price;
@@ -55,7 +55,7 @@ public class Bid extends BaseTimeEntity {
         this.isDeleted = isDeleted;
     }
 
-    public static Bid create(Integer price, Product product, Account bidder) {
+    public static Bid create(Integer price, Product product, User bidder) {
         return Bid.builder()
             .price(price)
             .product(product)

@@ -1,11 +1,11 @@
-package com.chaewsstore.core.domain.account;
+package com.chaewsstore.core.domain.user;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-interface AccountRepository extends JpaRepository<Account, Long> {
+interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<Account> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     Boolean existsByUsername(String username);
 
