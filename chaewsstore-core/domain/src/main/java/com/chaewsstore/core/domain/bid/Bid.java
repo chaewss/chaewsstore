@@ -1,9 +1,13 @@
 package com.chaewsstore.core.domain.bid;
 
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.product.Product;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,18 +44,20 @@ public class Bid extends BaseTimeEntity {
     @JoinColumn(name = "bidder_id")
     private User bidder;
 
-    private Boolean isSold;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
 
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Product product, User bidder, Boolean isSold,
+    public Bid(Long id, Integer price, Product product, User bidder, Status status,
         Boolean isDeleted) {
         this.id = id;
         this.price = price;
         this.product = product;
         this.bidder = bidder;
-        this.isSold = isSold;
+        this.status = status;
         this.isDeleted = isDeleted;
     }
 
@@ -60,7 +66,7 @@ public class Bid extends BaseTimeEntity {
             .price(price)
             .product(product)
             .bidder(bidder)
-            .isSold(false)
+            .status(Status.LIVE)
             .isDeleted(false)
             .build();
     }
