@@ -39,6 +39,9 @@ public class User extends BaseTimeEntity {
     @Column(unique = true)
     private String nickname;
 
+    @Column(nullable = false)
+    private Long account;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -46,12 +49,13 @@ public class User extends BaseTimeEntity {
     private Boolean isDeleted;
 
     @Builder
-    public User(Long id, String username, String password, String nickname, Role role,
+    public User(Long id, String username, String password, String nickname, Long account, Role role,
         Boolean isDeleted) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
+        this.account = account;
         this.role = role;
         this.isDeleted = isDeleted;
     }
@@ -61,6 +65,7 @@ public class User extends BaseTimeEntity {
             .username(username)
             .password(password)
             .nickname(nickname)
+            .account(0L)
             .role(role)
             .isDeleted(false)
             .build();
