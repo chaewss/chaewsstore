@@ -3,16 +3,19 @@ package com.chaewsstore.apis.bid.usecase;
 import static com.chaewsstore.common.exception.ExceptionConstants.DUPLICATION_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.FORBIDDEN_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID_WITH_CONDITION;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_PRODUCT;
 
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
+import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.bid.Bid;
+import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.BidService;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductService;
+import com.chaewsstore.core.domain.user.User;
 import com.globalutils.annotation.UseCase;
 import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
@@ -69,6 +72,36 @@ public class BidUseCase {
     }
 
     /**
+     * 판매 입찰을 처리하고 관련된 구매 입찰을 생성한다.
+     *
+     * @param user    구매 입찰을 생성하는 사용자
+     * @param request 주문 요청 정보
+     * @throws NotFoundException 주어진 조건의 판매 가능한 입찰이 없는 경우
+     */
+    @Transactional
+    public void transactSellBid(User user, TransactBidRequestDto request) {
+        Bid sellBid = getValidBid(request.productId(), request.price(), BidType.SELL);
+
+        Bid buyBid = bidService.create(Bid.transactSellBidAndCreateBuyBid(user, sellBid));
+        sellBid.relateBid(buyBid);
+    }
+
+    /**
+     * 구매 입찰을 처리하고 관련된 판매 입찰을 생성한다.
+     *
+     * @param user    판매 입찰을 생성하는 사용자
+     * @param request 주문 요청 정보
+     * @throws NotFoundException 주어진 조건의 구매 가능한 입찰이 없는 경우
+     */
+    @Transactional
+    public void transactBuyBid(User user, TransactBidRequestDto request) {
+        Bid buyBid = getValidBid(request.productId(), request.price(), BidType.BUY);
+
+        Bid sellBid = bidService.create(Bid.transactBuyBidAndCreateSellBid(user, buyBid));
+        buyBid.relateBid(sellBid);
+    }
+
+    /**
      * 입찰을 수정한다.
      *
      * @param user 현재 사용자의 계정
@@ -101,5 +134,10 @@ public class BidUseCase {
             throw FORBIDDEN_BID;
         }
         bidService.remove(bid);
+    }
+
+    private Bid getValidBid(Long productId, Integer price, BidType bidType) {
+        return bidService.readValidBid(productId, price, bidType)
+            .orElseThrow(() -> NOT_FOUND_BID_WITH_CONDITION);
     }
 }

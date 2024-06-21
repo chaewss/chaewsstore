@@ -1,5 +1,6 @@
 package com.chaewsstore.core.domain.bid;
 
+import static com.globalutils.exception.StatusCode.BAD_REQUEST;
 import static com.globalutils.exception.StatusCode.CONFLICT;
 import static com.globalutils.exception.StatusCode.FORBIDDEN;
 import static com.globalutils.exception.StatusCode.NOT_FOUND;
@@ -18,6 +19,7 @@ public enum BidErrorCode implements BaseErrorCode {
 
     /* 404 NOT_FOUND */
     NOT_FOUND_BID(NOT_FOUND, "존재하지 않는 입찰입니다"),
+    NOT_FOUND_BID_WITH_CONDITION(NOT_FOUND, "주어진 조건에 맞는 입찰이 존재하지 않습니다"),
 
     /* 409 CONFLICT */
     DUPLICATION_BID(CONFLICT, "중복된 입찰입니다"),

@@ -20,6 +20,7 @@ public interface ExceptionConstants {
     NotFoundException NOT_FOUND_REFRESH_TOKEN = new NotFoundException(RefreshTokenErrorCode.NOT_FOUND_REFRESH_TOKEN);
     NotFoundException NOT_FOUND_PRODUCT = new NotFoundException(ProductErrorCode.NOT_FOUND_PRODUCT);
     NotFoundException NOT_FOUND_BID = new NotFoundException(BidErrorCode.NOT_FOUND_BID);
+    NotFoundException NOT_FOUND_BID_WITH_CONDITION = new NotFoundException(BidErrorCode.NOT_FOUND_BID_WITH_CONDITION);
 
     DuplicateException USER_DUPLICATION = new DuplicateException(UserErrorCode.USER_DUPLICATION);
     DuplicateException NICKNAME_DUPLICATION = new DuplicateException(UserErrorCode.NICKNAME_DUPLICATION);

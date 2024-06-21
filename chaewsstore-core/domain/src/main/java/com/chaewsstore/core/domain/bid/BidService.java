@@ -1,8 +1,10 @@
 package com.chaewsstore.core.domain.bid;
 
-import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
+import com.chaewsstore.core.domain.user.User;
 import com.globalutils.annotation.DomainService;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +26,12 @@ public class BidService {
     @Transactional(readOnly = true)
     public Optional<Bid> readById(Long id) {
         return bidRepository.findById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Bid> readValidBid(Long productId, Integer price, BidType bidType) {
+        return bidRepository.findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
+            productId, price, bidType, Status.LIVE);
     }
 
     @Transactional(readOnly = true)

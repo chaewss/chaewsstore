@@ -1,19 +1,23 @@
 package com.chaewsstore.core.domain.bid;
 
-import com.chaewsstore.core.domain.common.Status;
-import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.BaseTimeEntity;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
+import com.chaewsstore.core.domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -28,6 +32,10 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Bid extends BaseTimeEntity {
+
+    public enum BidType {
+        SELL, BUY
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,16 +56,32 @@ public class Bid extends BaseTimeEntity {
     @Column(nullable = false)
     private Status status;
 
+    @Enumerated(value = EnumType.STRING)
+    private BidType bidType;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bid_id")
+    private Bid relatedBid;
+
+    @Column(updatable = false)
+    private LocalDateTime transactionAt;
+
+    @Version
+    private Long version;
+
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Product product, User bidder, Status status,
-        Boolean isDeleted) {
+    public Bid(Long id, Integer price, Product product, User bidder, Status status, BidType bidType,
+        Bid relatedBid, LocalDateTime transactionAt, Boolean isDeleted) {
         this.id = id;
         this.price = price;
         this.product = product;
         this.bidder = bidder;
         this.status = status;
+        this.bidType = bidType;
+        this.relatedBid = relatedBid;
+        this.transactionAt = transactionAt;
         this.isDeleted = isDeleted;
     }
 
@@ -73,6 +97,41 @@ public class Bid extends BaseTimeEntity {
 
     public void updatePrice(Integer price) {
         this.price = price;
+    }
+
+    public static Bid transactSellBidAndCreateBuyBid(User user, Bid sellBid) {
+        LocalDateTime transactionAt = LocalDateTime.now();
+        sellBid.executeTransaction(transactionAt);
+        return create(user, sellBid, Status.IN_TRANSACTION, BidType.BUY, transactionAt);
+    }
+
+    public static Bid transactBuyBidAndCreateSellBid(User user, Bid buyBid) {
+        LocalDateTime transactionAt = LocalDateTime.now();
+        buyBid.executeTransaction(transactionAt);
+        return create(user, buyBid, Status.IN_TRANSACTION, BidType.SELL, transactionAt);
+    }
+
+    public void relateBid(Bid bid) {
+        this.relatedBid = bid;
+    }
+
+    private static Bid create(User user, Bid relatedBid, Status status, BidType bidType,
+        LocalDateTime transactionAt) {
+        return Bid.builder()
+            .price(relatedBid.getPrice())
+            .product(relatedBid.getProduct())
+            .bidder(user)
+            .relatedBid(relatedBid)
+            .status(status)
+            .bidType(bidType)
+            .transactionAt(transactionAt)
+            .isDeleted(false)
+            .build();
+    }
+
+    private void executeTransaction(LocalDateTime transactionAt) {
+        this.status = Status.IN_TRANSACTION;
+        this.transactionAt = transactionAt;
     }
 
     @Override

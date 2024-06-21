@@ -2,12 +2,14 @@ package com.chaewsstore.apis.bid.controller;
 
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
+import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.common.annotation.LoginUser;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
+import com.chaewsstore.common.annotation.LoginUser;
 import com.chaewsstore.core.domain.user.User;
 import com.globalutils.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api")
@@ -39,6 +42,22 @@ public class BidController {
     public SuccessResponse<Void> createBid(@LoginUser User user,
         @PathVariable Long productId, @RequestBody CreateBidRequestDto request) {
         bidUseCase.createBid(user, productId, request);
+        return SuccessResponse.create();
+    }
+
+    @PostMapping("/bids/buy-now")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SuccessResponse<Void> transactSellBid(@LoginUser User user,
+        @RequestBody TransactBidRequestDto request) {
+        bidUseCase.transactSellBid(user, request);
+        return SuccessResponse.create();
+    }
+
+    @PostMapping("/bids/sell-now")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SuccessResponse<Void> transactBuyBid(@LoginUser User user,
+        @RequestBody TransactBidRequestDto request) {
+        bidUseCase.transactBuyBid(user, request);
         return SuccessResponse.create();
     }
 
