@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum BidErrorCode implements BaseErrorCode {
 
+    BID_NOT_IN_TRANSACTION(BAD_REQUEST, "해당 입찰은 거래 중 상태가 아닙니다"),
+    
     /* 403 FORBIDDEN */
     FORBIDDEN_BID(FORBIDDEN, "해당 입찰에 대한 권한이 없습니다"),
 

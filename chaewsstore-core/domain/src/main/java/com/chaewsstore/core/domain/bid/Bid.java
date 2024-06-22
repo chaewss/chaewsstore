@@ -4,6 +4,7 @@ import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.user.User;
+import com.globalutils.exception.BadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -113,6 +114,28 @@ public class Bid extends BaseTimeEntity {
 
     public void relateBid(Bid bid) {
         this.relatedBid = bid;
+    }
+
+    public void inspect(Integer score) {
+        validate(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
+        changeStatus(score);
+    }
+
+    private void validate(Status status, BidErrorCode errorCode) {
+        if (this.status != status) {
+            throw new BadRequestException(errorCode);
+        }
+    }
+
+    private void changeStatus(Integer score) {
+        if (score == 100) {
+            this.status = Status.AUTHENTICATED;
+        } else if (score >= 95) {
+            this.status = Status.ACCREDITED;
+        } else {
+            this.status = Status.AUTHENTICATED_FAILED;
+            this.relatedBid.status = Status.CANCELLED;
+        }
     }
 
     private static Bid create(User user, Bid relatedBid, Status status, BidType bidType,
