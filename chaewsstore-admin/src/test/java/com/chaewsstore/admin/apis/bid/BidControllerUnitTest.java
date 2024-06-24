@@ -1,9 +1,11 @@
 package com.chaewsstore.admin.apis.bid;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
@@ -65,6 +67,9 @@ class BidControllerUnitTest {
             .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
                 ApiDocumentUtils.getDocumentRequest(),
                 ApiDocumentUtils.getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("bidId").description("입찰 ID")
+                ),
                 requestFields(
                     fieldWithPath("score").type(JsonFieldType.NUMBER).description("검수 점수")
                 )
@@ -85,6 +90,9 @@ class BidControllerUnitTest {
             .andDo(MockMvcRestDocumentation.document(ApiDocumentUtils.documentIdentifier,
                 ApiDocumentUtils.getDocumentRequest(),
                 ApiDocumentUtils.getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("bidId").description("입찰 ID")
+                ),
                 requestFields(
                     fieldWithPath("score").type(JsonFieldType.NUMBER).description("검수 점수")
                 )
