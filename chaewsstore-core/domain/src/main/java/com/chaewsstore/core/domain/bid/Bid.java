@@ -1,19 +1,25 @@
 package com.chaewsstore.core.domain.bid;
 
-import com.chaewsstore.core.domain.common.Status;
-import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.BaseTimeEntity;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
+import com.chaewsstore.core.domain.user.User;
+import com.globalutils.exception.BadRequestException;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,6 +35,10 @@ import org.hibernate.annotations.Where;
 @Entity
 public class Bid extends BaseTimeEntity {
 
+    public enum BidType {
+        SELL, BUY
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,7 +50,7 @@ public class Bid extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bidder_id")
     private User bidder;
 
@@ -48,16 +58,32 @@ public class Bid extends BaseTimeEntity {
     @Column(nullable = false)
     private Status status;
 
+    @Enumerated(value = EnumType.STRING)
+    private BidType bidType;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bid_id")
+    private Bid relatedBid;
+
+    @Column(updatable = false)
+    private LocalDateTime transactionAt;
+
+    @Version
+    private Long version;
+
     private Boolean isDeleted;
 
     @Builder
-    public Bid(Long id, Integer price, Product product, User bidder, Status status,
-        Boolean isDeleted) {
+    public Bid(Long id, Integer price, Product product, User bidder, Status status, BidType bidType,
+        Bid relatedBid, LocalDateTime transactionAt, Boolean isDeleted) {
         this.id = id;
         this.price = price;
         this.product = product;
         this.bidder = bidder;
         this.status = status;
+        this.bidType = bidType;
+        this.relatedBid = relatedBid;
+        this.transactionAt = transactionAt;
         this.isDeleted = isDeleted;
     }
 
@@ -73,6 +99,82 @@ public class Bid extends BaseTimeEntity {
 
     public void updatePrice(Integer price) {
         this.price = price;
+    }
+
+    public static Bid transactSellBidAndCreateBuyBid(User user, Bid sellBid) {
+        LocalDateTime transactionAt = LocalDateTime.now();
+        sellBid.executeTransaction(transactionAt);
+        return create(user, sellBid, Status.IN_TRANSACTION, BidType.BUY, transactionAt);
+    }
+
+    public static Bid transactBuyBidAndCreateSellBid(User user, Bid buyBid) {
+        LocalDateTime transactionAt = LocalDateTime.now();
+        buyBid.executeTransaction(transactionAt);
+        return create(user, buyBid, Status.IN_TRANSACTION, BidType.SELL, transactionAt);
+    }
+
+    public void relateBid(Bid bid) {
+        this.relatedBid = bid;
+    }
+
+    public void inspect(Integer score) {
+        validateStatus(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
+        changeStatus(score);
+    }
+
+    public Long calculateFinalPrice(Integer price) {
+        validateStatus(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
+        validateStatus(Status.AUTHENTICATED, Status.ACCREDITED, BidErrorCode.BID_NOT_INSPECT);
+        return relatedBid.getStatus().equals(Status.ACCREDITED) ? Math.round(price * 0.85)
+            : (long) price;
+    }
+
+    public void updateStatusAfterDeposit() {
+        this.status = Status.DELIVERING;
+        this.relatedBid.status = Status.FINISHED;
+    }
+
+    private void validateStatus(Status expectedStatus, BidErrorCode errorCode) {
+        if (this.status != expectedStatus) {
+            throw new BadRequestException(errorCode);
+        }
+    }
+
+    private void validateStatus(Status expectedStatus1, Status expectedStatus2,
+        BidErrorCode errorCode) {
+        if (this.relatedBid.getStatus() != expectedStatus1 && this.relatedBid.getStatus() != expectedStatus2) {
+            throw new BadRequestException(errorCode);
+        }
+    }
+
+    private void changeStatus(Integer score) {
+        if (score == 100) {
+            this.status = Status.AUTHENTICATED;
+        } else if (score >= 95) {
+            this.status = Status.ACCREDITED;
+        } else {
+            this.status = Status.AUTHENTICATED_FAILED;
+            this.relatedBid.status = Status.CANCELLED;
+        }
+    }
+
+    private static Bid create(User user, Bid relatedBid, Status status, BidType bidType,
+        LocalDateTime transactionAt) {
+        return Bid.builder()
+            .price(relatedBid.getPrice())
+            .product(relatedBid.getProduct())
+            .bidder(user)
+            .relatedBid(relatedBid)
+            .status(status)
+            .bidType(bidType)
+            .transactionAt(transactionAt)
+            .isDeleted(false)
+            .build();
+    }
+
+    private void executeTransaction(LocalDateTime transactionAt) {
+        this.status = Status.IN_TRANSACTION;
+        this.transactionAt = transactionAt;
     }
 
     @Override

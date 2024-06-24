@@ -1,6 +1,9 @@
 package com.chaewsstore.core.domain.user;
 
+import static com.chaewsstore.core.domain.user.UserErrorCode.INSUFFICIENT_BALANCE;
+
 import com.chaewsstore.core.domain.BaseTimeEntity;
+import com.globalutils.exception.BadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -46,6 +50,9 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role;
 
+    @Version
+    private Long version;
+
     private Boolean isDeleted;
 
     @Builder
@@ -69,6 +76,21 @@ public class User extends BaseTimeEntity {
             .role(role)
             .isDeleted(false)
             .build();
+    }
+
+    public void deposit(Long amount) {
+        this.account += amount;
+    }
+
+    public void withdraw(Long amount) {
+        validateSufficientBalance(amount);
+        this.account -= amount;
+    }
+
+    private void validateSufficientBalance(Long money) {
+        if (this.account < money) {
+            throw new BadRequestException(INSUFFICIENT_BALANCE);
+        }
     }
 
     @Override

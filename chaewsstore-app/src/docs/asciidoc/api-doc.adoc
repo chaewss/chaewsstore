@@ -166,7 +166,54 @@ include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed
 | `DUPLICATION_BID` | `409 CONFLICT` | 중복된 입찰입니다
 |===
 
-=== 4-3. 입찰 수정
+=== 4-3. 즉시 구매
+==== Request Fields
+include::{snippets}/bid-controller-unit-test/respond_201_when_transact_sell_bid_and_create_buy_bid_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_transact_sell_bid_and_create_buy_bid_succeed/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_transact_sell_bid_and_create_buy_bid_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `NOT_FOUND_BID_WITH_CONDITION` | `404 NOT FOUND` | 주어진 조건에 맞는 입찰이 존재하지 않습니다
+|===
+
+=== 4-4. 즉시 판매
+==== Request Fields
+include::{snippets}/bid-controller-unit-test/respond_201_when_transact_buy_bid_and_create_sell_bid_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_transact_buy_bid_and_create_sell_bid_succeed/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_transact_buy_bid_and_create_sell_bid_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `NOT_FOUND_BID_WITH_CONDITION` | `404 NOT FOUND` | 주어진 조건에 맞는 입찰이 존재하지 않습니다
+|===
+
+=== 4-5. 입찰 금액 입금
+==== Request Path Parameters
+include::{snippets}/bid-controller-unit-test/respond_200_when_deposit_bid_succeed/path-parameters.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_deposit_bid_succeed/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_deposit_bid_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `BID_NOT_IN_TRANSACTION` | `400 BAD REQUEST` | 해당 입찰은 거래 중 상태가 아닙니다
+| `BID_NOT_INSPECT` | `400 BAD REQUEST` | 상품이 검수되지 않았습니다
+| `INSUFFICIENT_BALANCE` | `400 BAD REQUEST` | 계좌 잔액이 부족합니다
+| `NOT_FOUND_BID` | `404 NOT FOUND` | 존재하지 않는 입찰입니다
+| `NOT_FOUND_USER` | `404 NOT FOUND` | 존재하지 않는 회원입니다
+|===
+
+
+=== 4-6. 입찰 수정
 ==== Request Path Parameters
 include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed/path-parameters.adoc[]
 ==== Request Fields
@@ -183,7 +230,7 @@ include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed
 | `NOT_FOUND_BID` | `404 NOT FOUND` | 존재하지 않는 입찰입니다
 |===
 
-=== 4-4. 입찰 삭제
+=== 4-7. 입찰 삭제
 ==== Request Path Parameters
 include::{snippets}/bid-controller-unit-test/respond_200_when_delete_bid_succeed/path-parameters.adoc[]
 ==== Request Http Example

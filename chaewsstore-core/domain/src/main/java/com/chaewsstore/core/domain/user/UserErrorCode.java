@@ -1,5 +1,6 @@
 package com.chaewsstore.core.domain.user;
 
+import static com.globalutils.exception.StatusCode.BAD_REQUEST;
 import static com.globalutils.exception.StatusCode.CONFLICT;
 import static com.globalutils.exception.StatusCode.NOT_FOUND;
 import static com.globalutils.exception.StatusCode.UNAUTHORIZED;
@@ -12,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserErrorCode implements BaseErrorCode {
+
+    /* 400 BAD_REQUEST */
+    INSUFFICIENT_BALANCE(BAD_REQUEST, "계좌 잔액이 부족합니다"),
 
     /* 401 UNAUTHORIZED */
     INVALID_PASSWORD(UNAUTHORIZED, "비밀번호가 일치하지 않습니다"),

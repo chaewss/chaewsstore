@@ -17,6 +17,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<User> readByIdWithOptimisticLock(Long id) {
+        return userRepository.findByIdWithOptimisticLock(id);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<User> readByUsername(String username) {
         return userRepository.findByUsername(username);
     }

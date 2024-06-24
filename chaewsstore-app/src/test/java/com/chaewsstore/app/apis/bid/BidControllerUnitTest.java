@@ -9,6 +9,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfig
 import com.chaewsstore.apis.bid.controller.BidController;
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
+import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
@@ -106,6 +108,62 @@ class BidControllerUnitTest {
                 ),
                 requestFields(
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("판매 입찰을 처리하고 관련된 구매 입찰 생성에 성공하면 HTTP 201을 응답한다")
+    void respond_201_when_transact_sell_bid_and_create_buy_bid_succeed() throws Exception {
+        TransactBidRequestDto request = new TransactBidRequestDto(1L, 39000);
+
+        mockMvc.perform(post("/api/bids/buy-now")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                requestFields(
+                    fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 ID"),
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("구매 희망가")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("구매 입찰을 처리하고 관련된 판매 입찰 생성에 성공하면 HTTP 201을 응답한다")
+    void respond_201_when_transact_buy_bid_and_create_sell_bid_succeed() throws Exception {
+        TransactBidRequestDto request = new TransactBidRequestDto(1L, 39000);
+
+        mockMvc.perform(post("/api/bids/sell-now")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                requestFields(
+                    fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 ID"),
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("구매자가 입찰 상품 금액 입금에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_deposit_bid_succeed() throws Exception {
+        mockMvc.perform(patch("/api/bids/deposit/{bidId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("bidId").description("입찰 ID")
                 )
             ));
     }
