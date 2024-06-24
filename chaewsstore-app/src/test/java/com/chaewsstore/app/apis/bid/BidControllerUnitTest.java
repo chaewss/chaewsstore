@@ -206,7 +206,7 @@ class BidControllerUnitTest {
                     parameterWithName("bidId").description("입찰 ID")
                 ),
                 requestFields(
-                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("수정할 희망가")
                 )
             ));
     }

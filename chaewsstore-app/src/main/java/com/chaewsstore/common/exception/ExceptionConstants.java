@@ -13,6 +13,7 @@ import com.globalutils.exception.UnauthorizedException;
 public interface ExceptionConstants {
 
     BadRequestException INSUFFICIENT_BALANCE = new BadRequestException(UserErrorCode.INSUFFICIENT_BALANCE);
+    BadRequestException BID_NOT_IN_LIVE = new BadRequestException(BidErrorCode.BID_NOT_IN_LIVE);
 
     UnauthorizedException INVALID_PASSWORD = new UnauthorizedException(UserErrorCode.INVALID_PASSWORD);
     UnauthorizedException WITHOUT_OWNERSHIP_REFRESH_TOKEN = new UnauthorizedException(RefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN);

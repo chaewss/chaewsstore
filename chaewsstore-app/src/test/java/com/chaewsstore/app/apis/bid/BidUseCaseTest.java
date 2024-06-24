@@ -94,7 +94,8 @@ class BidUseCaseTest {
         CreateBidRequestDto request = new CreateBidRequestDto(6000);
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(Optional.empty());
+        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(
+            Optional.empty());
         given(bidService.create(any())).willReturn(any());
 
         bidUseCase.createBid(user, 1L, request, bidType);
@@ -110,7 +111,8 @@ class BidUseCaseTest {
         CreateBidRequestDto request = new CreateBidRequestDto(6000);
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(Optional.of(buyBid));
+        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(
+            Optional.of(buyBid));
 
         bidUseCase.createBid(user, 1L, request, BidType.BUY);
 
@@ -326,11 +328,13 @@ class BidUseCaseTest {
     void should_throw_NotFountException_when_update_bid_but_bid_does_not_exist() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        given(bidService.readById(anyLong())).willThrow(NotFoundException.class);
+        given(bidService.readById(anyLong())).willReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> bidUseCase.updateBid(user, 1L, request));
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.updateBid(user, 999L, request));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.NOT_FOUND_BID, result.getResponseCode());
     }
 
     @Test
@@ -340,10 +344,25 @@ class BidUseCaseTest {
 
         given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
 
-        assertThrows(ForbiddenException.class,
+        ForbiddenException result = assertThrows(ForbiddenException.class,
             () -> bidUseCase.updateBid(anotherUser, 1L, request));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.FORBIDDEN_BID, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("입찰이 이미 진행중인데 입찰 수정을 시도할 경우 BadRequestException이 발생한다")
+    void should_throw_BadRequestException_when_update_bid_but_bid_status_is_not_live() {
+        UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
+
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAuth));
+
+        BadRequestException result = assertThrows(BadRequestException.class,
+            () -> bidUseCase.updateBid(user, anyLong(), request));
+
+        then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.BID_NOT_IN_LIVE, result.getResponseCode());
     }
 
     @Test

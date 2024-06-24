@@ -1,5 +1,6 @@
 package com.chaewsstore.apis.bid.usecase;
 
+import static com.chaewsstore.common.exception.ExceptionConstants.BID_NOT_IN_LIVE;
 import static com.chaewsstore.common.exception.ExceptionConstants.FORBIDDEN_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.INSUFFICIENT_BALANCE;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID;
@@ -14,6 +15,7 @@ import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.BidService;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductService;
 import com.chaewsstore.core.domain.user.User;
@@ -132,15 +134,15 @@ public class BidUseCase {
      * @param user    현재 사용자의 계정
      * @param bidId   수정할 입찰 ID
      * @param request 수정할 입찰에 대한 정보
-     * @throws NotFoundException  입찰이 존재하지 않는 경우
-     * @throws ForbiddenException 현재 사용자가 해당 입찰의 입찰자가 아닌 경우
+     * @throws NotFoundException   입찰이 존재하지 않는 경우
+     * @throws ForbiddenException  현재 사용자가 해당 입찰의 입찰자가 아닌 경우
+     * @throws BadRequestException 입찰이 이미 진행중인 경우
      */
     @Transactional
     public void updateBid(User user, Long bidId, UpdateBidRequestDto request) {
         Bid bid = getBid(bidId);
-        if (!user.equals(bid.getBidder())) {
-            throw FORBIDDEN_BID;
-        }
+        validateBidder(user, bid);
+        checkBidIsLive(bid);
         bid.updatePrice(request.price());
     }
 
@@ -172,6 +174,18 @@ public class BidUseCase {
     private Bid getValidBid(Long productId, Integer price, BidType bidType) {
         return bidService.readValidBid(productId, price, bidType)
             .orElseThrow(() -> NOT_FOUND_BID_WITH_CONDITION);
+    }
+
+    private void validateBidder(User user, Bid bid) {
+        if (!user.equals(bid.getBidder())) {
+            throw FORBIDDEN_BID;
+        }
+    }
+
+    private void checkBidIsLive(Bid bid) {
+        if (bid.getStatus() != Status.LIVE) {
+            throw BID_NOT_IN_LIVE;
+        }
     }
 
     private void checkAccountBalance(User user, Long bidPrice) {
