@@ -15,5 +15,5 @@ interface BidRepository extends JpaRepository<Bid, Long>, BidCustomRepository {
     Optional<Bid> findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(Long productId,
         Integer price, BidType bidType, Status status);
 
-    boolean existsByProductAndBidder(Product product, User bidder);
+    Optional<Bid> findByProductAndBidderAndStatusAndBidType(Product product, User bidder, Status status, BidType bidType);
 }

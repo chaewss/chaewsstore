@@ -87,12 +87,13 @@ public class Bid extends BaseTimeEntity {
         this.isDeleted = isDeleted;
     }
 
-    public static Bid create(Integer price, Product product, User bidder) {
+    public static Bid create(Integer price, Product product, User bidder, BidType bidType) {
         return Bid.builder()
             .price(price)
             .product(product)
             .bidder(bidder)
             .status(Status.LIVE)
+            .bidType(bidType)
             .isDeleted(false)
             .build();
     }

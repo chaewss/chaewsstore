@@ -91,11 +91,11 @@ class BidControllerUnitTest {
     }
 
     @Test
-    @DisplayName("입찰 생성에 성공하면 HTTP 201을 응답한다")
-    void respond_201_when_create_bid_succeed() throws Exception {
+    @DisplayName("판매 입찰 생성에 성공하면 HTTP 201을 응답한다")
+    void respond_201_when_create_sell_bid_succeed() throws Exception {
         CreateBidRequestDto request = new CreateBidRequestDto(39000);
 
-        mockMvc.perform(post("/api/products/{productId}/bids", 1)
+        mockMvc.perform(post("/api/products/{productId}/sell", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
@@ -127,6 +127,28 @@ class BidControllerUnitTest {
                 getDocumentResponse(),
                 requestFields(
                     fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 ID"),
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("구매 희망가")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("구매 입찰 생성에 성공하면 HTTP 201을 응답한다")
+    void respond_201_when_create_buy_bid_succeed() throws Exception {
+        CreateBidRequestDto request = new CreateBidRequestDto(39000);
+
+        mockMvc.perform(post("/api/products/{productId}/buy", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("productId").description("상품 ID")
+                ),
+                requestFields(
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("구매 희망가")
                 )
             ));

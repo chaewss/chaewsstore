@@ -35,8 +35,10 @@ public class BidService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean existsByProductAndBidder(Product product, User user) {
-        return bidRepository.existsByProductAndBidder(product, user);
+    public Optional<Bid> readLiveBidByProductAndBidderAndType(Product product, User user,
+        BidType bidType) {
+        return bidRepository.findByProductAndBidderAndStatusAndBidType(product, user, Status.LIVE,
+            bidType);
     }
 
     @Transactional(readOnly = true)

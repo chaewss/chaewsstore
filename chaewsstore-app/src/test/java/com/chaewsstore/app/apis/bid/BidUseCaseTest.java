@@ -22,12 +22,12 @@ import com.chaewsstore.core.domain.bid.BidService;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
 import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
+import com.chaewsstore.core.domain.product.ProductErrorCode;
 import com.chaewsstore.core.domain.product.ProductService;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserErrorCode;
 import com.chaewsstore.core.domain.user.UserService;
 import com.globalutils.exception.BadRequestException;
-import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
 import java.util.List;
@@ -35,6 +35,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.EnumSource.Mode;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -84,46 +87,49 @@ class BidUseCaseTest {
         then(productService).should(times(1)).readById(anyLong());
     }
 
-    @Test
-    @DisplayName("입찰을 정상적으로 추가한다")
-    void succeed_to_create_bid() {
+    @ParameterizedTest
+    @EnumSource(mode = Mode.INCLUDE, names = {"SELL", "BUY"})
+    @DisplayName("판매 입찰과 구매 입찰을 정상적으로 추가한다")
+    void succeed_to_create_bid(BidType bidType) {
         CreateBidRequestDto request = new CreateBidRequestDto(6000);
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.existsByProductAndBidder(any(), any())).willReturn(false);
+        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(Optional.empty());
         given(bidService.create(any())).willReturn(any());
 
-        bidUseCase.createBid(user, 1L, request);
+        bidUseCase.createBid(user, 1L, request, bidType);
 
         then(productService).should(times(1)).readById(anyLong());
-        then(bidService).should(times(1)).existsByProductAndBidder(any(), any());
+        then(bidService).should(times(1)).readLiveBidByProductAndBidderAndType(any(), any(), any());
         then(bidService).should(times(1)).create(any());
     }
 
     @Test
-    @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_create_bid_but_product_does_not_exist() {
-        CreateBidRequestDto request = new CreateBidRequestDto(6000);
-
-        given(productService.readById(anyLong())).willThrow(NotFoundException.class);
-
-        assertThrows(NotFoundException.class, () -> bidUseCase.createBid(user, 999L, request));
-
-        then(productService).should(times(1)).readById(anyLong());
-    }
-
-    @Test
-    @DisplayName("사용자가 해당 상품의 입찰을 이미 생성한 경우 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_create_bid_but_user_has_already_create_bid() {
+    @DisplayName("입찰 생성 시 기존 입찰이 이미 있을 경우 정상적으로 수정한다")
+    void succeed_to_create_sell_bid_but_update() {
         CreateBidRequestDto request = new CreateBidRequestDto(6000);
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.existsByProductAndBidder(any(), any())).willReturn(true);
+        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(Optional.of(buyBid));
 
-        assertThrows(DuplicateException.class, () -> bidUseCase.createBid(user, 1L, request));
+        bidUseCase.createBid(user, 1L, request, BidType.BUY);
 
         then(productService).should(times(1)).readById(anyLong());
-        then(bidService).should(times(1)).existsByProductAndBidder(any(), any());
+        then(bidService).should(times(1)).readLiveBidByProductAndBidderAndType(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("입찰 생성 시 상품이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFoundException_when_create_bid_but_product_does_not_exist() {
+        CreateBidRequestDto request = new CreateBidRequestDto(6000);
+
+        given(productService.readById(anyLong())).willReturn(Optional.empty());
+
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.createBid(user, 999L, request, BidType.SELL));
+
+        then(productService).should(times(1)).readById(anyLong());
+        assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
     }
 
     @Test

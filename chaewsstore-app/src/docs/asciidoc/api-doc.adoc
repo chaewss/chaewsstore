@@ -149,21 +149,20 @@ include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_l
 | `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
 |===
 
-=== 4-2. 입찰 생성
+=== 4-2. 판매 입찰 생성
 ==== Request Path Parameters
-include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/path-parameters.adoc[]
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_sell_bid_succeed/path-parameters.adoc[]
 ==== Request Fields
-include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/request-fields.adoc[]
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_sell_bid_succeed/request-fields.adoc[]
 ==== Request Http Example
-include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/http-request.adoc[]
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_sell_bid_succeed/http-request.adoc[]
 ==== Response Http Example
-include::{snippets}/bid-controller-unit-test/respond_201_when_create_bid_succeed/http-response.adoc[]
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_sell_bid_succeed/http-response.adoc[]
 ==== Response Status
 |===
 | Code | Status | Detail
 
 | `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
-| `DUPLICATION_BID` | `409 CONFLICT` | 중복된 입찰입니다
 |===
 
 === 4-3. 즉시 구매
@@ -180,7 +179,23 @@ include::{snippets}/bid-controller-unit-test/respond_201_when_transact_sell_bid_
 | `NOT_FOUND_BID_WITH_CONDITION` | `404 NOT FOUND` | 주어진 조건에 맞는 입찰이 존재하지 않습니다
 |===
 
-=== 4-4. 즉시 판매
+=== 4-4. 구매 입찰 생성
+==== Request Path Parameters
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_buy_bid_succeed/path-parameters.adoc[]
+==== Request Fields
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_buy_bid_succeed/request-fields.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_buy_bid_succeed/http-request.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_201_when_create_buy_bid_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
+|===
+
+=== 4-5. 즉시 판매
 ==== Request Fields
 include::{snippets}/bid-controller-unit-test/respond_201_when_transact_buy_bid_and_create_sell_bid_succeed/request-fields.adoc[]
 ==== Request Http Example
@@ -194,7 +209,7 @@ include::{snippets}/bid-controller-unit-test/respond_201_when_transact_buy_bid_a
 | `NOT_FOUND_BID_WITH_CONDITION` | `404 NOT FOUND` | 주어진 조건에 맞는 입찰이 존재하지 않습니다
 |===
 
-=== 4-5. 입찰 금액 입금
+=== 4-6. 입찰 금액 입금
 ==== Request Path Parameters
 include::{snippets}/bid-controller-unit-test/respond_200_when_deposit_bid_succeed/path-parameters.adoc[]
 ==== Request Http Example
@@ -213,7 +228,7 @@ include::{snippets}/bid-controller-unit-test/respond_200_when_deposit_bid_succee
 |===
 
 
-=== 4-6. 입찰 수정
+=== 4-7. 입찰 수정
 ==== Request Path Parameters
 include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed/path-parameters.adoc[]
 ==== Request Fields
@@ -230,7 +245,7 @@ include::{snippets}/bid-controller-unit-test/respond_200_when_update_bid_succeed
 | `NOT_FOUND_BID` | `404 NOT FOUND` | 존재하지 않는 입찰입니다
 |===
 
-=== 4-7. 입찰 삭제
+=== 4-8. 입찰 삭제
 ==== Request Path Parameters
 include::{snippets}/bid-controller-unit-test/respond_200_when_delete_bid_succeed/path-parameters.adoc[]
 ==== Request Http Example

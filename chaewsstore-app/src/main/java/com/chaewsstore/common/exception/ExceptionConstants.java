@@ -27,5 +27,4 @@ public interface ExceptionConstants {
 
     DuplicateException USER_DUPLICATION = new DuplicateException(UserErrorCode.USER_DUPLICATION);
     DuplicateException NICKNAME_DUPLICATION = new DuplicateException(UserErrorCode.NICKNAME_DUPLICATION);
-    DuplicateException DUPLICATION_BID = new DuplicateException(BidErrorCode.DUPLICATION_BID);
 }

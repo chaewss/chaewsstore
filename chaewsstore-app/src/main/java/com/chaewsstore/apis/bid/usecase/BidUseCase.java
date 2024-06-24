@@ -1,6 +1,5 @@
 package com.chaewsstore.apis.bid.usecase;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.DUPLICATION_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.FORBIDDEN_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.INSUFFICIENT_BALANCE;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID;
@@ -25,6 +24,7 @@ import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -49,8 +49,7 @@ public class BidUseCase {
      */
     @Transactional(readOnly = true)
     public Slice<ReadProductBidResponseDto> readProductBidList(Long productId, Pageable pageable) {
-        Product product = productService.readById(productId)
-            .orElseThrow(() -> NOT_FOUND_PRODUCT);
+        Product product = getProduct(productId);
 
         List<ReadProductBidResponseDto> response = bidService.readAllByProduct(product, pageable)
             .stream().map(ReadProductBidResponseDto::from).toList();
@@ -58,22 +57,25 @@ public class BidUseCase {
     }
 
     /**
-     * 입찰을 생성한다.
+     * 구매 또는 판매 입찰을 생성한다.
      *
-     * @param user   입찰을 생성하는 사용자의 계정
+     * @param user      입찰을 생성하는 사용자의 계정
      * @param productId 입찰할 상품 ID
      * @param request   생성할 입찰에 대한 정보
-     * @throws NotFoundException  상품이 존재하지 않는 경우
-     * @throws DuplicateException 해당 상품에 이미 입찰한 경우
+     * @throws NotFoundException 상품이 존재하지 않는 경우
      */
     @Transactional
-    public void createBid(User user, Long productId, CreateBidRequestDto request) {
-        Product product = productService.readById(productId)
-            .orElseThrow(() -> NOT_FOUND_PRODUCT);
-        if (bidService.existsByProductAndBidder(product, user)) {
-            throw DUPLICATION_BID;
+    public void createBid(User user, Long productId, CreateBidRequestDto request, BidType bidType) {
+        Product product = getProduct(productId);
+
+        Optional<Bid> optionalBid = bidService.readLiveBidByProductAndBidderAndType(product, user,
+            bidType);
+        if (optionalBid.isPresent()) {
+            Bid liveBid = optionalBid.get();
+            liveBid.updatePrice(request.price());
+        } else {
+            bidService.create(Bid.create(request.price(), product, user, bidType));
         }
-        bidService.create(request.toEntity(product, user));
     }
 
     /**
@@ -158,6 +160,10 @@ public class BidUseCase {
             throw FORBIDDEN_BID;
         }
         bidService.remove(bid);
+    }
+
+    private Product getProduct(Long productId) {
+        return productService.readById(productId).orElseThrow(() -> NOT_FOUND_PRODUCT);
     }
 
     private Bid getBid(Long bidId) {

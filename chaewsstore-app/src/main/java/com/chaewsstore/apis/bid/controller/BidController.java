@@ -6,6 +6,7 @@ import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.common.annotation.LoginUser;
+import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.user.User;
 import com.globalutils.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +39,11 @@ public class BidController {
         return SuccessResponse.from(bidUseCase.readProductBidList(productId, pageable));
     }
 
-    @PostMapping("/products/{productId}/bids")
+    @PostMapping("/products/{productId}/sell")
     @ResponseStatus(HttpStatus.CREATED)
-    public SuccessResponse<Void> createBid(@LoginUser User user,
+    public SuccessResponse<Void> createSellBid(@LoginUser User user,
         @PathVariable Long productId, @RequestBody CreateBidRequestDto request) {
-        bidUseCase.createBid(user, productId, request);
+        bidUseCase.createBid(user, productId, request, BidType.SELL);
         return SuccessResponse.create();
     }
 
@@ -51,6 +52,14 @@ public class BidController {
     public SuccessResponse<Void> transactSellBid(@LoginUser User user,
         @RequestBody TransactBidRequestDto request) {
         bidUseCase.transactSellBid(user, request);
+        return SuccessResponse.create();
+    }
+
+    @PostMapping("/products/{productId}/buy")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SuccessResponse<Void> createBuyBid(@LoginUser User user,
+        @PathVariable Long productId, @RequestBody CreateBidRequestDto request) {
+        bidUseCase.createBid(user, productId, request, BidType.BUY);
         return SuccessResponse.create();
     }
 
