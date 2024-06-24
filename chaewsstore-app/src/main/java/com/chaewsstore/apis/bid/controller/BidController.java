@@ -15,6 +15,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,6 +59,12 @@ public class BidController {
     public SuccessResponse<Void> transactBuyBid(@LoginUser User user,
         @RequestBody TransactBidRequestDto request) {
         bidUseCase.transactBuyBid(user, request);
+        return SuccessResponse.create();
+    }
+
+    @PatchMapping("/bids/deposit/{bidId}")
+    public SuccessResponse<Void> depositBid(@LoginUser User user, @PathVariable Long bidId) {
+        bidUseCase.depositBid(user, bidId);
         return SuccessResponse.create();
     }
 

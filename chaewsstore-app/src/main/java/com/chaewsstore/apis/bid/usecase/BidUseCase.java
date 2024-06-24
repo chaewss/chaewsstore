@@ -2,9 +2,11 @@ package com.chaewsstore.apis.bid.usecase;
 
 import static com.chaewsstore.common.exception.ExceptionConstants.DUPLICATION_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.FORBIDDEN_BID;
+import static com.chaewsstore.common.exception.ExceptionConstants.INSUFFICIENT_BALANCE;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID_WITH_CONDITION;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_PRODUCT;
+import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_USER;
 
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
@@ -16,7 +18,9 @@ import com.chaewsstore.core.domain.bid.BidService;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductService;
 import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.user.UserService;
 import com.globalutils.annotation.UseCase;
+import com.globalutils.exception.BadRequestException;
 import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
@@ -31,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 public class BidUseCase {
 
+    private final UserService userService;
     private final ProductService productService;
     private final BidService bidService;
 
@@ -102,6 +107,25 @@ public class BidUseCase {
     }
 
     /**
+     * 구매자가 입찰 상품 금액을 입금한다.
+     *
+     * @param buyer 입금을 수행하는 구매자
+     * @param bidId 구매 입찰 ID
+     * @throws NotFoundException   입찰이 존재하지 않는 경우
+     * @throws BadRequestException 구매자의 계좌 잔액이 입금할 금액보다 적을 경우
+     */
+    @Transactional
+    public void depositBid(User buyer, Long bidId) {
+        Bid bid = getBid(bidId);
+
+        Long price = bid.calculateFinalPrice(bid.getPrice());
+        checkAccountBalance(buyer, price);
+
+        performTransaction(buyer, bid, price);
+        bid.updateStatusAfterDeposit();
+    }
+
+    /**
      * 입찰을 수정한다.
      *
      * @param user 현재 사용자의 계정
@@ -112,7 +136,7 @@ public class BidUseCase {
      */
     @Transactional
     public void updateBid(User user, Long bidId, UpdateBidRequestDto request) {
-        Bid bid = bidService.readById(bidId).orElseThrow(() -> NOT_FOUND_BID);
+        Bid bid = getBid(bidId);
         if (!user.equals(bid.getBidder())) {
             throw FORBIDDEN_BID;
         }
@@ -129,15 +153,36 @@ public class BidUseCase {
      */
     @Transactional
     public void deleteBid(User user, Long bidId) {
-        Bid bid = bidService.readById(bidId).orElseThrow(() -> NOT_FOUND_BID);
+        Bid bid = getBid(bidId);
         if (!user.equals(bid.getBidder())) {
             throw FORBIDDEN_BID;
         }
         bidService.remove(bid);
     }
 
+    private Bid getBid(Long bidId) {
+        return bidService.readById(bidId).orElseThrow(() -> NOT_FOUND_BID);
+    }
+
     private Bid getValidBid(Long productId, Integer price, BidType bidType) {
         return bidService.readValidBid(productId, price, bidType)
             .orElseThrow(() -> NOT_FOUND_BID_WITH_CONDITION);
+    }
+
+    private void checkAccountBalance(User user, Long bidPrice) {
+        if (user.getAccount() < bidPrice) {
+            throw INSUFFICIENT_BALANCE;
+        }
+    }
+
+    private void performTransaction(User buyer, Bid bid, Long price) {
+        User lockBuyer = userService.readByIdWithOptimisticLock(buyer.getId())
+            .orElseThrow(() -> NOT_FOUND_USER);
+        lockBuyer.withdraw(price);
+
+        Long sellerId = bid.getRelatedBid().getBidder().getId();
+        User lockSeller = userService.readByIdWithOptimisticLock(sellerId)
+            .orElseThrow(() -> NOT_FOUND_USER);
+        lockSeller.deposit(price);
     }
 }

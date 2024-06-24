@@ -5,6 +5,7 @@ import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.user.User;
 import com.globalutils.exception.BadRequestException;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,7 +50,7 @@ public class Bid extends BaseTimeEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bidder_id")
     private User bidder;
 
@@ -117,12 +118,31 @@ public class Bid extends BaseTimeEntity {
     }
 
     public void inspect(Integer score) {
-        validate(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
+        validateStatus(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
         changeStatus(score);
     }
 
-    private void validate(Status status, BidErrorCode errorCode) {
-        if (this.status != status) {
+    public Long calculateFinalPrice(Integer price) {
+        validateStatus(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
+        validateStatus(Status.AUTHENTICATED, Status.ACCREDITED, BidErrorCode.BID_NOT_INSPECT);
+        return relatedBid.getStatus().equals(Status.ACCREDITED) ? Math.round(price * 0.85)
+            : (long) price;
+    }
+
+    public void updateStatusAfterDeposit() {
+        this.status = Status.DELIVERING;
+        this.relatedBid.status = Status.FINISHED;
+    }
+
+    private void validateStatus(Status expectedStatus, BidErrorCode errorCode) {
+        if (this.status != expectedStatus) {
+            throw new BadRequestException(errorCode);
+        }
+    }
+
+    private void validateStatus(Status expectedStatus1, Status expectedStatus2,
+        BidErrorCode errorCode) {
+        if (this.relatedBid.getStatus() != expectedStatus1 && this.relatedBid.getStatus() != expectedStatus2) {
             throw new BadRequestException(errorCode);
         }
     }
