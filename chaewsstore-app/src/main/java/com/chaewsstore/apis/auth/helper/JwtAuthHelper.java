@@ -4,9 +4,9 @@ import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_REFR
 import static com.chaewsstore.common.exception.ExceptionConstants.WITHOUT_OWNERSHIP_REFRESH_TOKEN;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 
-import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
 import com.chaewsstore.core.domain.refresh.RefreshTokenService;
+import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
 import com.globalutils.annotation.Helper;
@@ -28,7 +28,7 @@ public class JwtAuthHelper {
     /**
      * 새로운 액세스 토큰과 리프레시 토큰을 생성 및 저장
      *
-     * @param user        토큰을 생성할 사용자
+     * @param user           토큰을 생성할 사용자
      * @param authentication 인증 정보
      * @return 생성된 액세스 토큰과 리프레시 토큰
      */
@@ -43,7 +43,7 @@ public class JwtAuthHelper {
     /**
      * 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰 재발급
      *
-     * @param user      토큰을 재발급할 사용자
+     * @param user         토큰을 재발급할 사용자
      * @param refreshToken 기존 리프레시 토큰
      * @return 새로운 액세스 토큰과 리프레시 토큰
      */
@@ -69,7 +69,7 @@ public class JwtAuthHelper {
     /**
      * 리프레시 토큰 삭제
      *
-     * @param user      리프레시 토큰을 삭제할 사용자
+     * @param user         리프레시 토큰을 삭제할 사용자
      * @param refreshToken 삭제할 리프레시 토큰
      * @throws NotFoundException     리프레시 토큰이 존재하지 않는 경우
      * @throws UnauthorizedException 리프레시 토큰이 사용자의 토큰과 일치하지 않는 경우
@@ -81,7 +81,7 @@ public class JwtAuthHelper {
     /**
      * 리프레시 토큰 검증 및 삭제
      *
-     * @param user      검증할 사용자
+     * @param user         검증할 사용자
      * @param refreshToken 검증할 리프레시 토큰
      * @throws NotFoundException     리프레시 토큰이 존재하지 않는 경우
      * @throws UnauthorizedException 리프레시 토큰이 사용자의 토큰과 일치하지 않는 경우

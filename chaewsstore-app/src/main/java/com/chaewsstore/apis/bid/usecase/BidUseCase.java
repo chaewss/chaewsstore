@@ -20,7 +20,6 @@ import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserService;
 import com.globalutils.annotation.UseCase;
 import com.globalutils.exception.BadRequestException;
-import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
 import java.util.List;
@@ -130,7 +129,7 @@ public class BidUseCase {
     /**
      * 입찰을 수정한다.
      *
-     * @param user 현재 사용자의 계정
+     * @param user    현재 사용자의 계정
      * @param bidId   수정할 입찰 ID
      * @param request 수정할 입찰에 대한 정보
      * @throws NotFoundException  입찰이 존재하지 않는 경우
@@ -148,10 +147,10 @@ public class BidUseCase {
     /**
      * 입찰을 삭제한다.
      *
-     * @param user 현재 사용자의 계정
-     * @param bidId   삭제할 입찰 ID
-     * @throws NotFoundException   입찰이 존재하지 않는 경우
-     * @throws ForbiddenException  현재 사용자가 해당 입찰의 입찰자가 아닌 경우
+     * @param user  현재 사용자의 계정
+     * @param bidId 삭제할 입찰 ID
+     * @throws NotFoundException  입찰이 존재하지 않는 경우
+     * @throws ForbiddenException 현재 사용자가 해당 입찰의 입찰자가 아닌 경우
      */
     @Transactional
     public void deleteBid(User user, Long bidId) {

@@ -76,8 +76,8 @@ public class ProductUseCase {
     /**
      * 상품을 삭제한다.
      *
-     * @param productId   삭제할 상품 ID
-     * @throws NotFoundException   상품이 존재하지 않는 경우
+     * @param productId 삭제할 상품 ID
+     * @throws NotFoundException 상품이 존재하지 않는 경우
      */
     @Transactional
     public void deleteProduct(Long productId) {

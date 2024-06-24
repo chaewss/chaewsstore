@@ -75,7 +75,7 @@ public class AuthUseCase {
     /**
      * 로그아웃
      *
-     * @param user 로그아웃할 사용자
+     * @param user    로그아웃할 사용자
      * @param request 로그아웃 요청 정보
      */
     public void logout(User user, LogoutRequestDto request) {

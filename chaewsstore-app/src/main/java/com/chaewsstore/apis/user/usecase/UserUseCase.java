@@ -1,10 +1,10 @@
 package com.chaewsstore.apis.user.usecase;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.USER_DUPLICATION;
 import static com.chaewsstore.common.exception.ExceptionConstants.NICKNAME_DUPLICATION;
+import static com.chaewsstore.common.exception.ExceptionConstants.USER_DUPLICATION;
 
-import com.chaewsstore.apis.user.dto.UserResponseDto;
 import com.chaewsstore.apis.user.dto.SignupRequestDto;
+import com.chaewsstore.apis.user.dto.UserResponseDto;
 import com.chaewsstore.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.domain.user.User;
