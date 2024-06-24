@@ -9,6 +9,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -147,6 +148,22 @@ class BidControllerUnitTest {
                 requestFields(
                     fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 ID"),
                     fieldWithPath("price").type(JsonFieldType.NUMBER).description("구매 희망가")
+                )
+            ));
+    }
+
+    @Test
+    @DisplayName("구매자가 입찰 상품 금액 입금에 성공하면 HTTP 200을 응답한다")
+    void respond_200_when_deposit_bid_succeed() throws Exception {
+        mockMvc.perform(patch("/api/bids/deposit/{bidId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(print())
+            .andDo(document(documentIdentifier,
+                getDocumentRequest(),
+                getDocumentResponse(),
+                pathParameters(
+                    parameterWithName("bidId").description("입찰 ID")
                 )
             ));
     }

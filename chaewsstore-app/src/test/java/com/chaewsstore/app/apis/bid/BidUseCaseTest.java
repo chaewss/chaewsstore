@@ -10,24 +10,26 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
-import com.chaewsstore.core.domain.bid.Bid.BidType;
-import com.chaewsstore.core.domain.bid.BidErrorCode;
-import com.chaewsstore.core.domain.brand.BrandErrorCode;
-import com.chaewsstore.core.domain.common.Status;
-import com.chaewsstore.core.domain.user.User;
-import com.chaewsstore.core.domain.bid.BidService;
-import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
-import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
 import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
+import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
+import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.bid.Bid;
+import com.chaewsstore.core.domain.bid.Bid.BidType;
+import com.chaewsstore.core.domain.bid.BidErrorCode;
+import com.chaewsstore.core.domain.bid.BidService;
+import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
+import com.chaewsstore.core.domain.product.ProductService;
+import com.chaewsstore.core.domain.user.User;
+import com.chaewsstore.core.domain.user.UserErrorCode;
+import com.chaewsstore.core.domain.user.UserService;
+import com.globalutils.exception.BadRequestException;
 import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
-import com.chaewsstore.core.domain.product.ProductService;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -44,6 +46,9 @@ class BidUseCaseTest {
 
     @InjectMocks
     private BidUseCase bidUseCase;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private ProductService productService;
@@ -178,6 +183,126 @@ class BidUseCaseTest {
     }
 
     @Test
+    @DisplayName("구매자가 입찰 상품 금액을 정상적으로 입금한다")
+    void succeed_to_deposit_bid_when_authenticated() {
+        Long sellerBeforeBalance = anotherUser.getAccount();
+        Long buyerBeforeBalance = user.getAccount();
+
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAuth));
+        given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.of(user))
+            .willReturn(Optional.of(anotherUser));
+
+        bidUseCase.depositBid(user, anyLong());
+
+        Integer price = buyBidInTransactionAuth.getPrice();
+        assertEquals(sellerBeforeBalance + price, anotherUser.getAccount());
+        assertEquals(buyerBeforeBalance - price, user.getAccount());
+        assertEquals(Status.DELIVERING, buyBidInTransactionAuth.getStatus());
+        assertEquals(Status.FINISHED, buyBidInTransactionAuth.getRelatedBid().getStatus());
+        then(bidService).should(times(1)).readById(anyLong());
+        then(userService).should(times(2)).readByIdWithOptimisticLock(anyLong());
+    }
+
+    @Test
+    @DisplayName("구매자가 입찰 상품 금액 * 0.85를 정상적으로 입금한다")
+    void succeed_to_deposit_bid_when_accredited() {
+        Bid sellBidAccredited = Bid.builder()
+            .bidder(anotherUser)
+            .price(6000)
+            .bidType(BidType.SELL)
+            .status(Status.ACCREDITED)
+            .build();
+        Bid buyBidInTransactionAcc = Bid.builder()
+            .bidder(user)
+            .price(6000)
+            .bidType(BidType.BUY)
+            .status(Status.IN_TRANSACTION)
+            .relatedBid(sellBidAccredited)
+            .build();
+
+        Long sellerBeforeBalance = anotherUser.getAccount();
+        Long buyerBeforeBalance = user.getAccount();
+
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAcc));
+        given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.of(user))
+            .willReturn(Optional.of(anotherUser));
+
+        bidUseCase.depositBid(user, anyLong());
+
+        Long price = Math.round(buyBidInTransactionAcc.getPrice() * 0.85);
+        assertEquals(sellerBeforeBalance + price, anotherUser.getAccount());
+        assertEquals(buyerBeforeBalance - price, user.getAccount());
+        assertEquals(Status.DELIVERING, buyBidInTransactionAcc.getStatus());
+        assertEquals(Status.FINISHED, buyBidInTransactionAcc.getRelatedBid().getStatus());
+        then(bidService).should(times(1)).readById(anyLong());
+        then(userService).should(times(2)).readByIdWithOptimisticLock(anyLong());
+    }
+
+    @Test
+    @DisplayName("구매자 입금 시 해당 구매 입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFoundException_when_deposit_bid_but_bid_does_not_exist() {
+        given(bidService.readById(anyLong())).willReturn(Optional.empty());
+
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.depositBid(user, 999L));
+
+        then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.NOT_FOUND_BID, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("구매자 입금 시 아직 상품이 검수되지 않은 경우 BadRequestException이 발생한다")
+    void should_throw_BadRequestException_when_deposit_bid_but_bid_not_inspect() {
+        Bid notInspectSellBid = Bid.builder()
+            .bidder(anotherUser)
+            .price(6000)
+            .bidType(BidType.SELL)
+            .status(Status.IN_TRANSACTION)
+            .build();
+        Bid buyBid = Bid.builder()
+            .bidder(user)
+            .price(6000)
+            .bidType(BidType.BUY)
+            .status(Status.IN_TRANSACTION)
+            .relatedBid(notInspectSellBid)
+            .build();
+
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
+
+        BadRequestException result = assertThrows(BadRequestException.class,
+            () -> bidUseCase.depositBid(user, anyLong()));
+
+        then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.BID_NOT_INSPECT, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("구매자 입금 시 구매자 계좌 잔고가 부족할 경우 BadRequestException이 발생한다")
+    void should_throw_BadRequestException_when_deposit_bid_but_insufficient_balance() {
+        Bid expensiveSellBid = Bid.builder()
+            .bidder(anotherUser)
+            .price(1000000000)
+            .bidType(BidType.SELL)
+            .status(Status.AUTHENTICATED)
+            .build();
+        Bid expensiveBuyBid = Bid.builder()
+            .bidder(user)
+            .price(1000000000)
+            .bidType(BidType.BUY)
+            .status(Status.IN_TRANSACTION)
+            .relatedBid(expensiveSellBid)
+            .build();
+
+        given(bidService.readById(anyLong())).willReturn(Optional.of(expensiveBuyBid));
+
+        BadRequestException result = assertThrows(BadRequestException.class,
+            () -> bidUseCase.depositBid(user, anyLong()));
+
+        then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(UserErrorCode.INSUFFICIENT_BALANCE, result.getResponseCode());
+    }
+
+    @Test
     @DisplayName("입찰을 정상적으로 수정한다")
     void succeed_to_update_bid() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
@@ -209,7 +334,8 @@ class BidUseCaseTest {
 
         given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
 
-        assertThrows(ForbiddenException.class, () -> bidUseCase.updateBid(anotherUser, 1L, request));
+        assertThrows(ForbiddenException.class,
+            () -> bidUseCase.updateBid(anotherUser, 1L, request));
 
         then(bidService).should(times(1)).readById(anyLong());
     }
@@ -250,12 +376,14 @@ class BidUseCaseTest {
         .username("email@gmail.com")
         .password("aaaa1111!!")
         .nickname("닉네임")
+        .account(10000L)
         .build();
     User anotherUser = User.builder()
         .id(2L)
         .username("another@gmail.com")
         .password("aaaa1111!!")
         .nickname("닉네임2")
+        .account(0L)
         .build();
 
     Product product = Product.builder().build();
@@ -270,6 +398,19 @@ class BidUseCaseTest {
         .price(30)
         .bidType(BidType.SELL)
         .status(Status.LIVE)
+        .build();
+    Bid sellBidAuthenticated = Bid.builder()
+        .bidder(anotherUser)
+        .price(6000)
+        .bidType(BidType.SELL)
+        .status(Status.AUTHENTICATED)
+        .build();
+    Bid buyBidInTransactionAuth = Bid.builder()
+        .bidder(user)
+        .price(6000)
+        .bidType(BidType.BUY)
+        .status(Status.IN_TRANSACTION)
+        .relatedBid(sellBidAuthenticated)
         .build();
 
     List<ReadProductBidQueryDto> productBidQueryDtoList = List.of(
