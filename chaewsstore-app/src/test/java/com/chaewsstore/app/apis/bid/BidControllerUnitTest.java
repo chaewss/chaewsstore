@@ -127,7 +127,7 @@ class BidControllerUnitTest {
                 getDocumentResponse(),
                 requestFields(
                     fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 ID"),
-                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("구매 희망가")
                 )
             ));
     }
@@ -147,7 +147,7 @@ class BidControllerUnitTest {
                 getDocumentResponse(),
                 requestFields(
                     fieldWithPath("productId").type(JsonFieldType.NUMBER).description("상품 ID"),
-                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("구매 희망가")
+                    fieldWithPath("price").type(JsonFieldType.NUMBER).description("판매 희망가")
                 )
             ));
     }
