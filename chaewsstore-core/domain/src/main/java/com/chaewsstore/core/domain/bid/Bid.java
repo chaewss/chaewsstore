@@ -119,7 +119,7 @@ public class Bid extends BaseTimeEntity {
 
     public void inspect(Integer score) {
         validateStatus(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
-        changeStatus(score);
+        updateStatusForInspect(score);
     }
 
     public Long calculateFinalPrice(Integer price) {
@@ -147,7 +147,7 @@ public class Bid extends BaseTimeEntity {
         }
     }
 
-    private void changeStatus(Integer score) {
+    private void updateStatusForInspect(Integer score) {
         if (score == 100) {
             this.status = Status.AUTHENTICATED;
         } else if (score >= 95) {
