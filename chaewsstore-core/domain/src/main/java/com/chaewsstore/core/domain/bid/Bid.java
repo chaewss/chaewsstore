@@ -5,7 +5,6 @@ import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.user.User;
 import com.globalutils.exception.BadRequestException;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,7 +28,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Getter
-@SQLDelete(sql = "UPDATE bid SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE bid SET is_deleted = true WHERE id = ? AND version = ?")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
