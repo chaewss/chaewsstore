@@ -157,8 +157,11 @@ public class BidUseCase {
     @Transactional
     public void deleteBid(User user, Long bidId) {
         Bid bid = getBid(bidId);
-        if (!user.equals(bid.getBidder())) {
-            throw FORBIDDEN_BID;
+        validateBidder(user, bid);
+
+        if (bid.getStatus() != Status.CANCELLED) {
+            bid.cancel();
+            bidService.flush();
         }
         bidService.remove(bid);
     }

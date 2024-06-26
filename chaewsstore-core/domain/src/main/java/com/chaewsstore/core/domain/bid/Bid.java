@@ -134,6 +134,14 @@ public class Bid extends BaseTimeEntity {
         this.relatedBid.status = Status.FINISHED;
     }
 
+    public void cancel() {
+        if (isCancelable()) {
+            updateStatusCancelled();
+        } else {
+            throw new BadRequestException(BidErrorCode.BID_CANNOT_CANCEL);
+        }
+    }
+
     private void validateStatus(Status expectedStatus, BidErrorCode errorCode) {
         if (this.status != expectedStatus) {
             throw new BadRequestException(errorCode);
@@ -147,6 +155,17 @@ public class Bid extends BaseTimeEntity {
         }
     }
 
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
+
+    private void updateRelatedBidStatus(Status status) {
+        Bid relatedBid = this.getRelatedBid();
+        if (relatedBid != null) {
+            relatedBid.updateStatus(status);
+        }
+    }
+
     private void updateStatusForInspect(Integer score) {
         if (score == 100) {
             this.status = Status.AUTHENTICATED;
@@ -156,6 +175,23 @@ public class Bid extends BaseTimeEntity {
             this.status = Status.AUTHENTICATED_FAILED;
             this.relatedBid.status = Status.CANCELLED;
         }
+    }
+
+    private void updateStatusCancelled() {
+        if (this.status == Status.IN_TRANSACTION) {
+            updateRelatedBidStatus(Status.CANCELLED);
+        }
+        this.updateStatus(Status.CANCELLED);
+    }
+
+    private boolean isCancelable() {
+        if (this.status == Status.LIVE) {
+            return true;
+        } else if (this.status == Status.IN_TRANSACTION) {
+            Bid cancelRelatedBid = this.getRelatedBid();
+            return cancelRelatedBid.getStatus() == Status.IN_TRANSACTION;
+        }
+        return false;
     }
 
     private static Bid create(User user, Bid relatedBid, Status status, BidType bidType,

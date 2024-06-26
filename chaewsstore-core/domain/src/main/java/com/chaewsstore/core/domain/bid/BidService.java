@@ -19,6 +19,11 @@ public class BidService {
     private final BidRepository bidRepository;
 
     @Transactional
+    public void flush() {
+        bidRepository.flush();
+    }
+
+    @Transactional
     public Bid create(Bid bid) {
         return bidRepository.save(bid);
     }
