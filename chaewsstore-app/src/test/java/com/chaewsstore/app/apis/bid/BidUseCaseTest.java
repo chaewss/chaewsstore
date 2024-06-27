@@ -112,7 +112,7 @@ class BidUseCaseTest {
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
         given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(
-            Optional.of(buyBid));
+            Optional.of(buyBidLive));
 
         bidUseCase.createBid(user, 1L, request, BidType.BUY);
 
@@ -139,8 +139,8 @@ class BidUseCaseTest {
     void succeed_to_transact_sell_bid_and_create_buy_bid() {
         TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(sellBid));
-        given(bidService.create(any())).willReturn(buyBid);
+        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(sellBidLive));
+        given(bidService.create(any())).willReturn(buyBidLive);
 
         bidUseCase.transactSellBid(user, request);
 
@@ -167,8 +167,8 @@ class BidUseCaseTest {
     void succeed_to_transact_buy_bid_and_create_sell_bid() {
         TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(buyBid));
-        given(bidService.create(any())).willReturn(sellBid);
+        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(buyBidLive));
+        given(bidService.create(any())).willReturn(sellBidLive);
 
         bidUseCase.transactSellBid(user, request);
 
@@ -193,20 +193,22 @@ class BidUseCaseTest {
     @Test
     @DisplayName("구매자가 입찰 상품 금액을 정상적으로 입금한다")
     void succeed_to_deposit_bid_when_authenticated() {
+        buyBidInTransaction.relateBid(sellBidAuthenticated);
+
         Long sellerBeforeBalance = anotherUser.getAccount();
         Long buyerBeforeBalance = user.getAccount();
 
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAuth));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
         given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.of(user))
             .willReturn(Optional.of(anotherUser));
 
         bidUseCase.depositBid(user, anyLong());
 
-        Integer price = buyBidInTransactionAuth.getPrice();
+        Integer price = buyBidInTransaction.getPrice();
         assertEquals(sellerBeforeBalance + price, anotherUser.getAccount());
         assertEquals(buyerBeforeBalance - price, user.getAccount());
-        assertEquals(Status.DELIVERING, buyBidInTransactionAuth.getStatus());
-        assertEquals(Status.FINISHED, buyBidInTransactionAuth.getRelatedBid().getStatus());
+        assertEquals(Status.DELIVERING, buyBidInTransaction.getStatus());
+        assertEquals(Status.FINISHED, buyBidInTransaction.getRelatedBid().getStatus());
         then(bidService).should(times(1)).readById(anyLong());
         then(userService).should(times(2)).readByIdWithOptimisticLock(anyLong());
     }
@@ -315,11 +317,11 @@ class BidUseCaseTest {
     void succeed_to_update_bid() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
         bidUseCase.updateBid(user, 1L, request);
 
-        assertEquals(request.price(), buyBid.getPrice());
+        assertEquals(request.price(), buyBidLive.getPrice());
         then(bidService).should(times(1)).readById(anyLong());
     }
 
@@ -342,7 +344,7 @@ class BidUseCaseTest {
     void should_throw_ForbiddenException_when_update_bid_but_user_is_not_bidder() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
         ForbiddenException result = assertThrows(ForbiddenException.class,
             () -> bidUseCase.updateBid(anotherUser, 1L, request));
@@ -356,7 +358,7 @@ class BidUseCaseTest {
     void should_throw_BadRequestException_when_update_bid_but_bid_status_is_not_live() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAuth));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
 
         BadRequestException result = assertThrows(BadRequestException.class,
             () -> bidUseCase.updateBid(user, anyLong(), request));
@@ -368,7 +370,7 @@ class BidUseCaseTest {
     @Test
     @DisplayName("특정 입찰을 정상적으로 삭제한다")
     void succeed_to_delete_bid() {
-        given(bidService.readById(any())).willReturn(Optional.of(buyBid));
+        given(bidService.readById(any())).willReturn(Optional.of(buyBidLive));
 
         bidUseCase.deleteBid(user, 1L);
 
@@ -389,7 +391,7 @@ class BidUseCaseTest {
     @Test
     @DisplayName("입찰자가 아닌 사용자가 입찰 삭제를 시도할 경우 ForbiddenException이 발생한다")
     void should_throw_ForbiddenException_when_delete_bid_but_user_is_not_bidder() {
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
         assertThrows(ForbiddenException.class, () -> bidUseCase.deleteBid(anotherUser, 1L));
 
@@ -412,13 +414,13 @@ class BidUseCaseTest {
         .build();
 
     Product product = Product.builder().build();
-    Bid buyBid = Bid.builder()
+    Bid buyBidLive = Bid.builder()
         .bidder(user)
         .price(30)
         .bidType(BidType.BUY)
         .status(Status.LIVE)
         .build();
-    Bid sellBid = Bid.builder()
+    Bid sellBidLive = Bid.builder()
         .bidder(anotherUser)
         .price(30)
         .bidType(BidType.SELL)
@@ -430,12 +432,11 @@ class BidUseCaseTest {
         .bidType(BidType.SELL)
         .status(Status.AUTHENTICATED)
         .build();
-    Bid buyBidInTransactionAuth = Bid.builder()
+    Bid buyBidInTransaction = Bid.builder()
         .bidder(user)
         .price(6000)
         .bidType(BidType.BUY)
         .status(Status.IN_TRANSACTION)
-        .relatedBid(sellBidAuthenticated)
         .build();
 
     List<ReadProductBidQueryDto> productBidQueryDtoList = List.of(
