@@ -159,7 +159,7 @@ public class BidUseCase {
         Bid bid = getBid(bidId);
         validateBidder(user, bid);
 
-        if (bid.getStatus() != Status.CANCELLED) {
+        if (shouldBeCancelled(bid)) {
             bid.cancel();
             bidService.flush();
         }
@@ -206,5 +206,13 @@ public class BidUseCase {
         User lockSeller = userService.readByIdWithOptimisticLock(sellerId)
             .orElseThrow(() -> NOT_FOUND_USER);
         lockSeller.deposit(price);
+    }
+
+    private boolean shouldBeCancelled(Bid bid) {
+        Status currentStatus = bid.getStatus();
+        return currentStatus != Status.CANCELLED
+            && currentStatus != Status.AUTHENTICATED_FAILED
+            && currentStatus != Status.FINISHED
+            && currentStatus != Status.EXPIRED;
     }
 }

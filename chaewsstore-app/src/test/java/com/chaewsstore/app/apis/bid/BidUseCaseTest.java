@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
@@ -32,12 +35,15 @@ import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.EnumSource.Mode;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -367,25 +373,83 @@ class BidUseCaseTest {
         assertEquals(BidErrorCode.BID_NOT_IN_LIVE, result.getResponseCode());
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("cancellableBid")
     @DisplayName("특정 입찰을 정상적으로 삭제한다")
-    void succeed_to_delete_bid() {
-        given(bidService.readById(any())).willReturn(Optional.of(buyBidLive));
+    void succeed_to_delete_bid(User user, Bid bid, boolean shouldFlush) {
+        given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
+        doNothing().when(bidService).remove(any(Bid.class));
 
-        bidUseCase.deleteBid(user, 1L);
+        bidUseCase.deleteBid(user, anyLong());
 
         then(bidService).should(times(1)).readById(anyLong());
+        if (shouldFlush) {
+            then(bidService).should(times(1)).flush();
+        } else {
+            then(bidService).should(never()).flush();
+        }
         then(bidService).should(times(1)).remove(any());
+    }
+
+    static Stream<Arguments> cancellableBid() {
+        User user = User.builder().build();
+
+        Bid cancelledBid = Bid.builder()
+            .bidder(user)
+            .status(Status.CANCELLED)
+            .build();
+
+        Bid authenticatedFailedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.AUTHENTICATED_FAILED)
+            .build();
+
+        Bid finishedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.FINISHED)
+            .build();
+
+        Bid expiredBid = Bid.builder()
+            .bidder(user)
+            .status(Status.EXPIRED)
+            .build();
+
+        Bid liveBid = Bid.builder()
+            .bidder(user)
+            .status(Status.LIVE)
+            .build();
+
+        Bid inTransactionBuyBidI = Bid.builder()
+            .bidder(user)
+            .status(Status.IN_TRANSACTION)
+            .bidType(BidType.BUY)
+            .build();
+        Bid inTransactionSellBid = Bid.builder()
+            .status(Status.IN_TRANSACTION)
+            .bidType(BidType.SELL)
+            .build();
+        inTransactionBuyBidI.relateBid(inTransactionSellBid);
+
+        return Stream.of(
+            arguments(user, cancelledBid, false),
+            arguments(user, authenticatedFailedBid, false),
+            arguments(user, finishedBid, false),
+            arguments(user, expiredBid, false),
+            arguments(user, liveBid, true),
+            arguments(user, inTransactionBuyBidI, true)
+        );
     }
 
     @Test
     @DisplayName("입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
     void should_throw_NotFountException_when_delete_bid_but_bid_does_not_exist() {
-        given(bidService.readById(anyLong())).willThrow(NotFoundException.class);
+        given(bidService.readById(anyLong())).willReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> bidUseCase.deleteBid(user, 1L));
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.deleteBid(user, 1L));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.NOT_FOUND_BID, result.getResponseCode());
     }
 
     @Test
@@ -393,10 +457,56 @@ class BidUseCaseTest {
     void should_throw_ForbiddenException_when_delete_bid_but_user_is_not_bidder() {
         given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
-        assertThrows(ForbiddenException.class, () -> bidUseCase.deleteBid(anotherUser, 1L));
+        ForbiddenException result = assertThrows(ForbiddenException.class,
+            () -> bidUseCase.deleteBid(anotherUser, 1L));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.FORBIDDEN_BID, result.getResponseCode());
     }
+
+    @ParameterizedTest
+    @MethodSource("uncancellableBid")
+    @DisplayName("입찰을 취소할 수 없는 경우 BadRequestException 발생한다")
+    void should_throw_BadRequestException_when_delete_bid_but_bid_can_not_delete(User user, Bid bid) {
+        given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
+
+        BadRequestException result = assertThrows(BadRequestException.class,
+            () -> bidUseCase.deleteBid(user, anyLong()));
+
+        then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.BID_CANNOT_CANCEL, result.getResponseCode());
+    }
+
+    static Stream<Arguments> uncancellableBid() {
+        User user = User.builder().build();
+
+        Bid authenticatedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.AUTHENTICATED)
+            .build();
+
+        Bid accreditedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.ACCREDITED)
+            .build();
+
+        Bid deliveringBid = Bid.builder()
+            .bidder(user)
+            .status(Status.DELIVERING)
+            .build();
+
+        Bid deliveredBid = Bid.builder()
+            .bidder(user)
+            .status(Status.DELIVERED)
+            .build();
+
+        return Stream.of(
+            arguments(user, authenticatedBid),
+            arguments(user, accreditedBid),
+            arguments(user, deliveringBid)
+        );
+    }
+
 
     User user = User.builder()
         .id(1L)
