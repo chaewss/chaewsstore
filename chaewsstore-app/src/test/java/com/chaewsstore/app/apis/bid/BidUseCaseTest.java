@@ -33,6 +33,7 @@ import com.chaewsstore.core.domain.user.UserService;
 import com.globalutils.exception.BadRequestException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -44,6 +45,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.EnumSource.Mode;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -65,32 +67,44 @@ class BidUseCaseTest {
     @Mock
     private BidService bidService;
 
-    @Test
+    @ParameterizedTest
+    @NullSource
+    @EnumSource(value = BidType.class)
     @DisplayName("상품에 대한 입찰 목록을 조회한다")
-    void succeed_to_read_product_bid_list() {
+    void succeed_to_read_product_bid_list(BidType bidType) {
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.readAllByProduct(product, Pageable.unpaged())).willReturn(
-            productBidQueryDtoList);
+        if (bidType != null) {
+            given(bidService.readAllByProduct(product, bidType, Pageable.unpaged()))
+                .willReturn(productBidQueryDtoList);
+        } else {
+            given(bidService.readAllByProduct(product, null, Pageable.unpaged()))
+                .willReturn(productBidQueryDtoListWithParam);
+        }
 
         Slice<ReadProductBidResponseDto> result = bidUseCase.readProductBidList(anyLong(),
-            Pageable.unpaged());
+            bidType, Pageable.unpaged());
 
         assertNotNull(result);
-        assertEquals(productBidQueryDtoList.size(), result.getContent().size());
+        if (bidType != null) {
+            assertEquals(productBidQueryDtoList.size(), result.getContent().size());
+        } else {
+            assertEquals(productBidQueryDtoListWithParam.size(), result.getContent().size());
+        }
         assertFalse(result.hasNext());
         then(productService).should(times(1)).readById(anyLong());
-        then(bidService).should(times(1)).readAllByProduct(any(), any());
+        then(bidService).should(times(1)).readAllByProduct(any(), any(), any());
     }
 
     @Test
     @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
     void should_throw_NotFoundException_when_read_product_bid_list_but_product_does_not_exist() {
-        given(productService.readById(anyLong())).willThrow(NotFoundException.class);
+        given(productService.readById(anyLong())).willReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class,
-            () -> bidUseCase.readProductBidList(999L, Pageable.unpaged()));
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.readProductBidList(999L, any(), Pageable.unpaged()));
 
         then(productService).should(times(1)).readById(anyLong());
+        assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
     }
 
     @ParameterizedTest
@@ -145,7 +159,8 @@ class BidUseCaseTest {
     void succeed_to_transact_sell_bid_and_create_buy_bid() {
         TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(sellBidLive));
+        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(
+            Optional.of(sellBidLive));
         given(bidService.create(any())).willReturn(buyBidLive);
 
         bidUseCase.transactSellBid(user, request);
@@ -467,7 +482,8 @@ class BidUseCaseTest {
     @ParameterizedTest
     @MethodSource("uncancellableBid")
     @DisplayName("입찰을 취소할 수 없는 경우 BadRequestException 발생한다")
-    void should_throw_BadRequestException_when_delete_bid_but_bid_can_not_delete(User user, Bid bid) {
+    void should_throw_BadRequestException_when_delete_bid_but_bid_can_not_delete(User user,
+        Bid bid) {
         given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
 
         BadRequestException result = assertThrows(BadRequestException.class,
@@ -552,4 +568,8 @@ class BidUseCaseTest {
     List<ReadProductBidQueryDto> productBidQueryDtoList = List.of(
         new ReadProductBidQueryDto(7000, 1L), new ReadProductBidQueryDto(8000, 3L),
         new ReadProductBidQueryDto(1000, 1L));
+
+    List<ReadProductBidQueryDto> productBidQueryDtoListWithParam = List.of(
+        new ReadProductBidQueryDto(60000, LocalDateTime.now()),
+        new ReadProductBidQueryDto(78000, LocalDateTime.now().minusDays(3)));
 }

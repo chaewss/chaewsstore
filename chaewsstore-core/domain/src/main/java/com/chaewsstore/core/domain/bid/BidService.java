@@ -47,8 +47,8 @@ public class BidService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReadProductBidQueryDto> readAllByProduct(Product product, Pageable pageable) {
-        return bidRepository.findAllByProduct(product, pageable);
+    public List<ReadProductBidQueryDto> readAllByProduct(Product product, BidType bidType, Pageable pageable) {
+        return bidRepository.findAllByProduct(product, bidType, pageable);
     }
 
     @Transactional

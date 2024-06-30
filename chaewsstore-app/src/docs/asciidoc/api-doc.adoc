@@ -134,6 +134,7 @@ include::{snippets}/auth-controller-test/respond_200_when_logout_succeed/http-re
 
 == 4. 입찰
 === 4-1. 상품의 입찰 목록 조회
+==== bidType 파라미터가 null인 경우 체결 거래 조회
 ==== Request Path Parameters
 include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_succeed/path-parameters.adoc[]
 ==== Request Http Example
@@ -142,6 +143,24 @@ include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_l
 include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_succeed/response-fields.adoc[]
 ==== Response Http Example
 include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_succeed/http-response.adoc[]
+==== Response Status
+|===
+| Code | Status | Detail
+
+| `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
+|===
+
+==== bidType 파라미터에 [BUY or SELL]을 입력한 경우 타입에 맞는 입찰 조회
+==== Request Path Parameters
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_with_param_succeed/path-parameters.adoc[]
+===== Request Parameters
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_with_param_succeed/query-parameters.adoc[]
+==== Request Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_with_param_succeed/http-request.adoc[]
+==== Response Fields
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_with_param_succeed/response-fields.adoc[]
+==== Response Http Example
+include::{snippets}/bid-controller-unit-test/respond_200_when_read_product_bid_list_with_param_succeed/http-response.adoc[]
 ==== Response Status
 |===
 | Code | Status | Detail

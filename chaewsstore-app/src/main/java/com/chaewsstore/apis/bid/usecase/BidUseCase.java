@@ -49,10 +49,11 @@ public class BidUseCase {
      * @throws NotFoundException 상품이 존재하지 않는 경우
      */
     @Transactional(readOnly = true)
-    public Slice<ReadProductBidResponseDto> readProductBidList(Long productId, Pageable pageable) {
+    public Slice<ReadProductBidResponseDto> readProductBidList(Long productId, BidType bidType,
+        Pageable pageable) {
         Product product = getProduct(productId);
 
-        List<ReadProductBidResponseDto> response = bidService.readAllByProduct(product, pageable)
+        List<ReadProductBidResponseDto> response = bidService.readAllByProduct(product, bidType, pageable)
             .stream().map(ReadProductBidResponseDto::from).toList();
         return new SliceImpl<>(response);
     }
