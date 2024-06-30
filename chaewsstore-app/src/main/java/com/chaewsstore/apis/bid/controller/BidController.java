@@ -6,6 +6,7 @@ import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
 import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
 import com.chaewsstore.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.common.annotation.LoginUser;
+import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.user.User;
 import com.globalutils.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,15 +36,16 @@ public class BidController {
 
     @GetMapping("/products/{productId}/bids")
     public SuccessResponse<Slice<ReadProductBidResponseDto>> readProductBids(
-        @PathVariable Long productId, Pageable pageable) {
-        return SuccessResponse.from(bidUseCase.readProductBidList(productId, pageable));
+        @PathVariable Long productId, @RequestParam(required = false) BidType bidType,
+        Pageable pageable) {
+        return SuccessResponse.from(bidUseCase.readProductBidList(productId, bidType, pageable));
     }
 
-    @PostMapping("/products/{productId}/bids")
+    @PostMapping("/products/{productId}/sell")
     @ResponseStatus(HttpStatus.CREATED)
-    public SuccessResponse<Void> createBid(@LoginUser User user,
+    public SuccessResponse<Void> createSellBid(@LoginUser User user,
         @PathVariable Long productId, @RequestBody CreateBidRequestDto request) {
-        bidUseCase.createBid(user, productId, request);
+        bidUseCase.createBid(user, productId, request, BidType.SELL);
         return SuccessResponse.create();
     }
 
@@ -51,6 +54,14 @@ public class BidController {
     public SuccessResponse<Void> transactSellBid(@LoginUser User user,
         @RequestBody TransactBidRequestDto request) {
         bidUseCase.transactSellBid(user, request);
+        return SuccessResponse.create();
+    }
+
+    @PostMapping("/products/{productId}/buy")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SuccessResponse<Void> createBuyBid(@LoginUser User user,
+        @PathVariable Long productId, @RequestBody CreateBidRequestDto request) {
+        bidUseCase.createBid(user, productId, request, BidType.BUY);
         return SuccessResponse.create();
     }
 

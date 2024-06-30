@@ -5,7 +5,6 @@ import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.user.User;
 import com.globalutils.exception.BadRequestException;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,7 +28,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Getter
-@SQLDelete(sql = "UPDATE bid SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE bid SET is_deleted = true WHERE id = ? AND version = ?")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -46,7 +45,7 @@ public class Bid extends BaseTimeEntity {
     @NotNull
     private Integer price;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
@@ -87,12 +86,13 @@ public class Bid extends BaseTimeEntity {
         this.isDeleted = isDeleted;
     }
 
-    public static Bid create(Integer price, Product product, User bidder) {
+    public static Bid create(Integer price, Product product, User bidder, BidType bidType) {
         return Bid.builder()
             .price(price)
             .product(product)
             .bidder(bidder)
             .status(Status.LIVE)
+            .bidType(bidType)
             .isDeleted(false)
             .build();
     }
@@ -119,7 +119,7 @@ public class Bid extends BaseTimeEntity {
 
     public void inspect(Integer score) {
         validateStatus(Status.IN_TRANSACTION, BidErrorCode.BID_NOT_IN_TRANSACTION);
-        changeStatus(score);
+        updateStatusForInspect(score);
     }
 
     public Long calculateFinalPrice(Integer price) {
@@ -132,6 +132,14 @@ public class Bid extends BaseTimeEntity {
     public void updateStatusAfterDeposit() {
         this.status = Status.DELIVERING;
         this.relatedBid.status = Status.FINISHED;
+    }
+
+    public void cancel() {
+        if (isCancelable()) {
+            updateStatusCancelled();
+        } else {
+            throw new BadRequestException(BidErrorCode.BID_CANNOT_CANCEL);
+        }
     }
 
     private void validateStatus(Status expectedStatus, BidErrorCode errorCode) {
@@ -147,7 +155,18 @@ public class Bid extends BaseTimeEntity {
         }
     }
 
-    private void changeStatus(Integer score) {
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
+
+    private void updateRelatedBidStatus(Status status) {
+        Bid relatedBid = this.getRelatedBid();
+        if (relatedBid != null) {
+            relatedBid.updateStatus(status);
+        }
+    }
+
+    private void updateStatusForInspect(Integer score) {
         if (score == 100) {
             this.status = Status.AUTHENTICATED;
         } else if (score >= 95) {
@@ -156,6 +175,23 @@ public class Bid extends BaseTimeEntity {
             this.status = Status.AUTHENTICATED_FAILED;
             this.relatedBid.status = Status.CANCELLED;
         }
+    }
+
+    private void updateStatusCancelled() {
+        if (this.status == Status.IN_TRANSACTION) {
+            updateRelatedBidStatus(Status.CANCELLED);
+        }
+        this.updateStatus(Status.CANCELLED);
+    }
+
+    private boolean isCancelable() {
+        if (this.status == Status.LIVE) {
+            return true;
+        } else if (this.status == Status.IN_TRANSACTION) {
+            Bid cancelRelatedBid = this.getRelatedBid();
+            return cancelRelatedBid.getStatus() == Status.IN_TRANSACTION;
+        }
+        return false;
     }
 
     private static Bid create(User user, Bid relatedBid, Status status, BidType bidType,

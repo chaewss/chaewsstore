@@ -19,6 +19,11 @@ public class BidService {
     private final BidRepository bidRepository;
 
     @Transactional
+    public void flush() {
+        bidRepository.flush();
+    }
+
+    @Transactional
     public Bid create(Bid bid) {
         return bidRepository.save(bid);
     }
@@ -35,13 +40,15 @@ public class BidService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean existsByProductAndBidder(Product product, User user) {
-        return bidRepository.existsByProductAndBidder(product, user);
+    public Optional<Bid> readLiveBidByProductAndBidderAndType(Product product, User user,
+        BidType bidType) {
+        return bidRepository.findByProductAndBidderAndStatusAndBidType(product, user, Status.LIVE,
+            bidType);
     }
 
     @Transactional(readOnly = true)
-    public List<ReadProductBidQueryDto> readAllByProduct(Product product, Pageable pageable) {
-        return bidRepository.findAllByProduct(product, pageable);
+    public List<ReadProductBidQueryDto> readAllByProduct(Product product, BidType bidType, Pageable pageable) {
+        return bidRepository.findAllByProduct(product, bidType, pageable);
     }
 
     @Transactional

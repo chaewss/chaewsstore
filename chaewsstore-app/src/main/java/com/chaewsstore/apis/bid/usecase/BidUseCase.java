@@ -1,6 +1,6 @@
 package com.chaewsstore.apis.bid.usecase;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.DUPLICATION_BID;
+import static com.chaewsstore.common.exception.ExceptionConstants.BID_NOT_IN_LIVE;
 import static com.chaewsstore.common.exception.ExceptionConstants.FORBIDDEN_BID;
 import static com.chaewsstore.common.exception.ExceptionConstants.INSUFFICIENT_BALANCE;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_BID;
@@ -15,16 +15,17 @@ import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.BidService;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductService;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserService;
 import com.globalutils.annotation.UseCase;
 import com.globalutils.exception.BadRequestException;
-import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -48,32 +49,35 @@ public class BidUseCase {
      * @throws NotFoundException 상품이 존재하지 않는 경우
      */
     @Transactional(readOnly = true)
-    public Slice<ReadProductBidResponseDto> readProductBidList(Long productId, Pageable pageable) {
-        Product product = productService.readById(productId)
-            .orElseThrow(() -> NOT_FOUND_PRODUCT);
+    public Slice<ReadProductBidResponseDto> readProductBidList(Long productId, BidType bidType,
+        Pageable pageable) {
+        Product product = getProduct(productId);
 
-        List<ReadProductBidResponseDto> response = bidService.readAllByProduct(product, pageable)
+        List<ReadProductBidResponseDto> response = bidService.readAllByProduct(product, bidType, pageable)
             .stream().map(ReadProductBidResponseDto::from).toList();
         return new SliceImpl<>(response);
     }
 
     /**
-     * 입찰을 생성한다.
+     * 구매 또는 판매 입찰을 생성한다.
      *
-     * @param user   입찰을 생성하는 사용자의 계정
+     * @param user      입찰을 생성하는 사용자의 계정
      * @param productId 입찰할 상품 ID
      * @param request   생성할 입찰에 대한 정보
-     * @throws NotFoundException  상품이 존재하지 않는 경우
-     * @throws DuplicateException 해당 상품에 이미 입찰한 경우
+     * @throws NotFoundException 상품이 존재하지 않는 경우
      */
     @Transactional
-    public void createBid(User user, Long productId, CreateBidRequestDto request) {
-        Product product = productService.readById(productId)
-            .orElseThrow(() -> NOT_FOUND_PRODUCT);
-        if (bidService.existsByProductAndBidder(product, user)) {
-            throw DUPLICATION_BID;
+    public void createBid(User user, Long productId, CreateBidRequestDto request, BidType bidType) {
+        Product product = getProduct(productId);
+
+        Optional<Bid> optionalBid = bidService.readLiveBidByProductAndBidderAndType(product, user,
+            bidType);
+        if (optionalBid.isPresent()) {
+            Bid liveBid = optionalBid.get();
+            liveBid.updatePrice(request.price());
+        } else {
+            bidService.create(Bid.create(request.price(), product, user, bidType));
         }
-        bidService.create(request.toEntity(product, user));
     }
 
     /**
@@ -128,36 +132,43 @@ public class BidUseCase {
     /**
      * 입찰을 수정한다.
      *
-     * @param user 현재 사용자의 계정
+     * @param user    현재 사용자의 계정
      * @param bidId   수정할 입찰 ID
      * @param request 수정할 입찰에 대한 정보
-     * @throws NotFoundException  입찰이 존재하지 않는 경우
-     * @throws ForbiddenException 현재 사용자가 해당 입찰의 입찰자가 아닌 경우
+     * @throws NotFoundException   입찰이 존재하지 않는 경우
+     * @throws ForbiddenException  현재 사용자가 해당 입찰의 입찰자가 아닌 경우
+     * @throws BadRequestException 입찰이 이미 진행중인 경우
      */
     @Transactional
     public void updateBid(User user, Long bidId, UpdateBidRequestDto request) {
         Bid bid = getBid(bidId);
-        if (!user.equals(bid.getBidder())) {
-            throw FORBIDDEN_BID;
-        }
+        validateBidder(user, bid);
+        checkBidIsLive(bid);
         bid.updatePrice(request.price());
     }
 
     /**
      * 입찰을 삭제한다.
      *
-     * @param user 현재 사용자의 계정
-     * @param bidId   삭제할 입찰 ID
-     * @throws NotFoundException   입찰이 존재하지 않는 경우
-     * @throws ForbiddenException  현재 사용자가 해당 입찰의 입찰자가 아닌 경우
+     * @param user  현재 사용자의 계정
+     * @param bidId 삭제할 입찰 ID
+     * @throws NotFoundException  입찰이 존재하지 않는 경우
+     * @throws ForbiddenException 현재 사용자가 해당 입찰의 입찰자가 아닌 경우
      */
     @Transactional
     public void deleteBid(User user, Long bidId) {
         Bid bid = getBid(bidId);
-        if (!user.equals(bid.getBidder())) {
-            throw FORBIDDEN_BID;
+        validateBidder(user, bid);
+
+        if (shouldBeCancelled(bid)) {
+            bid.cancel();
+            bidService.flush();
         }
         bidService.remove(bid);
+    }
+
+    private Product getProduct(Long productId) {
+        return productService.readById(productId).orElseThrow(() -> NOT_FOUND_PRODUCT);
     }
 
     private Bid getBid(Long bidId) {
@@ -167,6 +178,18 @@ public class BidUseCase {
     private Bid getValidBid(Long productId, Integer price, BidType bidType) {
         return bidService.readValidBid(productId, price, bidType)
             .orElseThrow(() -> NOT_FOUND_BID_WITH_CONDITION);
+    }
+
+    private void validateBidder(User user, Bid bid) {
+        if (!user.equals(bid.getBidder())) {
+            throw FORBIDDEN_BID;
+        }
+    }
+
+    private void checkBidIsLive(Bid bid) {
+        if (bid.getStatus() != Status.LIVE) {
+            throw BID_NOT_IN_LIVE;
+        }
     }
 
     private void checkAccountBalance(User user, Long bidPrice) {
@@ -184,5 +207,13 @@ public class BidUseCase {
         User lockSeller = userService.readByIdWithOptimisticLock(sellerId)
             .orElseThrow(() -> NOT_FOUND_USER);
         lockSeller.deposit(price);
+    }
+
+    private boolean shouldBeCancelled(Bid bid) {
+        Status currentStatus = bid.getStatus();
+        return currentStatus != Status.CANCELLED
+            && currentStatus != Status.AUTHENTICATED_FAILED
+            && currentStatus != Status.FINISHED
+            && currentStatus != Status.EXPIRED;
     }
 }

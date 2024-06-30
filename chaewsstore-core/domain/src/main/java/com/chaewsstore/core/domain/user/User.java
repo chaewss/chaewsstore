@@ -22,7 +22,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Getter
-@SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ? AND version = ?")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity

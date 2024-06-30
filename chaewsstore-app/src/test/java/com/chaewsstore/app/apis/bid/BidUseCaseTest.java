@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
@@ -22,19 +25,27 @@ import com.chaewsstore.core.domain.bid.BidService;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
 import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
+import com.chaewsstore.core.domain.product.ProductErrorCode;
 import com.chaewsstore.core.domain.product.ProductService;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserErrorCode;
 import com.chaewsstore.core.domain.user.UserService;
 import com.globalutils.exception.BadRequestException;
-import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.ForbiddenException;
 import com.globalutils.exception.NotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.EnumSource.Mode;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,74 +67,91 @@ class BidUseCaseTest {
     @Mock
     private BidService bidService;
 
-    @Test
+    @ParameterizedTest
+    @NullSource
+    @EnumSource(value = BidType.class)
     @DisplayName("상품에 대한 입찰 목록을 조회한다")
-    void succeed_to_read_product_bid_list() {
+    void succeed_to_read_product_bid_list(BidType bidType) {
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.readAllByProduct(product, Pageable.unpaged())).willReturn(
-            productBidQueryDtoList);
+        if (bidType != null) {
+            given(bidService.readAllByProduct(product, bidType, Pageable.unpaged()))
+                .willReturn(productBidQueryDtoList);
+        } else {
+            given(bidService.readAllByProduct(product, null, Pageable.unpaged()))
+                .willReturn(productBidQueryDtoListWithParam);
+        }
 
         Slice<ReadProductBidResponseDto> result = bidUseCase.readProductBidList(anyLong(),
-            Pageable.unpaged());
+            bidType, Pageable.unpaged());
 
         assertNotNull(result);
-        assertEquals(productBidQueryDtoList.size(), result.getContent().size());
+        if (bidType != null) {
+            assertEquals(productBidQueryDtoList.size(), result.getContent().size());
+        } else {
+            assertEquals(productBidQueryDtoListWithParam.size(), result.getContent().size());
+        }
         assertFalse(result.hasNext());
         then(productService).should(times(1)).readById(anyLong());
-        then(bidService).should(times(1)).readAllByProduct(any(), any());
+        then(bidService).should(times(1)).readAllByProduct(any(), any(), any());
     }
 
     @Test
     @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
     void should_throw_NotFoundException_when_read_product_bid_list_but_product_does_not_exist() {
-        given(productService.readById(anyLong())).willThrow(NotFoundException.class);
+        given(productService.readById(anyLong())).willReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class,
-            () -> bidUseCase.readProductBidList(999L, Pageable.unpaged()));
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.readProductBidList(999L, any(), Pageable.unpaged()));
 
         then(productService).should(times(1)).readById(anyLong());
+        assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
     }
 
-    @Test
-    @DisplayName("입찰을 정상적으로 추가한다")
-    void succeed_to_create_bid() {
+    @ParameterizedTest
+    @EnumSource(mode = Mode.INCLUDE, names = {"SELL", "BUY"})
+    @DisplayName("판매 입찰과 구매 입찰을 정상적으로 추가한다")
+    void succeed_to_create_bid(BidType bidType) {
         CreateBidRequestDto request = new CreateBidRequestDto(6000);
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.existsByProductAndBidder(any(), any())).willReturn(false);
+        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(
+            Optional.empty());
         given(bidService.create(any())).willReturn(any());
 
-        bidUseCase.createBid(user, 1L, request);
+        bidUseCase.createBid(user, 1L, request, bidType);
 
         then(productService).should(times(1)).readById(anyLong());
-        then(bidService).should(times(1)).existsByProductAndBidder(any(), any());
+        then(bidService).should(times(1)).readLiveBidByProductAndBidderAndType(any(), any(), any());
         then(bidService).should(times(1)).create(any());
     }
 
     @Test
-    @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_create_bid_but_product_does_not_exist() {
-        CreateBidRequestDto request = new CreateBidRequestDto(6000);
-
-        given(productService.readById(anyLong())).willThrow(NotFoundException.class);
-
-        assertThrows(NotFoundException.class, () -> bidUseCase.createBid(user, 999L, request));
-
-        then(productService).should(times(1)).readById(anyLong());
-    }
-
-    @Test
-    @DisplayName("사용자가 해당 상품의 입찰을 이미 생성한 경우 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_create_bid_but_user_has_already_create_bid() {
+    @DisplayName("입찰 생성 시 기존 입찰이 이미 있을 경우 정상적으로 수정한다")
+    void succeed_to_create_sell_bid_but_update() {
         CreateBidRequestDto request = new CreateBidRequestDto(6000);
 
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
-        given(bidService.existsByProductAndBidder(any(), any())).willReturn(true);
+        given(bidService.readLiveBidByProductAndBidderAndType(any(), any(), any())).willReturn(
+            Optional.of(buyBidLive));
 
-        assertThrows(DuplicateException.class, () -> bidUseCase.createBid(user, 1L, request));
+        bidUseCase.createBid(user, 1L, request, BidType.BUY);
 
         then(productService).should(times(1)).readById(anyLong());
-        then(bidService).should(times(1)).existsByProductAndBidder(any(), any());
+        then(bidService).should(times(1)).readLiveBidByProductAndBidderAndType(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("입찰 생성 시 상품이 존재하지 않는 경우 NotFoundException이 발생한다")
+    void should_throw_NotFoundException_when_create_bid_but_product_does_not_exist() {
+        CreateBidRequestDto request = new CreateBidRequestDto(6000);
+
+        given(productService.readById(anyLong())).willReturn(Optional.empty());
+
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.createBid(user, 999L, request, BidType.SELL));
+
+        then(productService).should(times(1)).readById(anyLong());
+        assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
     }
 
     @Test
@@ -131,8 +159,9 @@ class BidUseCaseTest {
     void succeed_to_transact_sell_bid_and_create_buy_bid() {
         TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(sellBid));
-        given(bidService.create(any())).willReturn(buyBid);
+        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(
+            Optional.of(sellBidLive));
+        given(bidService.create(any())).willReturn(buyBidLive);
 
         bidUseCase.transactSellBid(user, request);
 
@@ -159,8 +188,8 @@ class BidUseCaseTest {
     void succeed_to_transact_buy_bid_and_create_sell_bid() {
         TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(buyBid));
-        given(bidService.create(any())).willReturn(sellBid);
+        given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(buyBidLive));
+        given(bidService.create(any())).willReturn(sellBidLive);
 
         bidUseCase.transactSellBid(user, request);
 
@@ -185,20 +214,22 @@ class BidUseCaseTest {
     @Test
     @DisplayName("구매자가 입찰 상품 금액을 정상적으로 입금한다")
     void succeed_to_deposit_bid_when_authenticated() {
+        buyBidInTransaction.relateBid(sellBidAuthenticated);
+
         Long sellerBeforeBalance = anotherUser.getAccount();
         Long buyerBeforeBalance = user.getAccount();
 
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAuth));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
         given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.of(user))
             .willReturn(Optional.of(anotherUser));
 
         bidUseCase.depositBid(user, anyLong());
 
-        Integer price = buyBidInTransactionAuth.getPrice();
+        Integer price = buyBidInTransaction.getPrice();
         assertEquals(sellerBeforeBalance + price, anotherUser.getAccount());
         assertEquals(buyerBeforeBalance - price, user.getAccount());
-        assertEquals(Status.DELIVERING, buyBidInTransactionAuth.getStatus());
-        assertEquals(Status.FINISHED, buyBidInTransactionAuth.getRelatedBid().getStatus());
+        assertEquals(Status.DELIVERING, buyBidInTransaction.getStatus());
+        assertEquals(Status.FINISHED, buyBidInTransaction.getRelatedBid().getStatus());
         then(bidService).should(times(1)).readById(anyLong());
         then(userService).should(times(2)).readByIdWithOptimisticLock(anyLong());
     }
@@ -307,11 +338,11 @@ class BidUseCaseTest {
     void succeed_to_update_bid() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
         bidUseCase.updateBid(user, 1L, request);
 
-        assertEquals(request.price(), buyBid.getPrice());
+        assertEquals(request.price(), buyBidLive.getPrice());
         then(bidService).should(times(1)).readById(anyLong());
     }
 
@@ -320,11 +351,13 @@ class BidUseCaseTest {
     void should_throw_NotFountException_when_update_bid_but_bid_does_not_exist() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        given(bidService.readById(anyLong())).willThrow(NotFoundException.class);
+        given(bidService.readById(anyLong())).willReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> bidUseCase.updateBid(user, 1L, request));
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.updateBid(user, 999L, request));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.NOT_FOUND_BID, result.getResponseCode());
     }
 
     @Test
@@ -332,44 +365,164 @@ class BidUseCaseTest {
     void should_throw_ForbiddenException_when_update_bid_but_user_is_not_bidder() {
         UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
-        assertThrows(ForbiddenException.class,
+        ForbiddenException result = assertThrows(ForbiddenException.class,
             () -> bidUseCase.updateBid(anotherUser, 1L, request));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.FORBIDDEN_BID, result.getResponseCode());
     }
 
     @Test
-    @DisplayName("특정 입찰을 정상적으로 삭제한다")
-    void succeed_to_delete_bid() {
-        given(bidService.readById(any())).willReturn(Optional.of(buyBid));
+    @DisplayName("입찰이 이미 진행중인데 입찰 수정을 시도할 경우 BadRequestException이 발생한다")
+    void should_throw_BadRequestException_when_update_bid_but_bid_status_is_not_live() {
+        UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
-        bidUseCase.deleteBid(user, 1L);
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
+
+        BadRequestException result = assertThrows(BadRequestException.class,
+            () -> bidUseCase.updateBid(user, anyLong(), request));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.BID_NOT_IN_LIVE, result.getResponseCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("cancellableBid")
+    @DisplayName("특정 입찰을 정상적으로 삭제한다")
+    void succeed_to_delete_bid(User user, Bid bid, boolean shouldFlush) {
+        given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
+        doNothing().when(bidService).remove(any(Bid.class));
+
+        bidUseCase.deleteBid(user, anyLong());
+
+        then(bidService).should(times(1)).readById(anyLong());
+        if (shouldFlush) {
+            then(bidService).should(times(1)).flush();
+        } else {
+            then(bidService).should(never()).flush();
+        }
         then(bidService).should(times(1)).remove(any());
+    }
+
+    static Stream<Arguments> cancellableBid() {
+        User user = User.builder().build();
+
+        Bid cancelledBid = Bid.builder()
+            .bidder(user)
+            .status(Status.CANCELLED)
+            .build();
+
+        Bid authenticatedFailedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.AUTHENTICATED_FAILED)
+            .build();
+
+        Bid finishedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.FINISHED)
+            .build();
+
+        Bid expiredBid = Bid.builder()
+            .bidder(user)
+            .status(Status.EXPIRED)
+            .build();
+
+        Bid liveBid = Bid.builder()
+            .bidder(user)
+            .status(Status.LIVE)
+            .build();
+
+        Bid inTransactionBuyBidI = Bid.builder()
+            .bidder(user)
+            .status(Status.IN_TRANSACTION)
+            .bidType(BidType.BUY)
+            .build();
+        Bid inTransactionSellBid = Bid.builder()
+            .status(Status.IN_TRANSACTION)
+            .bidType(BidType.SELL)
+            .build();
+        inTransactionBuyBidI.relateBid(inTransactionSellBid);
+
+        return Stream.of(
+            arguments(user, cancelledBid, false),
+            arguments(user, authenticatedFailedBid, false),
+            arguments(user, finishedBid, false),
+            arguments(user, expiredBid, false),
+            arguments(user, liveBid, true),
+            arguments(user, inTransactionBuyBidI, true)
+        );
     }
 
     @Test
     @DisplayName("입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
     void should_throw_NotFountException_when_delete_bid_but_bid_does_not_exist() {
-        given(bidService.readById(anyLong())).willThrow(NotFoundException.class);
+        given(bidService.readById(anyLong())).willReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> bidUseCase.deleteBid(user, 1L));
+        NotFoundException result = assertThrows(NotFoundException.class,
+            () -> bidUseCase.deleteBid(user, 1L));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.NOT_FOUND_BID, result.getResponseCode());
     }
 
     @Test
     @DisplayName("입찰자가 아닌 사용자가 입찰 삭제를 시도할 경우 ForbiddenException이 발생한다")
     void should_throw_ForbiddenException_when_delete_bid_but_user_is_not_bidder() {
-        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBid));
+        given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
-        assertThrows(ForbiddenException.class, () -> bidUseCase.deleteBid(anotherUser, 1L));
+        ForbiddenException result = assertThrows(ForbiddenException.class,
+            () -> bidUseCase.deleteBid(anotherUser, 1L));
 
         then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.FORBIDDEN_BID, result.getResponseCode());
     }
+
+    @ParameterizedTest
+    @MethodSource("uncancellableBid")
+    @DisplayName("입찰을 취소할 수 없는 경우 BadRequestException 발생한다")
+    void should_throw_BadRequestException_when_delete_bid_but_bid_can_not_delete(User user,
+        Bid bid) {
+        given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
+
+        BadRequestException result = assertThrows(BadRequestException.class,
+            () -> bidUseCase.deleteBid(user, anyLong()));
+
+        then(bidService).should(times(1)).readById(anyLong());
+        assertEquals(BidErrorCode.BID_CANNOT_CANCEL, result.getResponseCode());
+    }
+
+    static Stream<Arguments> uncancellableBid() {
+        User user = User.builder().build();
+
+        Bid authenticatedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.AUTHENTICATED)
+            .build();
+
+        Bid accreditedBid = Bid.builder()
+            .bidder(user)
+            .status(Status.ACCREDITED)
+            .build();
+
+        Bid deliveringBid = Bid.builder()
+            .bidder(user)
+            .status(Status.DELIVERING)
+            .build();
+
+        Bid deliveredBid = Bid.builder()
+            .bidder(user)
+            .status(Status.DELIVERED)
+            .build();
+
+        return Stream.of(
+            arguments(user, authenticatedBid),
+            arguments(user, accreditedBid),
+            arguments(user, deliveringBid)
+        );
+    }
+
 
     User user = User.builder()
         .id(1L)
@@ -387,13 +540,13 @@ class BidUseCaseTest {
         .build();
 
     Product product = Product.builder().build();
-    Bid buyBid = Bid.builder()
+    Bid buyBidLive = Bid.builder()
         .bidder(user)
         .price(30)
         .bidType(BidType.BUY)
         .status(Status.LIVE)
         .build();
-    Bid sellBid = Bid.builder()
+    Bid sellBidLive = Bid.builder()
         .bidder(anotherUser)
         .price(30)
         .bidType(BidType.SELL)
@@ -405,15 +558,18 @@ class BidUseCaseTest {
         .bidType(BidType.SELL)
         .status(Status.AUTHENTICATED)
         .build();
-    Bid buyBidInTransactionAuth = Bid.builder()
+    Bid buyBidInTransaction = Bid.builder()
         .bidder(user)
         .price(6000)
         .bidType(BidType.BUY)
         .status(Status.IN_TRANSACTION)
-        .relatedBid(sellBidAuthenticated)
         .build();
 
     List<ReadProductBidQueryDto> productBidQueryDtoList = List.of(
         new ReadProductBidQueryDto(7000, 1L), new ReadProductBidQueryDto(8000, 3L),
         new ReadProductBidQueryDto(1000, 1L));
+
+    List<ReadProductBidQueryDto> productBidQueryDtoListWithParam = List.of(
+        new ReadProductBidQueryDto(60000, LocalDateTime.now()),
+        new ReadProductBidQueryDto(78000, LocalDateTime.now().minusDays(3)));
 }

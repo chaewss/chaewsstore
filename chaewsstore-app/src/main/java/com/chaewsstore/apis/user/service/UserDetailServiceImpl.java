@@ -3,8 +3,8 @@ package com.chaewsstore.apis.user.service;
 import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_USER;
 
 import com.chaewsstore.core.domain.user.User;
-import com.chaewsstore.core.infra.jwt.SecurityUtil;
 import com.chaewsstore.core.domain.user.UserService;
+import com.chaewsstore.core.infra.jwt.SecurityUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,7 +36,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private org.springframework.security.core.userdetails.User createUser(User user) {
         String role = user.getRole().getKey();
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role);
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-            List.of(grantedAuthority));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+            user.getPassword(), List.of(grantedAuthority));
     }
 }

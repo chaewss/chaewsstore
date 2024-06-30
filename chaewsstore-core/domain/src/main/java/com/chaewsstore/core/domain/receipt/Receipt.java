@@ -5,6 +5,7 @@ import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.product.Product;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,15 +26,15 @@ public class Receipt extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bid_id")
     private Bid bid;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id")
     private User buyer;
 
