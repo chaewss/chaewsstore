@@ -1,5 +1,6 @@
 package com.chaewsstore.app.apis.user;
 
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -15,15 +16,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
 import com.chaewsstore.apis.user.controller.UserController;
-import com.chaewsstore.apis.user.dto.UserResponseDto;
 import com.chaewsstore.apis.user.dto.SignupRequestDto;
+import com.chaewsstore.apis.user.dto.UserResponseDto;
 import com.chaewsstore.apis.user.usecase.UserUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -83,6 +88,27 @@ class UserControllerUnitTest {
                     fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("닉네임")
                 )
             ));
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidSignUpRequest")
+    @DisplayName("회원 가입 요청의 valid가 유효하지 않을 때 400을 응답한다")
+    void respond_400_when_sign_up_but_invalid_request(String username, String password, String nickname) throws Exception {
+        SignupRequestDto request = new SignupRequestDto(username, password, nickname);
+
+        mockMvc.perform(post("/api/users/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest())
+            .andDo(print());
+    }
+
+    static Stream<Arguments> invalidSignUpRequest() {
+        return Stream.of(
+            arguments("email", "aaaa1111!!", "닉네임"),
+            arguments("email@gmail.com", "aaaa1111", "닉네임"),
+            arguments("email@gmail.com", "aaaa1111", "한")
+        );
     }
 
     @Test
