@@ -1,8 +1,11 @@
 package com.chaewsstore.app.apis.user;
 
+import static com.chaewsstore.common.exception.ExceptionConstants.NICKNAME_DUPLICATION;
+import static com.chaewsstore.common.exception.ExceptionConstants.USER_DUPLICATION;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -128,6 +131,18 @@ class UserControllerUnitTest {
     }
 
     @Test
+    @DisplayName("아이디 중복 체크 API 호출시 아이디가 중복된 경우 HTTP 409을 응답한다")
+    void respond_409_when_check_username_but_username_already_exist() throws Exception {
+        final String username = "conflictUsername@gmail.com";
+        doThrow(USER_DUPLICATION).when(userUseCase).checkUsername(any());
+
+        mockMvc.perform(get("/api/users/check-username/{username}/exists", username)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isConflict())
+            .andDo(print());
+    }
+
+    @Test
     @DisplayName("해당 닉네임으로 가입된 계정이 존재하지 않으면 닉네임 중복 검사에서 200을 응답한다")
     void respond_200_when_nickname_does_not_exist() throws Exception {
         final String nickname = "닉네임";
@@ -141,5 +156,17 @@ class UserControllerUnitTest {
                     parameterWithName("nickname").description("확인하고자 하는 닉네임")
                 ))
             );
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 체크 API 호출시 닉네임이 중복된 경우 HTTP 409를 응답한다")
+    void respond_409_when_check_nickname_but_nickname_already_exist() throws Exception {
+        final String nickname = "중복 닉네임";
+        doThrow(NICKNAME_DUPLICATION).when(userUseCase).checkNickname(any());
+
+        mockMvc.perform(get("/api/users/check-nickname/{nickname}/exists", nickname)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isConflict())
+            .andDo(print());
     }
 }

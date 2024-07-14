@@ -3,8 +3,12 @@ package com.chaewsstore.app.apis.bid;
 import static com.chaewsstore.app.ApiDocumentUtils.documentIdentifier;
 import static com.chaewsstore.app.ApiDocumentUtils.getDocumentRequest;
 import static com.chaewsstore.app.ApiDocumentUtils.getDocumentResponse;
+import static com.chaewsstore.common.exception.ExceptionConstants.FORBIDDEN_BID;
+import static com.chaewsstore.common.exception.ExceptionConstants.INSUFFICIENT_BALANCE;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -221,6 +225,17 @@ class BidControllerUnitTest {
     }
 
     @Test
+    @DisplayName("입찰 상품 금액 입금 API 호출시 구매자의 계좌 잔액이 상품 금액보다 적으면 HTTP 400을 응답한다")
+    void respond_400_when_deposit_bid_but_insufficient_balance() throws Exception {
+        doThrow(INSUFFICIENT_BALANCE).when(bidUseCase).depositBid(any(), anyLong());
+
+        mockMvc.perform(patch("/api/bids/deposit/{bidId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andDo(print());
+    }
+
+    @Test
     @DisplayName("입찰 수정에 성공하면 HTTP 200을 응답한다")
     void respond_200_when_update_bid_succeed() throws Exception {
         UpdateBidRequestDto request = new UpdateBidRequestDto(40000);
@@ -254,6 +269,17 @@ class BidControllerUnitTest {
                     parameterWithName("bidId").description("입찰 ID")
                 )
             ));
+    }
+
+    @Test
+    @DisplayName("입찰 삭제 API 호출시 입찰자가 아닌 사용자가 입찰 삭제를 시도할 경우 HTTP 403을 응답한다")
+    void respond_403_when_update_bid_but_user_is_not_bidder() throws Exception {
+        doThrow(FORBIDDEN_BID).when(bidUseCase).deleteBid(any(), anyLong());
+
+        mockMvc.perform(delete("/api/bids/{bidId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andDo(print());
     }
 
     private List<ReadProductBidResponseDto> getProductBidResponse() {
