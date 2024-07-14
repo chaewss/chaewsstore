@@ -78,7 +78,7 @@ class BidControllerUnitTest {
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 101})
-    @DisplayName("score 값이 0 미만 100 초과일 경우 입찰 상품 검수 API 호출시 404를 응답한다")
+    @DisplayName("score 값이 0 미만 100 초과일 경우 입찰 상품 검수 API 호출시 400를 응답한다")
     void respond_400_when_inspect_bid_product_but_invalid_scores(int invalidScore) throws Exception {
         InspectBidProductRequestDto request = new InspectBidProductRequestDto(invalidScore);
 
