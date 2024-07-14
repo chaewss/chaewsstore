@@ -161,7 +161,7 @@ class BidUseCaseTest {
 
         given(bidService.readValidBid(anyLong(), any(), any())).willReturn(
             Optional.of(sellBidLive));
-        given(bidService.create(any())).willReturn(buyBidLive);
+        given(bidService.create(any())).willReturn(buyBidInTransaction);
 
         bidUseCase.transactSellBid(user, request);
 
@@ -189,9 +189,9 @@ class BidUseCaseTest {
         TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
         given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.of(buyBidLive));
-        given(bidService.create(any())).willReturn(sellBidLive);
+        given(bidService.create(any())).willReturn(sellBidInTransaction);
 
-        bidUseCase.transactSellBid(user, request);
+        bidUseCase.transactBuyBid(user, request);
 
         then(bidService).should(times(1)).readValidBid(anyLong(), any(), any());
         then(bidService).should(times(1)).create(any());
@@ -562,6 +562,12 @@ class BidUseCaseTest {
         .bidder(user)
         .price(6000)
         .bidType(BidType.BUY)
+        .status(Status.IN_TRANSACTION)
+        .build();
+    Bid sellBidInTransaction = Bid.builder()
+        .bidder(anotherUser)
+        .price(6000)
+        .bidType(BidType.SELL)
         .status(Status.IN_TRANSACTION)
         .build();
 
