@@ -11,11 +11,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
-import com.chaewsstore.core.domain.user.User;
-import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
 import com.chaewsstore.core.domain.refresh.RefreshTokenErrorCode;
 import com.chaewsstore.core.domain.refresh.RefreshTokenService;
+import com.chaewsstore.core.domain.user.Role;
+import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
 import com.globalutils.exception.NotFoundException;
@@ -102,6 +102,18 @@ class JwtAuthHelperTest {
 
         then(refreshTokenService).should(times(1)).readByToken(any());
         assertEquals(RefreshTokenErrorCode.WITHOUT_OWNERSHIP_REFRESH_TOKEN, result.getResponseCode());
+    }
+
+    @Test
+    @DisplayName("토큰에서 정상적으로 subject를 추출한다")
+    void succeed_to_get_subject() {
+        String subject = "testSubject";
+        given(tokenProvider.getSubjectFromToken(accessToken)).willReturn(subject);
+
+        String result = jwtAuthHelper.getSubject(accessToken);
+
+        assertEquals(subject, result);
+        then(tokenProvider).should(times(1)).getSubjectFromToken(any());
     }
 
     @Test
