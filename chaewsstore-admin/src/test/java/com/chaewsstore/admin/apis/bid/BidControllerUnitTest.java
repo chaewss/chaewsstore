@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
 import com.chaewsstore.admin.ApiDocumentUtils;
-import com.chaewsstore.apis.bid.controller.BidController;
-import com.chaewsstore.apis.bid.dto.InspectBidProductRequestDto;
-import com.chaewsstore.apis.bid.usecase.BidUseCase;
+import com.chaewsstore.admin.apis.bid.controller.BidController;
+import com.chaewsstore.admin.apis.bid.dto.InspectBidProductRequestDto;
+import com.chaewsstore.admin.apis.bid.usecase.BidUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

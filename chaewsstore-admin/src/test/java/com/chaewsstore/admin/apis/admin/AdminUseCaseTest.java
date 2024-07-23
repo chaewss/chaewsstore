@@ -7,9 +7,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
-import com.chaewsstore.apis.admin.usecase.AdminUseCase;
-import com.chaewsstore.common.helper.PasswordEncoderHelper;
+import com.chaewsstore.admin.apis.admin.dto.AdminSignupRequestDto;
+import com.chaewsstore.admin.apis.admin.usecase.AdminUseCase;
+import com.chaewsstore.admin.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.admin.AdminErrorCode;
 import com.chaewsstore.core.domain.admin.AdminService;

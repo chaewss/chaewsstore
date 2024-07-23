@@ -14,10 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
-import com.chaewsstore.apis.user.controller.UserController;
-import com.chaewsstore.apis.user.dto.UserResponseDto;
-import com.chaewsstore.apis.user.dto.SignupRequestDto;
-import com.chaewsstore.apis.user.usecase.UserUseCase;
+import com.chaewsstore.app.apis.user.controller.UserController;
+import com.chaewsstore.app.apis.user.dto.UserResponseDto;
+import com.chaewsstore.app.apis.user.dto.SignupRequestDto;
+import com.chaewsstore.app.apis.user.usecase.UserUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

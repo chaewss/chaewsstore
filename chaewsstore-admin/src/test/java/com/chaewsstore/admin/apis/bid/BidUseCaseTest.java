@@ -7,8 +7,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-import com.chaewsstore.apis.bid.dto.InspectBidProductRequestDto;
-import com.chaewsstore.apis.bid.usecase.BidUseCase;
+import com.chaewsstore.admin.apis.bid.dto.InspectBidProductRequestDto;
+import com.chaewsstore.admin.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.BidErrorCode;

@@ -1,7 +1,7 @@
 package com.chaewsstore.app.apis.auth;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.INVALID_PASSWORD;
-import static com.chaewsstore.common.exception.ExceptionConstants.NOT_FOUND_USER;
+import static com.chaewsstore.app.common.exception.ExceptionConstants.INVALID_PASSWORD;
+import static com.chaewsstore.app.common.exception.ExceptionConstants.NOT_FOUND_USER;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -14,13 +14,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
-import com.chaewsstore.apis.auth.controller.AuthController;
-import com.chaewsstore.apis.auth.dto.LoginRequestDto;
-import com.chaewsstore.apis.auth.dto.LoginResponseDto;
-import com.chaewsstore.apis.auth.dto.LogoutRequestDto;
-import com.chaewsstore.apis.auth.dto.ReissueTokenRequestDto;
-import com.chaewsstore.apis.auth.dto.ReissueTokenResponseDto;
-import com.chaewsstore.apis.auth.usecase.AuthUseCase;
+import com.chaewsstore.app.apis.auth.controller.AuthController;
+import com.chaewsstore.app.apis.auth.dto.LoginRequestDto;
+import com.chaewsstore.app.apis.auth.dto.LoginResponseDto;
+import com.chaewsstore.app.apis.auth.dto.LogoutRequestDto;
+import com.chaewsstore.app.apis.auth.dto.ReissueTokenRequestDto;
+import com.chaewsstore.app.apis.auth.dto.ReissueTokenResponseDto;
+import com.chaewsstore.app.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -13,11 +13,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
-import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
-import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
-import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
-import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.apis.bid.usecase.BidUseCase;
+import com.chaewsstore.app.apis.bid.dto.CreateBidRequestDto;
+import com.chaewsstore.app.apis.bid.dto.ReadProductBidResponseDto;
+import com.chaewsstore.app.apis.bid.dto.TransactBidRequestDto;
+import com.chaewsstore.app.apis.bid.dto.UpdateBidRequestDto;
+import com.chaewsstore.app.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.BidErrorCode;
