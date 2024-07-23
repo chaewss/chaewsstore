@@ -22,12 +22,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
-import com.chaewsstore.apis.bid.controller.BidController;
-import com.chaewsstore.apis.bid.dto.CreateBidRequestDto;
-import com.chaewsstore.apis.bid.dto.ReadProductBidResponseDto;
-import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
-import com.chaewsstore.apis.bid.dto.UpdateBidRequestDto;
-import com.chaewsstore.apis.bid.usecase.BidUseCase;
+import com.chaewsstore.app.apis.bid.controller.BidController;
+import com.chaewsstore.app.apis.bid.dto.CreateBidRequestDto;
+import com.chaewsstore.app.apis.bid.dto.ReadProductBidResponseDto;
+import com.chaewsstore.app.apis.bid.dto.TransactBidRequestDto;
+import com.chaewsstore.app.apis.bid.dto.UpdateBidRequestDto;
+import com.chaewsstore.app.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
