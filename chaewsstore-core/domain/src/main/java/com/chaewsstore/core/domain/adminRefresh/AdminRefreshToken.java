@@ -2,6 +2,7 @@ package com.chaewsstore.core.domain.adminRefresh;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.admin.Admin;
+import com.globalutils.annotation.Generated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -41,6 +42,7 @@ public class AdminRefreshToken extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -52,6 +54,7 @@ public class AdminRefreshToken extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final int hashCode() {
         return Objects.hash(getId());
     }

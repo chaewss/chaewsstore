@@ -2,6 +2,7 @@ package com.chaewsstore.core.domain.product;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.brand.Brand;
+import com.globalutils.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -68,6 +69,7 @@ public class Product extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -79,6 +81,7 @@ public class Product extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final int hashCode() {
         return Objects.hash(getId());
     }

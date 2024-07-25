@@ -8,6 +8,8 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
+apply from: 'gradle/jacoco.gradle'
+
 allprojects {
     group = 'com.chaewsstore'
     version = '0.0.1-SNAPSHOT'
