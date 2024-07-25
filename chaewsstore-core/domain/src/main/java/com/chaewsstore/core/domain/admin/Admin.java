@@ -2,6 +2,7 @@ package com.chaewsstore.core.domain.admin;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.user.Role;
+import com.globalutils.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -65,6 +66,7 @@ public class Admin extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -76,6 +78,7 @@ public class Admin extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final int hashCode() {
         return Objects.hash(getId());
     }

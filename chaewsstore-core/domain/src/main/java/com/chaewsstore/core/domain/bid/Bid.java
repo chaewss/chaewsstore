@@ -4,6 +4,7 @@ import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.user.User;
+import com.globalutils.annotation.Generated;
 import com.globalutils.exception.BadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -214,6 +215,7 @@ public class Bid extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -225,6 +227,7 @@ public class Bid extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final int hashCode() {
         return Objects.hash(getId());
     }

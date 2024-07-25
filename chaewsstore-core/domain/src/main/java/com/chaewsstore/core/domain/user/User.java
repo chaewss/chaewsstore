@@ -3,6 +3,7 @@ package com.chaewsstore.core.domain.user;
 import static com.chaewsstore.core.domain.user.UserErrorCode.INSUFFICIENT_BALANCE;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
+import com.globalutils.annotation.Generated;
 import com.globalutils.exception.BadRequestException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -94,6 +95,7 @@ public class User extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -105,6 +107,7 @@ public class User extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final int hashCode() {
         return Objects.hash(getId());
     }

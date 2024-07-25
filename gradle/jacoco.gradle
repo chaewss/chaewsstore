@@ -1,0 +1,93 @@
+import java.util.stream.Collectors
+
+def excludeFromCoverage = new ArrayList<String>()
+file('coverage-exclude.asap').withInputStream() { it ->
+    excludeFromCoverage.addAll(new BufferedReader(new InputStreamReader(it))
+            .lines()
+            .parallel()
+            .map(s -> s.substring(7).strip())
+            .collect(Collectors.toList()))
+}
+
+def Qdomains = []
+for (qPattern in "**/QA".."**/QZ") {
+    Qdomains.add(qPattern + "*")
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+
+    jacoco {
+        toolVersion = '0.8.12'
+    }
+
+    test {
+        finalizedBy 'jacocoTestReport'
+    }
+
+    jacocoTestReport {
+        reports {
+            html.required.set(true)
+            xml.required.set(false)
+            csv.required.set(false)
+        }
+        afterEvaluate {
+            classDirectories.setFrom(
+                    files(classDirectories.files.collect {
+                        fileTree(dir: it, excludes: Qdomains + excludeFromCoverage.stream()
+                                .map(s -> s + ".class")
+                                .collect(Collectors.toList()))
+                    })
+            )
+        }
+        finalizedBy 'jacocoTestCoverageVerification'
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                enabled = true
+                element = "CLASS"
+                limit {
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = 0.80
+                }
+                excludes += excludeFromCoverage.stream()
+                        .map(s -> s.replace("/", "."))
+                        .collect(Collectors.toList())
+            }
+        }
+    }
+}
+
+def allProjects = getAllprojects().stream()
+        .filter(p -> !p.getDisplayName().contains('root project'))
+        .collect(Collectors.toList())
+
+project(':support:jacoco') {
+    apply plugin: 'jacoco-report-aggregation'
+
+    testCodeCoverageReport {
+        getClassDirectories().setFrom(files(allProjects
+                .collect {
+                    it.fileTree(dir: "${it.buildDir}/classes/java/main", exclude:
+                            Qdomains + excludeFromCoverage.stream()
+                                    .map(s -> s + ".class")
+                                    .collect(Collectors.toList()))
+                }
+        ))
+    }
+
+    def allProjectsExcludeJacoco = allProjects.stream()
+            .filter(p -> !p.getDisplayName().contains('jacoco')
+                    && !p.getDisplayName().contains('root project'))
+            .collect(Collectors.toList())
+
+    dependencies {
+        allProjectsExcludeJacoco.each { project ->
+            implementation project
+        }
+    }
+}
