@@ -4,6 +4,7 @@ import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.BaseTimeEntity;
 import com.chaewsstore.core.domain.product.Product;
+import com.globalutils.annotation.Generated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -47,6 +48,7 @@ public class Receipt extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -58,6 +60,7 @@ public class Receipt extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final int hashCode() {
         return Objects.hash(getId());
     }

@@ -8,9 +8,9 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.chaewsstore.apis.user.dto.SignupRequestDto;
-import com.chaewsstore.apis.user.usecase.UserUseCase;
-import com.chaewsstore.common.helper.PasswordEncoderHelper;
+import com.chaewsstore.app.apis.user.dto.SignupRequestDto;
+import com.chaewsstore.app.apis.user.usecase.UserUseCase;
+import com.chaewsstore.app.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserErrorCode;
 import com.chaewsstore.core.domain.user.UserService;

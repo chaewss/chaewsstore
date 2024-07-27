@@ -4,4 +4,4 @@ include 'chaewsstore-core:domain'
 include 'chaewsstore-core:infra'
 include 'chaewsstore-app'
 include 'chaewsstore-admin'
-
+include 'support:jacoco'

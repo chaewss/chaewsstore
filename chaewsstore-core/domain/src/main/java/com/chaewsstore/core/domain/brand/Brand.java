@@ -1,6 +1,7 @@
 package com.chaewsstore.core.domain.brand;
 
 import com.chaewsstore.core.domain.BaseTimeEntity;
+import com.globalutils.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,6 +34,7 @@ public class Brand extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -44,6 +46,7 @@ public class Brand extends BaseTimeEntity {
     }
 
     @Override
+    @Generated
     public final int hashCode() {
         return Objects.hash(getId());
     }

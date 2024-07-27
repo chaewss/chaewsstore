@@ -15,10 +15,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
 import com.chaewsstore.admin.ApiDocumentUtils;
-import com.chaewsstore.apis.admin.controller.AdminController;
-import com.chaewsstore.apis.admin.dto.AdminResponseDto;
-import com.chaewsstore.apis.admin.dto.AdminSignupRequestDto;
-import com.chaewsstore.apis.admin.usecase.AdminUseCase;
+import com.chaewsstore.admin.apis.admin.controller.AdminController;
+import com.chaewsstore.admin.apis.admin.dto.AdminResponseDto;
+import com.chaewsstore.admin.apis.admin.dto.AdminSignupRequestDto;
+import com.chaewsstore.admin.apis.admin.usecase.AdminUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

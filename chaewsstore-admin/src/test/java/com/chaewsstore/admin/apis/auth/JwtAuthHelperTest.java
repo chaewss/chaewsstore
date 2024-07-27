@@ -10,7 +10,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
-import com.chaewsstore.apis.auth.helper.JwtAuthHelper;
+import com.chaewsstore.admin.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.core.domain.admin.Admin;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshToken;
 import com.chaewsstore.core.domain.adminRefresh.AdminRefreshTokenErrorCode;

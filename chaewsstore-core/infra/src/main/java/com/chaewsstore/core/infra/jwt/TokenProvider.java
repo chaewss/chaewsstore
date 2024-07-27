@@ -12,6 +12,7 @@ import static com.chaewsstore.core.infra.jwt.AuthConstants.REFRESH_TOKEN_TTL_MIL
 import static com.chaewsstore.core.infra.jwt.AuthConstants.ROLE_KEY;
 
 import com.chaewsstore.core.infra.exception.JwtErrorException;
+import com.chaewsstore.core.infra.importer.ChaewsstoreConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -34,7 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-public class TokenProvider {
+public class TokenProvider implements ChaewsstoreConfig {
 
     private final SecretKey secretKey;
 

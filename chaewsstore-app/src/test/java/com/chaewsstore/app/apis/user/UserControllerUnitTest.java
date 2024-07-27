@@ -1,7 +1,7 @@
 package com.chaewsstore.app.apis.user;
 
-import static com.chaewsstore.common.exception.ExceptionConstants.NICKNAME_DUPLICATION;
-import static com.chaewsstore.common.exception.ExceptionConstants.USER_DUPLICATION;
+import static com.chaewsstore.app.common.exception.ExceptionConstants.NICKNAME_DUPLICATION;
+import static com.chaewsstore.app.common.exception.ExceptionConstants.USER_DUPLICATION;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -18,11 +18,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
-import com.chaewsstore.apis.user.controller.UserController;
-import com.chaewsstore.apis.user.dto.SignupRequestDto;
-import com.chaewsstore.apis.user.dto.UserResponseDto;
-import com.chaewsstore.apis.user.usecase.UserUseCase;
 import com.chaewsstore.app.ApiDocumentUtils;
+import com.chaewsstore.app.apis.user.controller.UserController;
+import com.chaewsstore.app.apis.user.dto.SignupRequestDto;
+import com.chaewsstore.app.apis.user.dto.UserResponseDto;
+import com.chaewsstore.app.apis.user.usecase.UserUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;

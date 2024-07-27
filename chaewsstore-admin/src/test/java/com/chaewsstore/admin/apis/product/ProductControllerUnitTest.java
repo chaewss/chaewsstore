@@ -17,11 +17,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.SharedHttpSessionConfigurer.sharedHttpSession;
 
 import com.chaewsstore.admin.ApiDocumentUtils;
-import com.chaewsstore.apis.product.controller.ProductController;
-import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
-import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
-import com.chaewsstore.apis.product.dto.UpdateProductRequestDto;
-import com.chaewsstore.apis.product.usecase.ProductUseCase;
+import com.chaewsstore.admin.apis.product.controller.ProductController;
+import com.chaewsstore.admin.apis.product.dto.CreateProductRequestDto;
+import com.chaewsstore.admin.apis.product.dto.ReadProductResponseDto;
+import com.chaewsstore.admin.apis.product.dto.UpdateProductRequestDto;
+import com.chaewsstore.admin.apis.product.usecase.ProductUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

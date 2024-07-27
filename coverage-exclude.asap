@@ -1,0 +1,9 @@
+exclude com/chaewsstore/core/infra/*
+exclude com/chaewsstore/*/common/*
+exclude com/chaewsstore/*/common/*/*
+exclude com/chaewsstore/*/common/*/*/*
+exclude com/chaewsstore/*/config/*
+exclude com/chaewsstore/*/config/*/*
+exclude com/chaewsstore/*/*Application*
+exclude com/chaewsstore/*/apis/*/service/*DetailService*
+exclude com/chaewsstore/core/*/*/*ErrorCode*

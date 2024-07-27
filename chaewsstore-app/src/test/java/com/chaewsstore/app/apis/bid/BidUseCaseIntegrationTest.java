@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.chaewsstore.apis.bid.dto.TransactBidRequestDto;
-import com.chaewsstore.apis.bid.usecase.BidUseCase;
+import com.chaewsstore.app.apis.bid.dto.TransactBidRequestDto;
+import com.chaewsstore.app.apis.bid.usecase.BidUseCase;
 import com.chaewsstore.app.config.DatabaseClearExtension;
 import com.chaewsstore.core.domain.bid.Bid;
 import com.chaewsstore.core.domain.bid.Bid.BidType;

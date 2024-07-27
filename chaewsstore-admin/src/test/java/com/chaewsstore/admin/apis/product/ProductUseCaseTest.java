@@ -8,10 +8,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-import com.chaewsstore.apis.product.dto.CreateProductRequestDto;
-import com.chaewsstore.apis.product.dto.ReadProductResponseDto;
-import com.chaewsstore.apis.product.dto.UpdateProductRequestDto;
-import com.chaewsstore.apis.product.usecase.ProductUseCase;
+import com.chaewsstore.admin.apis.product.dto.CreateProductRequestDto;
+import com.chaewsstore.admin.apis.product.dto.ReadProductResponseDto;
+import com.chaewsstore.admin.apis.product.dto.UpdateProductRequestDto;
+import com.chaewsstore.admin.apis.product.usecase.ProductUseCase;
 import com.chaewsstore.core.domain.brand.Brand;
 import com.chaewsstore.core.domain.brand.BrandErrorCode;
 import com.chaewsstore.core.domain.brand.BrandService;
