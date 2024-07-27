@@ -1,7 +1,8 @@
 package com.chaewsstore.app.config.security;
 
-import com.chaewsstore.app.common.security.filter.JwtAuthenticationFilter;
-import com.chaewsstore.app.common.security.filter.JwtExceptionFilter;
+import com.chaewsstore.app.config.security.filter.JwtAuthenticationFilter;
+import com.chaewsstore.app.config.security.filter.JwtExceptionFilter;
+import com.chaewsstore.app.config.security.matcher.RequestMatcherHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.chaewsstore.admin.config.security;
+package com.chaewsstore.app.config.security.matcher;
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -17,11 +17,15 @@ public class RequestMatcherHolder {
 
     private static final List<RequestInfo> REQUEST_INFO_LIST = List.of(
         // auth
-        new RequestInfo(POST, "/admin/auth/login", null),
+        new RequestInfo(POST, "/api/auth/login", null),
 
-        // admin
-        new RequestInfo(POST, "/admin/signup", null),
-        new RequestInfo(GET, "/admin/check-username/**/exists", null),
+        // user
+        new RequestInfo(GET, "/api/users/check-username/**/exists", null),
+        new RequestInfo(GET, "/api/users/check-nickname/**/exists", null),
+        new RequestInfo(POST, "/api/users/signup", null),
+
+        // bid
+        new RequestInfo(GET, "/api/products/*/bids", null),
 
         // static resources
         new RequestInfo(GET, "/docs/**", null),

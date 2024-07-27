@@ -1,7 +1,7 @@
-package com.chaewsstore.app.common.security.filter;
+package com.chaewsstore.admin.config.security.filter;
 
+import com.chaewsstore.admin.config.security.matcher.RequestMatcherHolder;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
-import com.chaewsstore.app.config.security.RequestMatcherHolder;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

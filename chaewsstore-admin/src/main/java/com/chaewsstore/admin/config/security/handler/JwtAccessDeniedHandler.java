@@ -1,4 +1,4 @@
-package com.chaewsstore.app.common.security.handler;
+package com.chaewsstore.admin.config.security.handler;
 
 import static com.chaewsstore.core.infra.exception.JwtErrorCode.ACCESS_DENIED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
