@@ -6,9 +6,7 @@ plugins {
 bootJar { enabled = true }
 jar { enabled = false }
 
-configurations {
-    asciidoctorExtensions
-}
+apply from: '../gradle/asciidoc.gradle'
 
 dependencies {
     implementation project(':global-utils')
@@ -22,56 +20,4 @@ dependencies {
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
-
-    // spring rest docs
-    asciidoctorExtensions 'org.springframework.restdocs:spring-restdocs-asciidoctor'
-    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-}
-
-ext {
-    snippetsDir = file('build/generated-snippets')
-}
-
-bootJar {
-    println "start bootJar"
-    enabled = true
-    dependsOn asciidoctor
-    copy {
-        from "${asciidoctor.outputDir}"
-        into 'build/resources/static/docs'
-    }
-}
-
-tasks.named('bootJar') {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.named('test') {
-    println "start test"
-    outputs.dir snippetsDir
-    finalizedBy 'asciidoctor'
-}
-
-asciidoctor {
-    println "start asciidoctor"
-    configurations 'asciidoctorExtensions'
-    inputs.dir snippetsDir
-    dependsOn test
-}
-
-asciidoctor.doFirst {
-    println "start asciidoctor.doFirst"
-    delete file("src/main/resources/static/docs")
-}
-
-task copyDocument(type: Copy) {
-    println "start copyDocument"
-    dependsOn asciidoctor
-    from file("build/docs/asciidoc")
-    into file("src/main/resources/static/docs")
-}
-
-build {
-    println "start build"
-    dependsOn copyDocument
 }
