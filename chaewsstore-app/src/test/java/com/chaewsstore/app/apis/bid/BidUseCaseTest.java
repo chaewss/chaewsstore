@@ -75,10 +75,10 @@ class BidUseCaseTest {
         given(productService.readById(anyLong())).willReturn(Optional.of(product));
         if (bidType != null) {
             given(bidService.readAllByProduct(product, bidType, Pageable.unpaged()))
-                .willReturn(productBidQueryDtoList);
+                .willReturn(productBidQueryDtoListWithParam);
         } else {
             given(bidService.readAllByProduct(product, null, Pageable.unpaged()))
-                .willReturn(productBidQueryDtoListWithParam);
+                .willReturn(productBidQueryDtoListWithoutParam);
         }
 
         Slice<ReadProductBidResponseDto> result = bidUseCase.readProductBidList(anyLong(),
@@ -86,9 +86,9 @@ class BidUseCaseTest {
 
         assertNotNull(result);
         if (bidType != null) {
-            assertEquals(productBidQueryDtoList.size(), result.getContent().size());
-        } else {
             assertEquals(productBidQueryDtoListWithParam.size(), result.getContent().size());
+        } else {
+            assertEquals(productBidQueryDtoListWithoutParam.size(), result.getContent().size());
         }
         assertFalse(result.hasNext());
         then(productService).should(times(1)).readById(anyLong());
@@ -571,11 +571,10 @@ class BidUseCaseTest {
         .status(Status.IN_TRANSACTION)
         .build();
 
-    List<ReadProductBidQueryDto> productBidQueryDtoList = List.of(
+    List<ReadProductBidQueryDto> productBidQueryDtoListWithParam = List.of(
         new ReadProductBidQueryDto(7000, 1L), new ReadProductBidQueryDto(8000, 3L),
         new ReadProductBidQueryDto(1000, 1L));
-
-    List<ReadProductBidQueryDto> productBidQueryDtoListWithParam = List.of(
+    List<ReadProductBidQueryDto> productBidQueryDtoListWithoutParam = List.of(
         new ReadProductBidQueryDto(60000, LocalDateTime.now()),
         new ReadProductBidQueryDto(78000, LocalDateTime.now().minusDays(3)));
 }
