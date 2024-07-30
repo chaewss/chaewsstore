@@ -6,6 +6,7 @@ import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.dto.QReadProductBidQueryDto;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
 import com.chaewsstore.core.domain.product.Product;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -35,6 +36,9 @@ class BidCustomRepositoryImpl implements BidCustomRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
         } else {
+            OrderSpecifier<?> orderSpecifier =
+                bidType == BidType.BUY ? bid.price.desc() : bid.price.asc();
+
             return queryFactory.select(new QReadProductBidQueryDto(
                     bid.price,
                     bid.count().as("quantity")
@@ -44,7 +48,7 @@ class BidCustomRepositoryImpl implements BidCustomRepository {
                     bid.product.eq(product),
                     bidTypeEq(bidType))
                 .groupBy(bid.price)
-                .orderBy(bid.price.asc())
+                .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
