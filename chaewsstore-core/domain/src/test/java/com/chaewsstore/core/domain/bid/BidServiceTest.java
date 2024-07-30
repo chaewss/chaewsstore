@@ -44,14 +44,14 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("bid를 flush 한다")
+    @DisplayName("입찰 레포지토리를 flush 한다")
     void should_flush_bid_repository() {
         bidService.flush();
         then(bidRepository).should(times(1)).flush();
     }
 
     @Test
-    @DisplayName("bid를 생성한다")
+    @DisplayName("입찰을 생성한다")
     void should_create_bid() {
         given(bidRepository.save(any(Bid.class))).willReturn(bid);
 
@@ -62,7 +62,7 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("id로 bid를 읽어온다")
+    @DisplayName("아이디로 입찰을 조회한다")
     void should_read_bid_by_id() {
         Long bidId = 1L;
         given(bidRepository.findById(bidId)).willReturn(Optional.of(bid));
@@ -75,7 +75,7 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("productId, bidPrice, bidType 조건에 맞는 Live 상태인 bid를 오래된 생성일 순으로 읽어온다")
+    @DisplayName("상품 아이디, 입찰가, 입찰 타입 조건에 맞는 Live 상태인 입찰을 오래된 생성일 순으로 조회한다")
     void should_read_valid_bid() {
         given(bidRepository.findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
             product.getId(), bidPrice, bidType, Status.LIVE))
@@ -91,7 +91,7 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("product, bidder, bidType에 따른 Live 상태인 bid를 읽어온다")
+    @DisplayName("상품, 입찰자, 입찰 타입에 따른 Live 상태인 입찰을 조회한다")
     void should_read_live_bid_by_product_and_bidder_and_type() {
         given(bidRepository.findByProductAndBidderAndStatusAndBidType(
             product, user, Status.LIVE, bidType))
@@ -107,7 +107,7 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("product와 bidType에 따른 모든 bids를 읽어온다")
+    @DisplayName("상품과 입찰 타입에 따른 모든 입찰을 페이지네이션으로 조회한다")
     void should_read_all_bids_by_product() {
         Pageable pageable = PageRequest.of(0, 20);
         List<ReadProductBidQueryDto> readProductBidQueryDtoList = List.of(
@@ -124,7 +124,7 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("bid를 삭제한다")
+    @DisplayName("입찰을 삭제한다")
     void should_remove_bid() {
         bidService.remove(bid);
         then(bidRepository).should(times(1)).delete(bid);
