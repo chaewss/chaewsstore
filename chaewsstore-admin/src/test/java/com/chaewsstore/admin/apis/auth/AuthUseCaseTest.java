@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 
+@DisplayName("AuthUseCase 클래스")
 @ExtendWith(MockitoExtension.class)
 class AuthUseCaseTest {
 

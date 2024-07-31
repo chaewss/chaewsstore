@@ -75,7 +75,7 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("상품 아이디, 입찰가, 입찰 타입 조건에 맞는 Live 상태인 입찰을 오래된 생성일 순으로 조회한다")
+    @DisplayName("상품 아이디, 입찰가, 입찰 타입 조건에 맞는 LIVE 상태인 입찰을 오래된 생성일 순으로 조회한다")
     void should_read_valid_bid() {
         given(bidRepository.findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
             product.getId(), bidPrice, bidType, Status.LIVE))
@@ -91,7 +91,7 @@ class BidServiceTest {
     }
 
     @Test
-    @DisplayName("상품, 입찰자, 입찰 타입에 따른 Live 상태인 입찰을 조회한다")
+    @DisplayName("상품, 입찰자, 입찰 타입에 따른 LIVE 상태인 입찰을 조회한다")
     void should_read_live_bid_by_product_and_bidder_and_type() {
         given(bidRepository.findByProductAndBidderAndStatusAndBidType(
             product, user, Status.LIVE, bidType))

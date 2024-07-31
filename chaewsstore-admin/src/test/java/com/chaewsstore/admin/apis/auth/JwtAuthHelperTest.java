@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
+@DisplayName("JwtAuthHelper 클래스")
 @ExtendWith(MockitoExtension.class)
 class JwtAuthHelperTest {
 

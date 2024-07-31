@@ -57,6 +57,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+@DisplayName("BidController 클래스")
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest(BidController.class)
 class BidControllerUnitTest {

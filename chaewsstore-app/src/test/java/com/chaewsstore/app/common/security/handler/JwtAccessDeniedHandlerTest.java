@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +19,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 
+@DisplayName("JwtAccessDeniedHandler 클래스")
 @ExtendWith(MockitoExtension.class)
 class JwtAccessDeniedHandlerTest {
 
@@ -28,6 +30,7 @@ class JwtAccessDeniedHandlerTest {
     private JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Test
+    @DisplayName("AccessDeniedException 발생 시 올바른 HTTP 응답을 반환한다")
     void testHandle() throws IOException {
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();

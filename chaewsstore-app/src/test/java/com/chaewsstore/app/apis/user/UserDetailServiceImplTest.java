@@ -29,6 +29,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@DisplayName("UserDetailServiceImpl 클래스")
 @ExtendWith(MockitoExtension.class)
 class UserDetailServiceImplTest {
 

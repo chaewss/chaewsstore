@@ -52,6 +52,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
+@DisplayName("BidUseCase 클래스")
 @ExtendWith(MockitoExtension.class)
 class BidUseCaseTest {
 

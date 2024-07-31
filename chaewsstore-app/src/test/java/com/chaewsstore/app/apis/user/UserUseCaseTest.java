@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@DisplayName("UserUseCase 클래스")
 @ExtendWith(MockitoExtension.class)
 class UserUseCaseTest {
 

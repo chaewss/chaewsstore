@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@DisplayName("PasswordEncoderHelper 클래스")
 @ExtendWith(MockitoExtension.class)
 class PasswordEncoderHelperTest {
 
@@ -23,6 +25,7 @@ class PasswordEncoderHelperTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
+    @DisplayName("비밀번호를 인코딩하는데 성공한다")
     void testEncodePassword() {
         given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
 
@@ -33,6 +36,7 @@ class PasswordEncoderHelperTest {
     }
 
     @Test
+    @DisplayName("비밀번호가 일치하는데 확인하는데 성공한다")
     void testMatches() {
         given(passwordEncoder.matches(rawPassword, encodedPassword)).willReturn(true);
 

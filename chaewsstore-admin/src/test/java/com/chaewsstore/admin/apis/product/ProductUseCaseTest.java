@@ -32,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Slice;
 
+@DisplayName("ProductUseCase 클래스")
 @ExtendWith(MockitoExtension.class)
 class ProductUseCaseTest {
 
