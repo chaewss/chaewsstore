@@ -46,16 +46,12 @@ class BidCustomRepositoryImpl implements BidCustomRepository {
                 .from(bid)
                 .where(
                     bid.product.eq(product),
-                    bidTypeEq(bidType))
+                    bid.bidType.eq(bidType))
                 .groupBy(bid.price)
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
         }
-    }
-
-    private BooleanExpression bidTypeEq(BidType bidType) {
-        return bidType != null ? bid.bidType.eq(bidType) : null;
     }
 }
