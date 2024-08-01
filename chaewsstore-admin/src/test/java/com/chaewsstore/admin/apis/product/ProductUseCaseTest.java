@@ -2,6 +2,7 @@ package com.chaewsstore.admin.apis.product;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -15,6 +16,7 @@ import com.chaewsstore.admin.apis.product.usecase.ProductUseCase;
 import com.chaewsstore.core.domain.brand.Brand;
 import com.chaewsstore.core.domain.brand.BrandErrorCode;
 import com.chaewsstore.core.domain.brand.BrandService;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductErrorCode;
 import com.chaewsstore.core.domain.product.ProductService;
@@ -22,10 +24,14 @@ import com.globalutils.exception.DuplicateException;
 import com.globalutils.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -118,21 +124,36 @@ class ProductUseCaseTest {
     @DisplayName("updateProduct 메서드는")
     class update_product {
 
-        @Test
+        @ParameterizedTest(name = "기존 상품명: 상품 1, 변경할 상품명: {1}")
+        @MethodSource("updatableProduct")
         @DisplayName("상품 아이디와 정보로 상품을 수정한다")
-        void succeed_to_update_product() {
-            UpdateProductRequestDto request = new UpdateProductRequestDto("상품 11", 8000, "브렌드1");
-
+        void succeed_to_update_product(UpdateProductRequestDto request, boolean isOriginalName, String nameExp) {
             given(brandService.readByName(any())).willReturn(Optional.of(brand));
             given(productService.readById(anyLong())).willReturn(Optional.of(product1));
-            given(productService.existsByName(any())).willReturn(false);
+            if (!isOriginalName) {
+                given(productService.existsByName(any())).willReturn(false);
+            }
 
             productUseCase.updateProduct(1L, request);
 
             assertEquals(request.price(), product1.getPrice());
             then(brandService).should(times(1)).readByName(any());
-            then(productService).should(times(1)).existsByName(any());
             then(productService).should(times(1)).readById(anyLong());
+            if (!isOriginalName) {
+                then(productService).should(times(1)).existsByName(any());
+            }
+        }
+
+        static Stream<Arguments> updatableProduct() {
+            String originalName = "상품 1";
+            String newName = "상품 11";
+            UpdateProductRequestDto updateName = new UpdateProductRequestDto(newName, 600, "브랜드1");
+            UpdateProductRequestDto updateExcludingName = new UpdateProductRequestDto(originalName, 800, "브랜드1");
+
+            return Stream.of(
+                arguments(updateName, false, newName + "(기존 이름과 다르고 다른 상품에도 할당되지 않은 새로운 이름인 경우)"),
+                arguments(updateExcludingName, true, originalName + "(기존 이름과 같은 경우)")
+            );
         }
 
         @Test
