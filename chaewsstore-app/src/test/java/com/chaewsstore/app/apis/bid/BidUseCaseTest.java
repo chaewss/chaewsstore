@@ -509,6 +509,7 @@ class BidUseCaseTest {
                 .status(Status.LIVE)
                 .build();
 
+            // IN_TRANSACTION 입찰은 관련 입찰도 IN_TRANSACTION일 때만 취소 가능
             Bid inTransactionBuyBidI = Bid.builder()
                 .bidder(user)
                 .status(Status.IN_TRANSACTION)
@@ -571,6 +572,18 @@ class BidUseCaseTest {
         static Stream<Arguments> uncancellableBid() {
             User user = User.builder().build();
 
+            // IN_TRANSACTION 입찰은 관련 입찰도 IN_TRANSACTION일 때만 취소 가능
+            Bid inTransactionSellBid = Bid.builder()
+                .bidder(user)
+                .status(Status.AUTHENTICATED)
+                .build();
+            Bid inTransactionBuyBid = Bid.builder()
+                .bidder(user)
+                .status(Status.IN_TRANSACTION)
+                .relatedBid(inTransactionSellBid)
+                .build();
+
+
             Bid authenticatedBid = Bid.builder()
                 .bidder(user)
                 .status(Status.AUTHENTICATED)
@@ -592,6 +605,7 @@ class BidUseCaseTest {
                 .build();
 
             return Stream.of(
+                arguments(user, Status.IN_TRANSACTION, inTransactionBuyBid),
                 arguments(user, Status.AUTHENTICATED, authenticatedBid),
                 arguments(user, Status.ACCREDITED, accreditedBid),
                 arguments(user, Status.DELIVERING, deliveringBid),
