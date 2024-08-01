@@ -119,6 +119,23 @@ class JwtAuthHelperTest {
     }
 
     @Nested
+    @DisplayName("getSubject 메서드는")
+    class get_subject {
+
+        @Test
+        @DisplayName("토큰에서 추출한 subject를 반환한다")
+        void succeed_to_get_subject() {
+            String subject = "testSubject";
+            given(tokenProvider.getSubjectFromToken(accessToken)).willReturn(subject);
+
+            String result = jwtAuthHelper.getSubject(accessToken);
+
+            assertEquals(subject, result);
+            then(tokenProvider).should(times(1)).getSubjectFromToken(any());
+        }
+    }
+
+    @Nested
     @DisplayName("removeRefreshToken 메서드는")
     class remove_refresh_token {
 
