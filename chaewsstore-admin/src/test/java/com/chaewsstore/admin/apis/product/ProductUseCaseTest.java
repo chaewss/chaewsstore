@@ -23,6 +23,7 @@ import com.globalutils.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,150 +46,170 @@ class ProductUseCaseTest {
     @Mock
     private BrandService brandService;
 
-    @Test
-    @DisplayName("상품 목록을 조회한다")
-    void succeed_to_read_product_list() {
-        Page<Product> products = new PageImpl<>(List.of(product1, product2, product3));
-        given(productService.readAll(any())).willReturn(products);
+    @Nested
+    @DisplayName("readProductList 메서드는")
+    class read_product_list {
 
-        Slice<ReadProductResponseDto> result = productUseCase.readProductList(any());
+        @Test
+        @DisplayName("전체 상품 목록 조회에 성공하면 페이지네이션 된 결과를 반환한다")
+        void succeed_to_read_product_list() {
+            Page<Product> products = new PageImpl<>(List.of(product1, product2, product3));
+            given(productService.readAll(any())).willReturn(products);
 
-        assertEquals(products.getTotalElements(), result.getSize());
-        then(productService).should(times(1)).readAll(any());
+            Slice<ReadProductResponseDto> result = productUseCase.readProductList(any());
+
+            assertEquals(products.getTotalElements(), result.getSize());
+            then(productService).should(times(1)).readAll(any());
+        }
     }
 
-    @Test
-    @DisplayName("상품을 정상적으로 추가한다")
-    void succeed_to_create_product() {
-        CreateProductRequestDto request = new CreateProductRequestDto("새 상품", 80000, "Adidas");
+    @Nested
+    @DisplayName("createProduct 메서드는")
+    class create_product {
 
-        given(brandService.readByName(any())).willReturn(Optional.of(brand));
-        given(productService.existsByName(any())).willReturn(false);
-        given(productService.create(any())).willReturn(any());
+        @Test
+        @DisplayName("상품 정보로 새로운 상품을 생성한다")
+        void succeed_to_create_product() {
+            CreateProductRequestDto request = new CreateProductRequestDto("새 상품", 80000, "Adidas");
 
-        productUseCase.createProduct(request);
+            given(brandService.readByName(any())).willReturn(Optional.of(brand));
+            given(productService.existsByName(any())).willReturn(false);
+            given(productService.create(any())).willReturn(any());
 
-        then(brandService).should(times(1)).readByName(any());
-        then(productService).should(times(1)).existsByName(any());
-        then(productService).should(times(1)).create(any());
+            productUseCase.createProduct(request);
+
+            then(brandService).should(times(1)).readByName(any());
+            then(productService).should(times(1)).existsByName(any());
+            then(productService).should(times(1)).create(any());
+        }
+
+        @Test
+        @DisplayName("브랜드가 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_create_product_but_brand_does_not_exist() {
+            CreateProductRequestDto request = new CreateProductRequestDto("새 상품", 80000, "Adidas");
+
+            given(brandService.readByName(any())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> productUseCase.createProduct(request));
+
+            then(brandService).should(times(1)).readByName(any());
+            assertEquals(BrandErrorCode.NOT_FOUND_BRAND, result.getResponseCode());
+        }
+
+        @Test
+        @DisplayName("해당 상품이 이미 존재하는 경우 DuplicateException이 발생한다")
+        void should_throw_DuplicateException_when_create_product_but_product_is_duplicate() {
+            CreateProductRequestDto request = new CreateProductRequestDto("헌 상품", 8000, "Adidas");
+
+            given(brandService.readByName(any())).willReturn(Optional.of(brand));
+            given(productService.existsByName(any())).willReturn(true);
+
+            DuplicateException result = assertThrows(DuplicateException.class,
+                () -> productUseCase.createProduct(request));
+
+            then(brandService).should(times(1)).readByName(any());
+            then(productService).should(times(1)).existsByName(any());
+            assertEquals(ProductErrorCode.DUPLICATE_PRODUCT, result.getResponseCode());
+        }
     }
 
-    @Test
-    @DisplayName("브랜드가 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_create_product_but_brand_does_not_exist() {
-        CreateProductRequestDto request = new CreateProductRequestDto("새 상품", 80000, "Adidas");
+    @Nested
+    @DisplayName("updateProduct 메서드는")
+    class update_product {
 
-        given(brandService.readByName(any())).willReturn(Optional.empty());
+        @Test
+        @DisplayName("상품 아이디와 정보로 상품을 수정한다")
+        void succeed_to_update_product() {
+            UpdateProductRequestDto request = new UpdateProductRequestDto("상품 11", 8000, "브렌드1");
 
-        NotFoundException result = assertThrows(NotFoundException.class,
-            () -> productUseCase.createProduct(request));
+            given(brandService.readByName(any())).willReturn(Optional.of(brand));
+            given(productService.readById(anyLong())).willReturn(Optional.of(product1));
+            given(productService.existsByName(any())).willReturn(false);
 
-        then(brandService).should(times(1)).readByName(any());
-        assertEquals(BrandErrorCode.NOT_FOUND_BRAND, result.getResponseCode());
+            productUseCase.updateProduct(1L, request);
+
+            assertEquals(request.price(), product1.getPrice());
+            then(brandService).should(times(1)).readByName(any());
+            then(productService).should(times(1)).existsByName(any());
+            then(productService).should(times(1)).readById(anyLong());
+        }
+
+        @Test
+        @DisplayName("브랜드가 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_update_product_but_brand_does_not_exist() {
+            UpdateProductRequestDto request = new UpdateProductRequestDto("상품 1", 600, "???");
+
+            given(brandService.readByName(any())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> productUseCase.updateProduct(product1.getId(), request));
+
+            then(brandService).should(times(1)).readByName(any());
+            assertEquals(BrandErrorCode.NOT_FOUND_BRAND, result.getResponseCode());
+        }
+
+        @Test
+        @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_update_product_but_product_does_not_exist() {
+            UpdateProductRequestDto request = new UpdateProductRequestDto("상품 11", 8000, "브렌드1");
+
+            given(brandService.readByName(any())).willReturn(Optional.of(brand));
+            given(productService.readById(anyLong())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> productUseCase.updateProduct(99L, request));
+
+            then(brandService).should(times(1)).readByName(any());
+            then(productService).should(times(1)).readById(any());
+            assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
+        }
+
+        @Test
+        @DisplayName("해당 상품이 이미 존재하는 경우 DuplicateException이 발생한다")
+        void should_throw_DuplicateException_when_update_product_but_product_is_duplicate() {
+            UpdateProductRequestDto request = new UpdateProductRequestDto("중복될 상품", 8000, "브렌드1");
+
+            given(brandService.readByName(any())).willReturn(Optional.of(brand));
+            given(productService.readById(anyLong())).willReturn(Optional.of(product1));
+            given(productService.existsByName(any())).willReturn(true);
+
+            DuplicateException result = assertThrows(DuplicateException.class,
+                () -> productUseCase.updateProduct(product1.getId(), request));
+
+            then(brandService).should(times(1)).readByName(any());
+            then(productService).should(times(1)).readById(anyLong());
+            then(productService).should(times(1)).existsByName(any());
+            assertEquals(ProductErrorCode.DUPLICATE_PRODUCT, result.getResponseCode());
+        }
     }
 
-    @Test
-    @DisplayName("해당 상품이 이미 존재하는 경우 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_create_product_but_product_is_duplicate() {
-        CreateProductRequestDto request = new CreateProductRequestDto("헌 상품", 8000, "Adidas");
+    @Nested
+    @DisplayName("deleteProduct 메서드는")
+    class delete_product {
 
-        given(brandService.readByName(any())).willReturn(Optional.of(brand));
-        given(productService.existsByName(any())).willReturn(true);
+        @Test
+        @DisplayName("상품 아이디로 특정 상품을 삭제한다")
+        void succeed_to_delete_product() {
+            given(productService.readById(anyLong())).willReturn(Optional.of(product1));
 
-        DuplicateException result = assertThrows(DuplicateException.class,
-            () -> productUseCase.createProduct(request));
+            productUseCase.deleteProduct(1L);
 
-        then(brandService).should(times(1)).readByName(any());
-        then(productService).should(times(1)).existsByName(any());
-        assertEquals(ProductErrorCode.DUPLICATE_PRODUCT, result.getResponseCode());
-    }
+            then(productService).should(times(1)).readById(anyLong());
+            then(productService).should(times(1)).remove(any());
+        }
 
-    @Test
-    @DisplayName("상품을 정상적으로 수정한다")
-    void succeed_to_update_product() {
-        UpdateProductRequestDto request = new UpdateProductRequestDto("상품 11", 8000, "브렌드1");
+        @Test
+        @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFountException_when_delete_product_but_product_does_not_exist() {
+            given(productService.readById(anyLong())).willReturn(Optional.empty());
 
-        given(brandService.readByName(any())).willReturn(Optional.of(brand));
-        given(productService.readById(anyLong())).willReturn(Optional.of(product1));
-        given(productService.existsByName(any())).willReturn(false);
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> productUseCase.deleteProduct(99L));
 
-        productUseCase.updateProduct(1L, request);
-
-        assertEquals(request.price(), product1.getPrice());
-        then(brandService).should(times(1)).readByName(any());
-        then(productService).should(times(1)).existsByName(any());
-        then(productService).should(times(1)).readById(anyLong());
-    }
-
-    @Test
-    @DisplayName("상품 수정 중 브랜드가 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_update_product_but_brand_does_not_exist() {
-        UpdateProductRequestDto request = new UpdateProductRequestDto("상품 1", 600, "???");
-
-        given(brandService.readByName(any())).willReturn(Optional.empty());
-
-        NotFoundException result = assertThrows(NotFoundException.class,
-            () -> productUseCase.updateProduct(product1.getId(), request));
-
-        then(brandService).should(times(1)).readByName(any());
-        assertEquals(BrandErrorCode.NOT_FOUND_BRAND, result.getResponseCode());
-    }
-
-    @Test
-    @DisplayName("상품 수정 중 상품이 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_update_product_but_product_does_not_exist() {
-        UpdateProductRequestDto request = new UpdateProductRequestDto("상품 11", 8000, "브렌드1");
-
-        given(brandService.readByName(any())).willReturn(Optional.of(brand));
-        given(productService.readById(anyLong())).willReturn(Optional.empty());
-
-        NotFoundException result = assertThrows(NotFoundException.class,
-            () -> productUseCase.updateProduct(99L, request));
-
-        then(brandService).should(times(1)).readByName(any());
-        then(productService).should(times(1)).readById(any());
-        assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
-    }
-
-    @Test
-    @DisplayName("상품 수정 중 해당 상품이 이미 존재하는 경우 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_update_product_but_product_is_duplicate() {
-        UpdateProductRequestDto request = new UpdateProductRequestDto("중복될 상품", 8000, "브렌드1");
-
-        given(brandService.readByName(any())).willReturn(Optional.of(brand));
-        given(productService.readById(anyLong())).willReturn(Optional.of(product1));
-        given(productService.existsByName(any())).willReturn(true);
-
-        DuplicateException result = assertThrows(DuplicateException.class,
-            () -> productUseCase.updateProduct(product1.getId(), request));
-
-        then(brandService).should(times(1)).readByName(any());
-        then(productService).should(times(1)).readById(anyLong());
-        then(productService).should(times(1)).existsByName(any());
-        assertEquals(ProductErrorCode.DUPLICATE_PRODUCT, result.getResponseCode());
-    }
-
-    @Test
-    @DisplayName("특정 상품을 정상적으로 삭제한다")
-    void succeed_to_delete_product() {
-        given(productService.readById(anyLong())).willReturn(Optional.of(product1));
-
-        productUseCase.deleteProduct(1L);
-
-        then(productService).should(times(1)).readById(anyLong());
-        then(productService).should(times(1)).remove(any());
-    }
-
-    @Test
-    @DisplayName("상품 삭제 중 상품이 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFountException_when_delete_product_but_product_does_not_exist() {
-        given(productService.readById(anyLong())).willReturn(Optional.empty());
-
-        NotFoundException result = assertThrows(NotFoundException.class,
-            () -> productUseCase.deleteProduct(99L));
-
-        then(productService).should(times(1)).readById(anyLong());
-        assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
+            then(productService).should(times(1)).readById(anyLong());
+            assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
+        }
     }
 
     Brand brand = Brand.builder().name("브랜드1").build();

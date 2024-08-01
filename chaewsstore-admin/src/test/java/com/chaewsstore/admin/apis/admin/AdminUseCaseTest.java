@@ -15,6 +15,7 @@ import com.chaewsstore.core.domain.admin.AdminErrorCode;
 import com.chaewsstore.core.domain.admin.AdminService;
 import com.globalutils.exception.DuplicateException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,69 +35,80 @@ class AdminUseCaseTest {
     @Mock
     private PasswordEncoderHelper passwordEncoderHelper;
 
-    @Test
-    @DisplayName("회원을 생성한다")
-    void succeed_to_sign_in() {
-        AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com", "aaaa1111!!", "어드민");
-        String encodedPassword = "encodedPassword";
+    @Nested
+    @DisplayName("signup 메서드는")
+    class sign_up {
 
-        // given
-        given(adminService.existsByUsername(any())).willReturn(false);
-        given(passwordEncoderHelper.encodePassword(any())).willReturn(encodedPassword);
+        @Test
+        @DisplayName("회원가입에 성공하면 생성된 어드민을 반환한다")
+        void succeed_to_sign_up() {
+            AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com",
+                "aaaa1111!!", "어드민");
+            String encodedPassword = "encodedPassword";
 
-        given(adminService.create(any())).willReturn(admin);
+            // given
+            given(adminService.existsByUsername(any())).willReturn(false);
+            given(passwordEncoderHelper.encodePassword(any())).willReturn(encodedPassword);
 
-        // when
-        adminUseCase.signup(request);
+            given(adminService.create(any())).willReturn(admin);
 
-        // then
-        then(adminService).should(times(1)).existsByUsername(any());
-        then(passwordEncoderHelper).should(times(1)).encodePassword(any());
+            // when
+            adminUseCase.signup(request);
+
+            // then
+            then(adminService).should(times(1)).existsByUsername(any());
+            then(passwordEncoderHelper).should(times(1)).encodePassword(any());
+        }
+
+        @Test
+        @DisplayName("생성할 이메일이 이미 존재하면 DuplicateException이 발생한다")
+        void should_throw_DuplicateException_when_create_user_username_is_duplicate() {
+            AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com",
+                "aaaa1111!!", "어드민");
+
+            // given
+            given(adminService.existsByUsername(any())).willReturn(true);
+
+            // when
+            DuplicateException result = assertThrows(DuplicateException.class,
+                () -> adminUseCase.signup(request));
+
+            // then
+            then(adminService).should(times(1)).existsByUsername(any());
+            assertEquals(AdminErrorCode.ADMIN_DUPLICATION, result.getResponseCode());
+        }
     }
 
-    @Test
-    @DisplayName("이미 존재하는 이메일이면 회원가입시 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_create_user_username_is_duplicate() {
-        AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com", "aaaa1111!!", "어드민");
+    @Nested
+    @DisplayName("checkUsername 메서드는")
+    class check_username {
+        @Test
+        @DisplayName("이메일이 중복되지 않을 경우 예외를 발생시키지 않는다")
+        void succeed_to_check_username() {
+            // given
+            given(adminService.existsByUsername(any())).willReturn(false);
 
-        // given
-        given(adminService.existsByUsername(any())).willReturn(true);
+            // when
+            adminUseCase.checkUsername(any());
 
-        // when
-        DuplicateException result = assertThrows(DuplicateException.class,
-            () -> adminUseCase.signup(request));
+            // then
+            then(adminService).should(times(1)).existsByUsername(any());
+        }
 
-        // then
-        then(adminService).should(times(1)).existsByUsername(any());
-        assertEquals(AdminErrorCode.ADMIN_DUPLICATION, result.getResponseCode());
-    }
+        @Test
+        @DisplayName("이미 이메일이 존재하는 경우 DuplicateException이 발생한다")
+        void should_throw_DuplicateException_when_username_is_duplicate() {
+            // given
+            given(adminService.existsByUsername(any())).willReturn(true);
 
-    @Test
-    @DisplayName("이메일 중복을 확인한다")
-    void succeed_to_check_username() {
-        // given
-        given(adminService.existsByUsername(any())).willReturn(false);
+            // when
+            DuplicateException result = assertThrows(DuplicateException.class,
+                () -> adminUseCase.checkUsername(any()));
 
-        // when
-        adminUseCase.checkUsername(any());
-
-        // then
-        then(adminService).should(times(1)).existsByUsername(any());
-    }
-
-    @Test
-    @DisplayName("이미 존재하는 이메일이면 DuplicateException이 발생한다")
-    void should_throw_DuplicateException_when_username_is_duplicate() {
-        // given
-        given(adminService.existsByUsername(any())).willReturn(true);
-
-        // when
-        DuplicateException result = assertThrows(DuplicateException.class,
-            () -> adminUseCase.checkUsername(any()));
-
-        // then
-        then(adminService).should(times(1)).existsByUsername(any());
-        assertEquals(AdminErrorCode.ADMIN_DUPLICATION, result.getResponseCode());
+            // then
+            then(adminService).should(times(1)).existsByUsername(any());
+            assertEquals(AdminErrorCode.ADMIN_DUPLICATION, result.getResponseCode());
+        }
     }
 
     Admin admin = Admin.builder()

@@ -17,6 +17,7 @@ import com.globalutils.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,67 +40,79 @@ class UserDetailServiceImplTest {
     @Mock
     private UserService userService;
 
-    @Test
-    @DisplayName("userDetails를 반환한다")
-    void succeed_to_load_userByUsername() {
-        given(userService.readByUsername(any())).willReturn(Optional.of(user));
+    @Nested
+    @DisplayName("loadUserByUsername 메서드는")
+    class load_user_by_username {
 
-        UserDetails result = userDetailServiceImpl.loadUserByUsername(username);
+        @Test
+        @DisplayName("이메일로 userDetails를 조회해 반환한다")
+        void succeed_to_load_user_by_username() {
+            given(userService.readByUsername(any())).willReturn(Optional.of(user));
 
-        assertNotNull(result);
-        assertEquals(user.getUsername(), result.getUsername());
-        assertEquals(user.getPassword(), result.getPassword());
-        then(userService).should(times(1)).readByUsername(any());
+            UserDetails result = userDetailServiceImpl.loadUserByUsername(username);
+
+            assertNotNull(result);
+            assertEquals(user.getUsername(), result.getUsername());
+            assertEquals(user.getPassword(), result.getPassword());
+            then(userService).should(times(1)).readByUsername(any());
+        }
+
+        @Test
+        @DisplayName("사용자를 찾지 못했을 때 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_loadUserByUsername_but_user_not_found() {
+            given(userService.readByUsername(any())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class, () -> {
+                userDetailServiceImpl.loadUserByUsername("whoAreYou");
+            });
+
+            then(userService).should(times(1)).readByUsername(any());
+            assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
+        }
     }
 
-    @Test
-    @DisplayName("사용자를 찾지 못했을 때 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_loadUserByUsername_but_user_not_found() {
-        given(userService.readByUsername(any())).willReturn(Optional.empty());
+    @Nested
+    @DisplayName("getUserInfo 메서드는")
+    class get_user_info {
 
-        NotFoundException result = assertThrows(NotFoundException.class, () -> {
-            userDetailServiceImpl.loadUserByUsername("whoAreYou");
-        });
+        @Test
+        @DisplayName("이메일로 현재 사용자 정보를 조회해 반환한다")
+        void succeed_to_get_user_info() {
+            given(userService.readByUsername(any())).willReturn(Optional.of(user));
 
-        then(userService).should(times(1)).readByUsername(any());
-        assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
-    }
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            Authentication authentication = new UsernamePasswordAuthenticationToken(username,
+                password,
+                List.of(new SimpleGrantedAuthority("ROLE_ASSOCIATE")));
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
 
-    @Test
-    @DisplayName("현재 사용자 정보를 반환한다")
-    void succeed_to_getUserInfo() {
-        given(userService.readByUsername(any())).willReturn(Optional.of(user));
+            User result = userDetailServiceImpl.getUserInfo();
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username, password,
-            List.of(new SimpleGrantedAuthority("ROLE_ASSOCIATE")));
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
+            assertEquals(user.getUsername(), result.getUsername());
+            assertEquals(user.getPassword(), result.getPassword());
+            then(userService).should(times(1)).readByUsername(any());
+        }
 
-        User result = userDetailServiceImpl.getUserInfo();
+        @Test
+        @DisplayName("해당하는 이메일을 가진 사용자가 없으면 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_get_user_info_but_user_not_found() {
+            given(userService.readByUsername(any())).willReturn(Optional.empty());
 
-        assertEquals(user.getUsername(), result.getUsername());
-        assertEquals(user.getPassword(), result.getPassword());
-        then(userService).should(times(1)).readByUsername(any());
-    }
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "whoAreYou@gmail.com", password,
+                List.of(new SimpleGrantedAuthority("ROLE_ASSOCIATE")));
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
 
-    @Test
-    @DisplayName("현재 사용자를 찾지 못했을 때 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_getUserInfo_but_user_not_found() {
-        given(userService.readByUsername(any())).willReturn(Optional.empty());
+            NotFoundException result = assertThrows(NotFoundException.class, () -> {
+                userDetailServiceImpl.getUserInfo();
+            });
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-            "whoAreYou@gmail.com", password, List.of(new SimpleGrantedAuthority("ROLE_ASSOCIATE")));
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
-
-        NotFoundException result = assertThrows(NotFoundException.class, () -> {
-            userDetailServiceImpl.getUserInfo();
-        });
-
-        then(userService).should(times(1)).readByUsername(any());
-        assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
+            then(userService).should(times(1)).readByUsername(any());
+            assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
+        }
     }
 
     private final String username = "email@gmail.com";

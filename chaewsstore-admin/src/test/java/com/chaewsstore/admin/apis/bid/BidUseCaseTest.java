@@ -2,6 +2,7 @@ package com.chaewsstore.admin.apis.bid;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -19,10 +20,14 @@ import com.chaewsstore.core.domain.user.User;
 import com.globalutils.exception.BadRequestException;
 import com.globalutils.exception.NotFoundException;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,62 +43,75 @@ class BidUseCaseTest {
     @Mock
     private BidService bidService;
 
-    @ParameterizedTest
-    @ValueSource(ints = {100, 95, 50})
-    @DisplayName("입찰 상품을 검수한다")
-    void succeed_to_inspect_bid_product(int score) {
-        InspectBidProductRequestDto request = new InspectBidProductRequestDto(score);
+    @Nested
+    @DisplayName("inspectBidProduct 메서드는")
+    class inspect_bid_product {
 
-        // given
-        given(bidService.readById(any())).willReturn(Optional.of(sellBid));
+        @ParameterizedTest(name = "score 값이 {0}일 때 상태: {1}")
+        @MethodSource("bidProductInspect")
+        @DisplayName("입찰 상품 검수 점수를 기준으로 입찰 상태를 업데이트한다")
+        void succeed_to_inspect_bid_product(int score, Status status) {
+            InspectBidProductRequestDto request = new InspectBidProductRequestDto(score);
 
-        // when
-        bidUseCase.inspectBidProduct(sellBid.getId(), request);
+            // given
+            given(bidService.readById(any())).willReturn(Optional.of(sellBid));
 
-        // then
-        then(bidService).should(times(1)).readById(any());
-        if (score == 100) {
-            assertEquals(Status.AUTHENTICATED, sellBid.getStatus());
-        } else if (score >= 95) {
-            assertEquals(Status.ACCREDITED, sellBid.getStatus());
-        } else {
-            assertEquals(Status.AUTHENTICATED_FAILED, sellBid.getStatus());
-            assertEquals(Status.CANCELLED, buyBid.getStatus());
+            // when
+            bidUseCase.inspectBidProduct(sellBid.getId(), request);
+
+            // then
+            then(bidService).should(times(1)).readById(any());
+            if (score == 100) {
+                assertEquals(Status.AUTHENTICATED, sellBid.getStatus());
+            } else if (score >= 95) {
+                assertEquals(Status.ACCREDITED, sellBid.getStatus());
+            } else {
+                assertEquals(Status.AUTHENTICATED_FAILED, sellBid.getStatus());
+                assertEquals(Status.CANCELLED, buyBid.getStatus());
+            }
         }
-    }
 
-    @Test
-    @DisplayName("입찰 상품 검수 중 입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFountException_when_inspect_bid_product_but_bid_does_not_exist() {
-        InspectBidProductRequestDto request = new InspectBidProductRequestDto(100);
+        static Stream<Arguments> bidProductInspect() {
+            return Stream.of(
+                arguments(100, Status.AUTHENTICATED),
+                arguments(95, Status.ACCREDITED),
+                arguments(50, Status.AUTHENTICATED_FAILED)
+            );
+        }
 
-        // given
-        given(bidService.readById(any())).willReturn(Optional.empty());
+        @Test
+        @DisplayName("입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFountException_when_inspect_bid_product_but_bid_does_not_exist() {
+            InspectBidProductRequestDto request = new InspectBidProductRequestDto(100);
 
-        // when
-        NotFoundException result = assertThrows(NotFoundException.class,
-            () -> bidUseCase.inspectBidProduct(sellBid.getId(), request));
+            // given
+            given(bidService.readById(any())).willReturn(Optional.empty());
 
-        // then
-        then(bidService).should(times(1)).readById(any());
-        assertEquals(BidErrorCode.NOT_FOUND_BID, result.getResponseCode());
-    }
+            // when
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> bidUseCase.inspectBidProduct(sellBid.getId(), request));
 
-    @Test
-    @DisplayName("입찰 상품 검수 중 입찰 상태가 거래중(IN_TRANSACTION)이 아닌 경우 NotFoundException이 발생한다")
-    void should_throw_BadRequestException_when_inspect_bid_product_but_bid_status_is_not_in_transaction() {
-        InspectBidProductRequestDto request = new InspectBidProductRequestDto(100);
+            // then
+            then(bidService).should(times(1)).readById(any());
+            assertEquals(BidErrorCode.NOT_FOUND_BID, result.getResponseCode());
+        }
 
-        // given
-        given(bidService.readById(any())).willReturn(Optional.of(liveBid));
+        @Test
+        @DisplayName("입찰 상태가 거래중(IN_TRANSACTION)이 아닌 경우 NotFoundException이 발생한다")
+        void should_throw_BadRequestException_when_inspect_bid_product_but_bid_status_is_not_in_transaction() {
+            InspectBidProductRequestDto request = new InspectBidProductRequestDto(100);
 
-        // when
-        BadRequestException result = assertThrows(BadRequestException.class,
-            () -> bidUseCase.inspectBidProduct(sellBid.getId(), request));
+            // given
+            given(bidService.readById(any())).willReturn(Optional.of(liveBid));
 
-        // then
-        then(bidService).should(times(1)).readById(any());
-        assertEquals(BidErrorCode.BID_NOT_IN_TRANSACTION, result.getResponseCode());
+            // when
+            BadRequestException result = assertThrows(BadRequestException.class,
+                () -> bidUseCase.inspectBidProduct(sellBid.getId(), request));
+
+            // then
+            then(bidService).should(times(1)).readById(any());
+            assertEquals(BidErrorCode.BID_NOT_IN_TRANSACTION, result.getResponseCode());
+        }
     }
 
     User user = User.builder()
