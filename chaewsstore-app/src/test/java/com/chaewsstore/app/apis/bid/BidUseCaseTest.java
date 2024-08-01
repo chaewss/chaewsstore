@@ -362,6 +362,41 @@ class BidUseCaseTest {
             then(bidService).should(times(1)).readById(anyLong());
             assertEquals(UserErrorCode.INSUFFICIENT_BALANCE, result.getResponseCode());
         }
+
+        @Test
+        @DisplayName("구매자 계좌 잔고 체크 로직 이후에 구매자 계좌 잔고가 부족해질 경우 BadRequestException이 발생한다")
+        void should_throw_BadRequestException_when_deposit_bid_but_insufficient_balance_after_check_account_balance() {
+            Bid sellBidAccredited = Bid.builder()
+                .bidder(anotherUser)
+                .price(6000)
+                .bidType(BidType.SELL)
+                .status(Status.ACCREDITED)
+                .build();
+            Bid buyBidInTransactionAcc = Bid.builder()
+                .bidder(user)
+                .price(6000)
+                .bidType(BidType.BUY)
+                .status(Status.IN_TRANSACTION)
+                .relatedBid(sellBidAccredited)
+                .build();
+            User poorUser = User.builder()
+                .id(1L)
+                .username("email@gmail.com")
+                .password("aaaa1111!!")
+                .nickname("닉네임")
+                .account(0L)
+                .build();
+
+            given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAcc));
+            given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.of(poorUser));
+
+            BadRequestException result = assertThrows(BadRequestException.class,
+                () -> bidUseCase.depositBid(user, anyLong()));
+
+            then(bidService).should(times(1)).readById(anyLong());
+            then(userService).should(times(1)).readByIdWithOptimisticLock(anyLong());
+            assertEquals(UserErrorCode.INSUFFICIENT_BALANCE, result.getResponseCode());
+        }
     }
 
     @Nested
