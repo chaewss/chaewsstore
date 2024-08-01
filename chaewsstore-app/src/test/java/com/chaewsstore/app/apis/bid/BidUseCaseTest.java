@@ -364,6 +364,39 @@ class BidUseCaseTest {
         }
 
         @Test
+        @DisplayName("구매자가 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_deposit_bid_but_buyer_does_not_exist() {
+            buyBidInTransaction.relateBid(sellBidAuthenticated);
+
+            given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
+            given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> bidUseCase.depositBid(user, anyLong()));
+
+            then(bidService).should(times(1)).readById(anyLong());
+            then(userService).should(times(1)).readByIdWithOptimisticLock(anyLong());
+            assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
+        }
+
+        @Test
+        @DisplayName("판매자가 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_deposit_bid_but_seller_does_not_exist() {
+            buyBidInTransaction.relateBid(sellBidAuthenticated);
+
+            given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
+            given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.of(user))
+                .willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> bidUseCase.depositBid(user, anyLong()));
+
+            then(bidService).should(times(1)).readById(anyLong());
+            then(userService).should(times(2)).readByIdWithOptimisticLock(anyLong());
+            assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
+        }
+
+        @Test
         @DisplayName("구매자 계좌 잔고 체크 로직 이후에 구매자 계좌 잔고가 부족해질 경우 BadRequestException이 발생한다")
         void should_throw_BadRequestException_when_deposit_bid_but_insufficient_balance_after_check_account_balance() {
             Bid sellBidAccredited = Bid.builder()
