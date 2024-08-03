@@ -178,14 +178,30 @@ class BidUseCaseTest {
         void succeed_to_transact_sell_bid_and_create_buy_bid() {
             TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-            given(bidService.readValidBid(anyLong(), any(), any())).willReturn(
+            given(productService.readById(any())).willReturn(Optional.of(product));
+            given(bidService.readFirstValidBid(any(), any(), any())).willReturn(
                 Optional.of(sellBidLive));
             given(bidService.create(any())).willReturn(buyBidInTransaction);
 
             bidUseCase.transactSellBid(user, request);
 
-            then(bidService).should(times(1)).readValidBid(anyLong(), any(), any());
+            then(productService).should(times(1)).readById(any());
+            then(bidService).should(times(1)).readFirstValidBid(any(), any(), any());
             then(bidService).should(times(1)).create(any());
+        }
+
+        @Test
+        @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_transact_sell_bid_but_product_does_not_exist() {
+            TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
+
+            given(productService.readById(any())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> bidUseCase.transactSellBid(user, request));
+
+            then(productService).should(times(1)).readById(any());
+            assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
         }
 
         @Test
@@ -193,12 +209,14 @@ class BidUseCaseTest {
         void should_throw_NotFoundException_when_transact_sell_bid_but_bid_does_not_exist() {
             TransactBidRequestDto request = new TransactBidRequestDto(999L, 6000);
 
-            given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.empty());
+            given(productService.readById(any())).willReturn(Optional.of(product));
+            given(bidService.readFirstValidBid(any(), any(), any())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
                 () -> bidUseCase.transactSellBid(user, request));
 
-            then(bidService).should(times(1)).readValidBid(anyLong(), any(), any());
+            then(productService).should(times(1)).readById(any());
+            then(bidService).should(times(1)).readFirstValidBid(any(), any(), any());
             assertEquals(BidErrorCode.NOT_FOUND_BID_WITH_CONDITION, result.getResponseCode());
         }
     }
@@ -212,27 +230,45 @@ class BidUseCaseTest {
         void succeed_to_transact_buy_bid_and_create_sell_bid() {
             TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-            given(bidService.readValidBid(anyLong(), any(), any())).willReturn(
+            given(productService.readById(any())).willReturn(Optional.of(product));
+            given(bidService.readFirstValidBid(any(), any(), any())).willReturn(
                 Optional.of(buyBidLive));
             given(bidService.create(any())).willReturn(sellBidInTransaction);
 
             bidUseCase.transactBuyBid(user, request);
 
-            then(bidService).should(times(1)).readValidBid(anyLong(), any(), any());
+            then(productService).should(times(1)).readById(any());
+            then(bidService).should(times(1)).readFirstValidBid(any(), any(), any());
             then(bidService).should(times(1)).create(any());
+        }
+
+        @Test
+        @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_transact_buy_bid_but_product_does_not_exist() {
+            TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
+
+            given(productService.readById(any())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> bidUseCase.transactBuyBid(user, request));
+
+            then(productService).should(times(1)).readById(any());
+            assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
         }
 
         @Test
         @DisplayName("주어진 조건의 구매 가능한 입찰이 없는 경우 NotFoundException이 발생한다")
         void should_throw_NotFoundException_when_transact_buy_bid_but_bid_does_not_exist() {
-            TransactBidRequestDto request = new TransactBidRequestDto(999L, 6000);
+            TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
-            given(bidService.readValidBid(anyLong(), any(), any())).willReturn(Optional.empty());
+            given(productService.readById(any())).willReturn(Optional.of(product));
+            given(bidService.readFirstValidBid(any(), any(), any())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
                 () -> bidUseCase.transactBuyBid(user, request));
 
-            then(bidService).should(times(1)).readValidBid(anyLong(), any(), any());
+            then(productService).should(times(1)).readById(any());
+            then(bidService).should(times(1)).readFirstValidBid(any(), any(), any());
             assertEquals(BidErrorCode.NOT_FOUND_BID_WITH_CONDITION, result.getResponseCode());
         }
     }
@@ -421,7 +457,8 @@ class BidUseCaseTest {
                 .build();
 
             given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransactionAcc));
-            given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.of(poorUser));
+            given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(
+                Optional.of(poorUser));
 
             BadRequestException result = assertThrows(BadRequestException.class,
                 () -> bidUseCase.depositBid(user, anyLong()));
@@ -615,7 +652,6 @@ class BidUseCaseTest {
                 .status(Status.IN_TRANSACTION)
                 .relatedBid(inTransactionSellBid)
                 .build();
-
 
             Bid authenticatedBid = Bid.builder()
                 .bidder(user)

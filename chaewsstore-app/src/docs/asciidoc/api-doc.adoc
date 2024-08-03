@@ -195,6 +195,7 @@ include::{snippets}/bid-controller-unit-test/respond_201_when_transact_sell_bid_
 |===
 | Code | Status | Detail
 
+| `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
 | `NOT_FOUND_BID_WITH_CONDITION` | `404 NOT FOUND` | 주어진 조건에 맞는 입찰이 존재하지 않습니다
 |===
 
@@ -225,6 +226,7 @@ include::{snippets}/bid-controller-unit-test/respond_201_when_transact_buy_bid_a
 |===
 | Code | Status | Detail
 
+| `NOT_FOUND_PRODUCT` | `404 NOT FOUND` | 존재하지 않는 상품입니다
 | `NOT_FOUND_BID_WITH_CONDITION` | `404 NOT FOUND` | 주어진 조건에 맞는 입찰이 존재하지 않습니다
 |===
 

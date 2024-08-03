@@ -77,15 +77,15 @@ class BidServiceTest {
     @Test
     @DisplayName("상품 아이디, 입찰가, 입찰 타입 조건에 맞는 LIVE 상태인 입찰을 오래된 생성일 순으로 조회한다")
     void should_read_valid_bid() {
-        given(bidRepository.findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
-            product.getId(), bidPrice, bidType, Status.LIVE))
+        given(bidRepository.findFirstByProductAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
+            product, bidPrice, bidType, Status.LIVE))
             .willReturn(Optional.of(bid));
 
-        Optional<Bid> result = bidService.readValidBid(product.getId(), bidPrice, bidType);
+        Optional<Bid> result = bidService.readFirstValidBid(product, bidPrice, bidType);
 
         then(bidRepository).should(times(1))
-            .findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
-                product.getId(), bidPrice, bidType, Status.LIVE);
+            .findFirstByProductAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
+                product, bidPrice, bidType, Status.LIVE);
         assertTrue(result.isPresent());
         assertEquals(bid, result.get());
     }
