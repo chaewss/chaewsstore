@@ -1,5 +1,8 @@
 package com.chaewsstore.core.domain.bid;
 
+import static com.chaewsstore.core.domain.BidFixture.BID;
+import static com.chaewsstore.core.domain.BrandFixture.BRAND1;
+import static com.chaewsstore.core.domain.ProductFixture.PRODUCT1;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.chaewsstore.core.domain.bid.Bid.BidType;
@@ -32,69 +35,42 @@ class BidCustomRepositoryImplTest {
     private BidCustomRepositoryImpl bidCustomRepositoryImpl;
 
     @Autowired
-    private BidRepository bidRepository;
-
-    @Autowired
     private EntityManager entityManager;
 
     @BeforeEach
     void setUp() {
-        Brand brand = Brand.builder()
-            .name("Adidas")
-            .build();
-        entityManager.persist(brand);
-
-        product = Product.builder()
-            .name("Yeezy Foam RNNR")
-            .price(129000)
-            .brand(brand)
-            .build();
-        entityManager.persist(product);
-
+        Brand brand = entityManager.merge(BRAND1.getBrand());
+        product = entityManager.merge(PRODUCT1.getProductWithBrand(brand));
         pageable = PageRequest.of(0, 20);
 
         // TransactionAt이 null이 아닌 입찰
         for (int i = 1; i <= 3; i++) {
             LocalDateTime now = LocalDateTime.now();
-            Bid bid = Bid.builder()
-                .product(product)
-                .price(i)
-                .transactionAt(now.minusDays(i))
-                .status(Status.IN_TRANSACTION)
-                .isDeleted(false)
-                .build();
-            entityManager.persist(bid);
+            entityManager.persist(
+                BID.getBidWithProductAndPriceAndBidTypeAndStatusAndTransactionAt(product, i,
+                    BidType.BUY, Status.IN_TRANSACTION, now.minusDays(i)));
+            entityManager.persist(
+                BID.getBidWithProductAndPriceAndBidTypeAndStatusAndTransactionAt(product, i,
+                    BidType.SELL, Status.IN_TRANSACTION, now.minusDays(i)));
         }
         // Live 상태의 구매 입찰
         for (int i = 10; i > 5; i--) {
-            Bid bid = Bid.builder()
-                .product(product)
-                .price(i)
-                .bidType(BidType.BUY)
-                .status(Status.LIVE)
-                .isDeleted(false)
-                .build();
-            entityManager.persist(bid);
+            entityManager.persist(
+                BID.getBidWithProductAndPriceAndBidTypeAndStatusAndTransactionAt(product, i,
+                    BidType.BUY, Status.LIVE, null));
         }
         // Live 상태의 판매 입찰
         for (int i = 1; i <= 10; i++) {
-            Bid bid = Bid.builder()
-                .product(product)
-                .price(i)
-                .bidType(BidType.SELL)
-                .status(Status.LIVE)
-                .isDeleted(false)
-                .build();
-            entityManager.persist(bid);
+            entityManager.persist(
+                BID.getBidWithProductAndPriceAndBidTypeAndStatusAndTransactionAt(product, i,
+                    BidType.SELL, Status.LIVE, null));
         }
-
-        entityManager.flush();
-        entityManager.clear();
     }
 
     @Nested
     @DisplayName("product와 bidType에 따라 입찰 정보를 페이징 처리하여 조회한다")
     class succeed_to_find_all_bids_by_product {
+
         @Test
         @DisplayName("bidType이 null인 경우 거래일 내림차순 정렬")
         void without_bid_type() {

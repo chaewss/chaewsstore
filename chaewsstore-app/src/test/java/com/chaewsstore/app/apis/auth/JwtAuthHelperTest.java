@@ -1,5 +1,7 @@
 package com.chaewsstore.app.apis.auth;
 
+import static com.chaewsstore.core.domain.UserFixture.ANOTHER_USER;
+import static com.chaewsstore.core.domain.UserFixture.USER;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -14,7 +16,6 @@ import com.chaewsstore.app.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.core.domain.refresh.RefreshToken;
 import com.chaewsstore.core.domain.refresh.RefreshTokenErrorCode;
 import com.chaewsstore.core.domain.refresh.RefreshTokenService;
-import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
@@ -180,21 +181,8 @@ class JwtAuthHelperTest {
         }
     }
 
-    User user = User.builder()
-        .id(1L)
-        .username("email@gmail.com")
-        .password("password1!")
-        .nickname("nickname")
-        .role(Role.ASSOCIATE)
-        .build();
-
-    User anotherUser = User.builder()
-        .id(2L)
-        .username("anotherEmail@gmail.com")
-        .password("password1!")
-        .nickname("nickname999")
-        .role(Role.ASSOCIATE)
-        .build();
+    User user = USER.getUser();
+    User anotherUser = ANOTHER_USER.getUser();
 
     String accessToken = "access_token";
     String refreshTokenValue = "refresh_token";

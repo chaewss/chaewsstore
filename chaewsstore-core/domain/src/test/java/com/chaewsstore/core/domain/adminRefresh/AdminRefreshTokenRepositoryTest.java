@@ -1,5 +1,7 @@
 package com.chaewsstore.core.domain.adminRefresh;
 
+import static com.chaewsstore.core.domain.AdminFixture.ADMIN;
+import static com.chaewsstore.core.domain.AdminFixture.ANOTHER_ADMIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.chaewsstore.core.domain.admin.Admin;
@@ -21,30 +23,18 @@ import org.springframework.context.annotation.Import;
 class AdminRefreshTokenRepositoryTest {
 
     @Autowired
-    AdminRefreshTokenRepository adminRefreshTokenRepository;
+    private AdminRefreshTokenRepository adminRefreshTokenRepository;
 
     @Autowired
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     @BeforeEach
     void setUp() {
-        admin1 = Admin.builder()
-            .username("admin1@gmail.com")
-            .password("password123!")
-            .name("관리자1")
-            .isDeleted(false)
-            .build();
-        admin2 = Admin.builder()
-            .username("admin2@gmail.com")
-            .password("password123!")
-            .name("관리자2")
-            .isDeleted(false)
-            .build();
-        entityManager.persist(admin1);
-        entityManager.persist(admin2);
+        admin = entityManager.merge(ADMIN.getAdmin());
+        anotherAdmin = entityManager.merge(ANOTHER_ADMIN.getAdmin());
 
         tokenValue = "testAdminRefreshToken";
-        adminRefreshToken = AdminRefreshToken.create(admin1, tokenValue);
+        adminRefreshToken = AdminRefreshToken.create(admin, tokenValue);
         entityManager.persist(adminRefreshToken);
     }
 
@@ -58,8 +48,8 @@ class AdminRefreshTokenRepositoryTest {
         assertThat(foundAdminRefreshToken2).isEmpty();
     }
 
-    Admin admin1;
-    Admin admin2;
+    Admin admin;
+    Admin anotherAdmin;
     String tokenValue;
     AdminRefreshToken adminRefreshToken;
 }

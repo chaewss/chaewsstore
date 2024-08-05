@@ -1,5 +1,6 @@
 package com.chaewsstore.app.apis.user;
 
+import static com.chaewsstore.core.domain.UserFixture.USER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -49,7 +50,7 @@ class UserDetailServiceImplTest {
         void succeed_to_load_user_by_username() {
             given(userService.readByUsername(any())).willReturn(Optional.of(user));
 
-            UserDetails result = userDetailServiceImpl.loadUserByUsername(username);
+            UserDetails result = userDetailServiceImpl.loadUserByUsername(any());
 
             assertNotNull(result);
             assertEquals(user.getUsername(), result.getUsername());
@@ -75,6 +76,9 @@ class UserDetailServiceImplTest {
     @DisplayName("getUserInfo 메서드는")
     class get_user_info {
 
+        String username = "user@gmail.com";
+        String password = "password1!";
+
         @Test
         @DisplayName("이메일로 현재 사용자 정보를 조회해 반환한다")
         void succeed_to_get_user_info() {
@@ -82,8 +86,7 @@ class UserDetailServiceImplTest {
 
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             Authentication authentication = new UsernamePasswordAuthenticationToken(username,
-                password,
-                List.of(new SimpleGrantedAuthority("ROLE_ASSOCIATE")));
+                password, List.of(new SimpleGrantedAuthority("ROLE_ASSOCIATE")));
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
 
@@ -115,13 +118,5 @@ class UserDetailServiceImplTest {
         }
     }
 
-    private final String username = "email@gmail.com";
-    private final String password = "aaaa1111!!";
-    private final User user = User.builder()
-        .id(1L)
-        .username(username)
-        .password(password)
-        .nickname("닉네임")
-        .role(Role.ASSOCIATE)
-        .build();
+    private final User user = USER.getUser();
 }

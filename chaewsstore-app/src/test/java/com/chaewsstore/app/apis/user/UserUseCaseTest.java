@@ -1,5 +1,6 @@
 package com.chaewsstore.app.apis.user;
 
+import static com.chaewsstore.core.domain.UserFixture.USER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -165,10 +166,5 @@ class UserUseCaseTest {
         }
     }
 
-    User user = User.builder()
-        .id(1L)
-        .username("email@gmail.com")
-        .password("aaaa1111!!")
-        .nickname("닉네임")
-        .build();
+    User user = USER.getUser();
 }

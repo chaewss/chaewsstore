@@ -1,5 +1,9 @@
 package com.chaewsstore.admin.apis.product;
 
+import static com.chaewsstore.core.domain.BrandFixture.BRAND1;
+import static com.chaewsstore.core.domain.ProductFixture.PRODUCT1;
+import static com.chaewsstore.core.domain.ProductFixture.PRODUCT2;
+import static com.chaewsstore.core.domain.ProductFixture.PRODUCT3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -16,7 +20,6 @@ import com.chaewsstore.admin.apis.product.usecase.ProductUseCase;
 import com.chaewsstore.core.domain.brand.Brand;
 import com.chaewsstore.core.domain.brand.BrandErrorCode;
 import com.chaewsstore.core.domain.brand.BrandService;
-import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductErrorCode;
 import com.chaewsstore.core.domain.product.ProductService;
@@ -76,7 +79,7 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("상품 정보로 새로운 상품을 생성한다")
         void succeed_to_create_product() {
-            CreateProductRequestDto request = new CreateProductRequestDto("새 상품", 80000, "Adidas");
+            CreateProductRequestDto request = new CreateProductRequestDto("newProduct", 700, "brand1");
 
             given(brandService.readByName(any())).willReturn(Optional.of(brand));
             given(productService.existsByName(any())).willReturn(false);
@@ -92,7 +95,7 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("브랜드가 존재하지 않는 경우 NotFoundException이 발생한다")
         void should_throw_NotFoundException_when_create_product_but_brand_does_not_exist() {
-            CreateProductRequestDto request = new CreateProductRequestDto("새 상품", 80000, "Adidas");
+            CreateProductRequestDto request = new CreateProductRequestDto("newProduct", 80000, "???");
 
             given(brandService.readByName(any())).willReturn(Optional.empty());
 
@@ -106,7 +109,7 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("해당 상품이 이미 존재하는 경우 DuplicateException이 발생한다")
         void should_throw_DuplicateException_when_create_product_but_product_is_duplicate() {
-            CreateProductRequestDto request = new CreateProductRequestDto("헌 상품", 8000, "Adidas");
+            CreateProductRequestDto request = new CreateProductRequestDto("duplicateProduct", 8000, "brand1");
 
             given(brandService.readByName(any())).willReturn(Optional.of(brand));
             given(productService.existsByName(any())).willReturn(true);
@@ -124,10 +127,11 @@ class ProductUseCaseTest {
     @DisplayName("updateProduct 메서드는")
     class update_product {
 
-        @ParameterizedTest(name = "기존 상품명: 상품 1, 변경할 상품명: {1}")
+        @ParameterizedTest(name = "기존 상품명: 상품 1, 변경할 상품명: {2}")
         @MethodSource("updatableProduct")
         @DisplayName("상품 아이디와 정보로 상품을 수정한다")
-        void succeed_to_update_product(UpdateProductRequestDto request, boolean isOriginalName, String nameExp) {
+        void succeed_to_update_product(UpdateProductRequestDto request, boolean isOriginalName,
+            String nameExp) {
             given(brandService.readByName(any())).willReturn(Optional.of(brand));
             given(productService.readById(anyLong())).willReturn(Optional.of(product1));
             if (!isOriginalName) {
@@ -145,10 +149,10 @@ class ProductUseCaseTest {
         }
 
         static Stream<Arguments> updatableProduct() {
-            String originalName = "상품 1";
-            String newName = "상품 11";
-            UpdateProductRequestDto updateName = new UpdateProductRequestDto(newName, 600, "브랜드1");
-            UpdateProductRequestDto updateExcludingName = new UpdateProductRequestDto(originalName, 800, "브랜드1");
+            String originalName = "product1";
+            String newName = "product11";
+            UpdateProductRequestDto updateName = new UpdateProductRequestDto(newName, 600, "brand1");
+            UpdateProductRequestDto updateExcludingName = new UpdateProductRequestDto(originalName, 800, "brand1");
 
             return Stream.of(
                 arguments(updateName, false, newName + "(기존 이름과 다르고 다른 상품에도 할당되지 않은 새로운 이름인 경우)"),
@@ -159,7 +163,7 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("브랜드가 존재하지 않는 경우 NotFoundException이 발생한다")
         void should_throw_NotFoundException_when_update_product_but_brand_does_not_exist() {
-            UpdateProductRequestDto request = new UpdateProductRequestDto("상품 1", 600, "???");
+            UpdateProductRequestDto request = new UpdateProductRequestDto("product1", 600, "???");
 
             given(brandService.readByName(any())).willReturn(Optional.empty());
 
@@ -173,7 +177,7 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
         void should_throw_NotFoundException_when_update_product_but_product_does_not_exist() {
-            UpdateProductRequestDto request = new UpdateProductRequestDto("상품 11", 8000, "브렌드1");
+            UpdateProductRequestDto request = new UpdateProductRequestDto("product99", 8000, "brand1");
 
             given(brandService.readByName(any())).willReturn(Optional.of(brand));
             given(productService.readById(anyLong())).willReturn(Optional.empty());
@@ -189,7 +193,7 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("해당 상품이 이미 존재하는 경우 DuplicateException이 발생한다")
         void should_throw_DuplicateException_when_update_product_but_product_is_duplicate() {
-            UpdateProductRequestDto request = new UpdateProductRequestDto("중복될 상품", 8000, "브렌드1");
+            UpdateProductRequestDto request = new UpdateProductRequestDto("duplicateProduct", 8000, "brand1");
 
             given(brandService.readByName(any())).willReturn(Optional.of(brand));
             given(productService.readById(anyLong())).willReturn(Optional.of(product1));
@@ -233,8 +237,8 @@ class ProductUseCaseTest {
         }
     }
 
-    Brand brand = Brand.builder().name("브랜드1").build();
-    Product product1 = Product.builder().id(1L).name("상품 1").price(600).brand(brand).build();
-    Product product2 = Product.builder().name("중복될 상품").brand(brand).build();
-    Product product3 = Product.builder().brand(brand).build();
+    Brand brand = BRAND1.getBrand();
+    Product product1 = PRODUCT1.getProduct();
+    Product product2 = PRODUCT2.getProduct();
+    Product product3 = PRODUCT3.getProduct();
 }

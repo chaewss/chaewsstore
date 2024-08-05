@@ -1,5 +1,7 @@
 package com.chaewsstore.admin.apis.auth;
 
+import static com.chaewsstore.core.domain.AdminFixture.ADMIN;
+import static com.chaewsstore.core.domain.AdminFixture.ANOTHER_ADMIN;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -183,19 +185,8 @@ class JwtAuthHelperTest {
         }
     }
 
-    Admin admin = Admin.builder()
-        .id(1L)
-        .username("admin@gmail.com")
-        .password("password1!")
-        .name("어드민")
-        .build();
-
-    Admin anotherAdmin = Admin.builder()
-        .id(2L)
-        .username("anotherAdmin@gmail.com")
-        .password("password1!")
-        .name("어드민99")
-        .build();
+    Admin admin = ADMIN.getAdmin();
+    Admin anotherAdmin = ANOTHER_ADMIN.getAdmin();
 
     String accessToken = "access_token";
     String refreshTokenValue = "refresh_token";

@@ -1,5 +1,6 @@
 package com.chaewsstore.admin.apis.admin;
 
+import static com.chaewsstore.core.domain.AdminFixture.ADMIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,11 +40,13 @@ class AdminUseCaseTest {
     @DisplayName("signup 메서드는")
     class sign_up {
 
+        Admin admin = ADMIN.getAdmin();
+        AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com",
+            "password1!", "admin1");
+
         @Test
         @DisplayName("회원가입에 성공하면 생성된 어드민을 반환한다")
         void succeed_to_sign_up() {
-            AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com",
-                "aaaa1111!!", "어드민");
             String encodedPassword = "encodedPassword";
 
             // given
@@ -63,9 +66,6 @@ class AdminUseCaseTest {
         @Test
         @DisplayName("생성할 이메일이 이미 존재하면 DuplicateException이 발생한다")
         void should_throw_DuplicateException_when_create_user_username_is_duplicate() {
-            AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com",
-                "aaaa1111!!", "어드민");
-
             // given
             given(adminService.existsByUsername(any())).willReturn(true);
 
@@ -110,11 +110,4 @@ class AdminUseCaseTest {
             assertEquals(AdminErrorCode.ADMIN_DUPLICATION, result.getResponseCode());
         }
     }
-
-    Admin admin = Admin.builder()
-        .id(1L)
-        .username("admin@gmail.com")
-        .password("aaaa1111!!")
-        .name("어드민")
-        .build();
 }

@@ -1,5 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
+import static com.chaewsstore.core.domain.UserFixture.USER;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +20,6 @@ import com.chaewsstore.app.apis.auth.dto.ReissueTokenResponseDto;
 import com.chaewsstore.app.apis.auth.helper.JwtAuthHelper;
 import com.chaewsstore.app.apis.auth.usecase.AuthUseCase;
 import com.chaewsstore.app.common.helper.PasswordEncoderHelper;
-import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserErrorCode;
 import com.chaewsstore.core.domain.user.UserService;
@@ -169,13 +169,7 @@ class AuthUseCaseTest {
         }
     }
 
-    User user = User.builder()
-        .id(1L)
-        .username("email@gmail.com")
-        .password("password1!")
-        .nickname("nickname")
-        .role(Role.ASSOCIATE)
-        .build();
+    User user = USER.getUser();
 
     String accessToken = "Bearer (accessToken)";
     String refreshToken = "(refreshToken)";

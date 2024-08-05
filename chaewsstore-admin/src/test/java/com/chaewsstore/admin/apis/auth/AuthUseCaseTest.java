@@ -1,5 +1,6 @@
 package com.chaewsstore.admin.apis.auth;
 
+import static com.chaewsstore.core.domain.AdminFixture.ADMIN;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -169,12 +170,7 @@ class AuthUseCaseTest {
         }
     }
 
-    Admin admin = Admin.builder()
-        .id(1L)
-        .username("admin@gmail.com")
-        .password("password1!")
-        .name("어드민")
-        .build();
+    Admin admin = ADMIN.getAdmin();
 
     String accessToken = "Bearer (accessToken)";
     String refreshToken = "(refreshToken)";

@@ -1,5 +1,6 @@
 package com.chaewsstore.core.domain.admin;
 
+import static com.chaewsstore.core.domain.AdminFixture.ADMIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -26,7 +27,7 @@ class AdminServiceTest {
 
     @BeforeEach
     void setUp() {
-        admin = Admin.builder().build();
+        admin = ADMIN.getAdmin();
     }
 
     @Test
