@@ -31,6 +31,7 @@ class BidCustomRepositoryImpl implements BidCustomRepository {
                 .where(
                     bid.product.eq(product),
                     bid.transactionAt.isNotNull())
+                .groupBy(bid.transactionAt)
                 .orderBy(bid.transactionAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

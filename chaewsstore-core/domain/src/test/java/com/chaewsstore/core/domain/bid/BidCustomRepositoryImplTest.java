@@ -53,12 +53,13 @@ class BidCustomRepositoryImplTest {
 
         pageable = PageRequest.of(0, 20);
 
-        // Transaction 상태 입찰
-        for (int i = 1; i <= 25; i++) {
+        // TransactionAt이 null이 아닌 입찰
+        for (int i = 1; i <= 3; i++) {
+            LocalDateTime now = LocalDateTime.now();
             Bid bid = Bid.builder()
                 .product(product)
                 .price(i)
-                .transactionAt(LocalDateTime.now().minusDays(i))
+                .transactionAt(now.minusDays(i))
                 .status(Status.IN_TRANSACTION)
                 .isDeleted(false)
                 .build();
@@ -100,7 +101,7 @@ class BidCustomRepositoryImplTest {
             List<ReadProductBidQueryDto> result = bidCustomRepositoryImpl.findAllByProduct(product,
                 null, pageable);
 
-            assertThat(result).hasSize(20);
+            assertThat(result).hasSize(3);
             assertThat(result.get(0).bidPrice()).isEqualTo(1);
         }
 
