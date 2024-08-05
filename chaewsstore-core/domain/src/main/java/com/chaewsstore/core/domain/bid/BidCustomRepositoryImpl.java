@@ -5,9 +5,9 @@ import static com.chaewsstore.core.domain.bid.QBid.bid;
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.dto.QReadProductBidQueryDto;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,8 @@ class BidCustomRepositoryImpl implements BidCustomRepository {
                 .from(bid)
                 .where(
                     bid.product.eq(product),
-                    bid.bidType.eq(bidType))
+                    bid.bidType.eq(bidType),
+                    bid.status.eq(Status.LIVE))
                 .groupBy(bid.price)
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())

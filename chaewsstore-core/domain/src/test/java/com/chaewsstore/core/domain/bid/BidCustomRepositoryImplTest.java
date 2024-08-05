@@ -111,7 +111,7 @@ class BidCustomRepositoryImplTest {
                 BidType.BUY, pageable);
 
             assertThat(result).hasSize(5);
-            assertThat(result.get(0).bidPrice()).isEqualTo(10); // Lowest price due to price.asc()
+            assertThat(result.get(0).bidPrice()).isEqualTo(10);
         }
 
         @Test
@@ -120,7 +120,6 @@ class BidCustomRepositoryImplTest {
             List<ReadProductBidQueryDto> result = bidCustomRepositoryImpl.findAllByProduct(product,
                 BidType.SELL, pageable);
 
-            // then
             assertThat(result).hasSize(10);
             assertThat(result.get(0).bidPrice()).isEqualTo(1);
         }
