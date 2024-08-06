@@ -1,4 +1,4 @@
-package com.chaewsstore.app.common.security.filter;
+package com.chaewsstore.admin.config.security.filter;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 

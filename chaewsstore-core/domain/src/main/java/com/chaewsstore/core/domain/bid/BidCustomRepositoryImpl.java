@@ -5,8 +5,9 @@ import static com.chaewsstore.core.domain.bid.QBid.bid;
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.bid.dto.QReadProductBidQueryDto;
 import com.chaewsstore.core.domain.bid.dto.ReadProductBidQueryDto;
+import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,11 +31,15 @@ class BidCustomRepositoryImpl implements BidCustomRepository {
                 .where(
                     bid.product.eq(product),
                     bid.transactionAt.isNotNull())
+                .groupBy(bid.transactionAt)
                 .orderBy(bid.transactionAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
         } else {
+            OrderSpecifier<?> orderSpecifier =
+                bidType == BidType.BUY ? bid.price.desc() : bid.price.asc();
+
             return queryFactory.select(new QReadProductBidQueryDto(
                     bid.price,
                     bid.count().as("quantity")
@@ -42,16 +47,13 @@ class BidCustomRepositoryImpl implements BidCustomRepository {
                 .from(bid)
                 .where(
                     bid.product.eq(product),
-                    bidTypeEq(bidType))
+                    bid.bidType.eq(bidType),
+                    bid.status.eq(Status.LIVE))
                 .groupBy(bid.price)
-                .orderBy(bid.price.asc())
+                .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
         }
-    }
-
-    private BooleanExpression bidTypeEq(BidType bidType) {
-        return bidType != null ? bid.bidType.eq(bidType) : null;
     }
 }

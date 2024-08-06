@@ -1,6 +1,7 @@
 package com.chaewsstore.admin.config.security;
 
-import com.chaewsstore.admin.common.security.handler.JwtAccessDeniedHandler;
+import com.chaewsstore.admin.config.security.handler.JwtAccessDeniedHandler;
+import com.chaewsstore.admin.config.security.matcher.RequestMatcherHolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

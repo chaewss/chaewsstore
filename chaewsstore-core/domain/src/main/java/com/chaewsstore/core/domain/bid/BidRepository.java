@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Lock;
 interface BidRepository extends JpaRepository<Bid, Long>, BidCustomRepository {
 
     @Lock(LockModeType.OPTIMISTIC)
-    Optional<Bid> findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(Long productId,
+    Optional<Bid> findFirstByProductAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(Product product,
         Integer price, BidType bidType, Status status);
 
     Optional<Bid> findByProductAndBidderAndStatusAndBidType(Product product, User bidder, Status status, BidType bidType);

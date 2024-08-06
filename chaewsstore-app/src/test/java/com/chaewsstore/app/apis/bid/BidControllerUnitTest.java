@@ -3,8 +3,12 @@ package com.chaewsstore.app.apis.bid;
 import static com.chaewsstore.app.ApiDocumentUtils.documentIdentifier;
 import static com.chaewsstore.app.ApiDocumentUtils.getDocumentRequest;
 import static com.chaewsstore.app.ApiDocumentUtils.getDocumentResponse;
+import static com.chaewsstore.app.common.exception.ExceptionConstants.FORBIDDEN_BID;
+import static com.chaewsstore.app.common.exception.ExceptionConstants.INSUFFICIENT_BALANCE;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -35,6 +39,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -52,6 +57,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+@DisplayName("BidController 클래스")
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest(BidController.class)
 class BidControllerUnitTest {
@@ -73,51 +79,55 @@ class BidControllerUnitTest {
             .build();
     }
 
-    @Test
+    @Nested
     @DisplayName("상품의 입찰 목록을 조회하면 HTTP 200을 응답한다")
-    void respond_200_when_read_product_bid_list_succeed() throws Exception {
-        Slice<ReadProductBidResponseDto> response = new SliceImpl<>(getProductBidResponseWithParam());
-        given(bidUseCase.readProductBidList(any(), any(), any())).willReturn(response);
+    class respond_200_when_read_product_bid_list_succeed {
+        @Test
+        @DisplayName("bidType param이 null인 경우")
+        void without_param() throws Exception {
+            Slice<ReadProductBidResponseDto> response = new SliceImpl<>(getProductBidResponseWithoutParam());
+            given(bidUseCase.readProductBidList(any(), any(), any())).willReturn(response);
 
-        mockMvc.perform(get("/api/products/{productId}/bids", 1)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk()).andDo(print())
-            .andDo(document(documentIdentifier,
-                getDocumentRequest(),
-                getDocumentResponse(),
-                pathParameters(
-                    parameterWithName("productId").description("상품 ID")
-                ),
-                relaxedResponseFields(
-                    fieldWithPath("data.content.[].bidPrice").type(JsonFieldType.NUMBER).description("판매 희망가"),
-                    fieldWithPath("data.content.[].transactionAt").type(JsonFieldType.STRING).description("거래일")
-                )
-            ));
-    }
+            mockMvc.perform(get("/api/products/{productId}/bids", 1)
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andDo(print())
+                .andDo(document(documentIdentifier,
+                    getDocumentRequest(),
+                    getDocumentResponse(),
+                    pathParameters(
+                        parameterWithName("productId").description("상품 ID")
+                    ),
+                    relaxedResponseFields(
+                        fieldWithPath("data.content.[].bidPrice").type(JsonFieldType.NUMBER).description("판매 희망가"),
+                        fieldWithPath("data.content.[].transactionAt").type(JsonFieldType.STRING).description("거래일")
+                    )
+                ));
+        }
 
-    @ParameterizedTest
-    @EnumSource(value = BidType.class)
-    @DisplayName("bidType param을 입력하고 상품의 입찰 목록을 조회하면 HTTP 200을 응답한다")
-    void respond_200_when_read_product_bid_list_with_param_succeed(BidType bidType) throws Exception {
-        Slice<ReadProductBidResponseDto> response = new SliceImpl<>(getProductBidResponse());
-        given(bidUseCase.readProductBidList(any(), any(), any())).willReturn(response);
+        @ParameterizedTest
+        @EnumSource(value = BidType.class)
+        @DisplayName("bidType param이 null이 아닌 경우")
+        void with_param(BidType bidType) throws Exception {
+            Slice<ReadProductBidResponseDto> response = new SliceImpl<>(getProductBidResponseWithParam());
+            given(bidUseCase.readProductBidList(any(), any(), any())).willReturn(response);
 
-        mockMvc.perform(get("/api/products/{productId}/bids", 1)
-                .param("bidType", String.valueOf(bidType))
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk()).andDo(print())
-            .andDo(document(documentIdentifier,
-                getDocumentRequest(),
-                getDocumentResponse(),
-                pathParameters(
-                    parameterWithName("productId").description("상품 ID")
-                ),
-                queryParameters(parameterWithName("bidType").description("입찰 타입(BUY / SELL)")),
-                relaxedResponseFields(
-                    fieldWithPath("data.content.[].bidPrice").type(JsonFieldType.NUMBER).description("판매 희망가"),
-                    fieldWithPath("data.content.[].quantity").type(JsonFieldType.NUMBER).description("수량")
-                )
-            ));
+            mockMvc.perform(get("/api/products/{productId}/bids", 1)
+                    .param("bidType", String.valueOf(bidType))
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andDo(print())
+                .andDo(document(documentIdentifier,
+                    getDocumentRequest(),
+                    getDocumentResponse(),
+                    pathParameters(
+                        parameterWithName("productId").description("상품 ID")
+                    ),
+                    queryParameters(parameterWithName("bidType").description("입찰 타입(BUY / SELL)")),
+                    relaxedResponseFields(
+                        fieldWithPath("data.content.[].bidPrice").type(JsonFieldType.NUMBER).description("판매 희망가"),
+                        fieldWithPath("data.content.[].quantity").type(JsonFieldType.NUMBER).description("수량")
+                    )
+                ));
+        }
     }
 
     @Test
@@ -221,6 +231,17 @@ class BidControllerUnitTest {
     }
 
     @Test
+    @DisplayName("입찰 상품 금액 입금 API 호출시 구매자의 계좌 잔액이 상품 금액보다 적으면 HTTP 400을 응답한다")
+    void respond_400_when_deposit_bid_but_insufficient_balance() throws Exception {
+        doThrow(INSUFFICIENT_BALANCE).when(bidUseCase).depositBid(any(), anyLong());
+
+        mockMvc.perform(patch("/api/bids/deposit/{bidId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andDo(print());
+    }
+
+    @Test
     @DisplayName("입찰 수정에 성공하면 HTTP 200을 응답한다")
     void respond_200_when_update_bid_succeed() throws Exception {
         UpdateBidRequestDto request = new UpdateBidRequestDto(40000);
@@ -256,7 +277,18 @@ class BidControllerUnitTest {
             ));
     }
 
-    private List<ReadProductBidResponseDto> getProductBidResponse() {
+    @Test
+    @DisplayName("입찰 삭제 API 호출시 입찰자가 아닌 사용자가 입찰 삭제를 시도할 경우 HTTP 403을 응답한다")
+    void respond_403_when_update_bid_but_user_is_not_bidder() throws Exception {
+        doThrow(FORBIDDEN_BID).when(bidUseCase).deleteBid(any(), anyLong());
+
+        mockMvc.perform(delete("/api/bids/{bidId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden())
+            .andDo(print());
+    }
+
+    private List<ReadProductBidResponseDto> getProductBidResponseWithParam() {
         ReadProductBidQueryDto queryDto1 = new ReadProductBidQueryDto(7000, 1L);
         ReadProductBidQueryDto queryDto2 = new ReadProductBidQueryDto(8000, 3L);
         ReadProductBidQueryDto queryDto3 = new ReadProductBidQueryDto(1000, 1L);
@@ -264,7 +296,7 @@ class BidControllerUnitTest {
             ReadProductBidResponseDto.from(queryDto2), ReadProductBidResponseDto.from(queryDto3));
     }
 
-    private List<ReadProductBidResponseDto> getProductBidResponseWithParam() {
+    private List<ReadProductBidResponseDto> getProductBidResponseWithoutParam() {
         ReadProductBidQueryDto queryDto1 = new ReadProductBidQueryDto(7000, LocalDateTime.now());
         ReadProductBidQueryDto queryDto2 = new ReadProductBidQueryDto(8000, LocalDateTime.now().minusDays(1));
         ReadProductBidQueryDto queryDto3 = new ReadProductBidQueryDto(1000, LocalDateTime.now().minusDays(5));

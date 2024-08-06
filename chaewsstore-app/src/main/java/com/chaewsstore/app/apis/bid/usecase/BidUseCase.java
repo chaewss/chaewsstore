@@ -85,11 +85,13 @@ public class BidUseCase {
      *
      * @param user    구매 입찰을 생성하는 사용자
      * @param request 주문 요청 정보
+     * @throws NotFoundException 상품이 존재하지 않는 경우
      * @throws NotFoundException 주어진 조건의 판매 가능한 입찰이 없는 경우
      */
     @Transactional
     public void transactSellBid(User user, TransactBidRequestDto request) {
-        Bid sellBid = getValidBid(request.productId(), request.price(), BidType.SELL);
+        Product product = getProduct(request.productId());
+        Bid sellBid = getFirstValidBid(product, request.price(), BidType.SELL);
 
         Bid buyBid = bidService.create(Bid.transactSellBidAndCreateBuyBid(user, sellBid));
         sellBid.relateBid(buyBid);
@@ -100,11 +102,13 @@ public class BidUseCase {
      *
      * @param user    판매 입찰을 생성하는 사용자
      * @param request 주문 요청 정보
+     * @throws NotFoundException 상품이 존재하지 않는 경우
      * @throws NotFoundException 주어진 조건의 구매 가능한 입찰이 없는 경우
      */
     @Transactional
     public void transactBuyBid(User user, TransactBidRequestDto request) {
-        Bid buyBid = getValidBid(request.productId(), request.price(), BidType.BUY);
+        Product product = getProduct(request.productId());
+        Bid buyBid = getFirstValidBid(product, request.price(), BidType.BUY);
 
         Bid sellBid = bidService.create(Bid.transactBuyBidAndCreateSellBid(user, buyBid));
         buyBid.relateBid(sellBid);
@@ -175,8 +179,8 @@ public class BidUseCase {
         return bidService.readById(bidId).orElseThrow(() -> NOT_FOUND_BID);
     }
 
-    private Bid getValidBid(Long productId, Integer price, BidType bidType) {
-        return bidService.readValidBid(productId, price, bidType)
+    private Bid getFirstValidBid(Product product, Integer price, BidType bidType) {
+        return bidService.readFirstValidBid(product, price, bidType)
             .orElseThrow(() -> NOT_FOUND_BID_WITH_CONDITION);
     }
 

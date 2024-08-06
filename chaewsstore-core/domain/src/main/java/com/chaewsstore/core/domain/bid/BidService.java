@@ -34,9 +34,9 @@ public class BidService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Bid> readValidBid(Long productId, Integer price, BidType bidType) {
-        return bidRepository.findFirstByProductIdAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
-            productId, price, bidType, Status.LIVE);
+    public Optional<Bid> readFirstValidBid(Product product, Integer price, BidType bidType) {
+        return bidRepository.findFirstByProductAndPriceAndBidTypeAndStatusOrderByCreatedAtAsc(
+            product, price, bidType, Status.LIVE);
     }
 
     @Transactional(readOnly = true)

@@ -36,6 +36,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+@DisplayName("AdminController 클래스")
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest(AdminController.class)
 class AdminControllerUnitTest {
@@ -57,7 +58,7 @@ class AdminControllerUnitTest {
     }
 
     @Test
-    @DisplayName("회원가입에 성공하면 201을 응답한다")
+    @DisplayName("회원가입에 성공하면 HTTP 201을 응답한다")
     void respond_201_when_sign_up_succeed() throws Exception {
         AdminSignupRequestDto request = new AdminSignupRequestDto("admin@gmail.com", "aaaa1111!!", "어드민");
         AdminResponseDto response = new AdminResponseDto(1L, "admin@gmail.com", "어드민");
@@ -86,7 +87,7 @@ class AdminControllerUnitTest {
     }
 
     @Test
-    @DisplayName("해당 이메일로 가입된 계정이 존재하지 않으면 이메일 중복 검사에서 200을 응답한다")
+    @DisplayName("해당 이메일로 가입된 계정이 존재하지 않으면 HTTP 200을 응답한다")
     void respond_200_when_username_does_not_exist() throws Exception {
         final String username = "admin@gmail.com";
 

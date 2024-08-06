@@ -45,20 +45,7 @@ subprojects {
     }
 
     jacocoTestCoverageVerification {
-        violationRules {
-            rule {
-                enabled = true
-                element = "CLASS"
-                limit {
-                    counter = "LINE"
-                    value = "COVEREDRATIO"
-                    minimum = 0.80
-                }
-                excludes += excludeFromCoverage.stream()
-                        .map(s -> s.replace("/", "."))
-                        .collect(Collectors.toList())
-            }
-        }
+        enabled = false
     }
 }
 
@@ -90,4 +77,37 @@ project(':support:jacoco') {
             implementation project
         }
     }
+
+    task jacocoRootCoverageVerification(type: JacocoCoverageVerification) {
+        dependsOn testCodeCoverageReport
+
+        sourceDirectories.setFrom(files(allProjects
+                .collect { it.sourceSets.main.allSource.srcDirs }))
+        classDirectories.setFrom(files(allProjects
+                .collect { it.fileTree(dir: "${it.buildDir}/classes/java/main", exclude:
+                        Qdomains + excludeFromCoverage.stream()
+                                .map(s -> s + ".class")
+                                .collect(Collectors.toList())) }))
+        executionData.setFrom(files(allProjects.collect { it.jacocoTestReport.executionData }))
+
+        violationRules {
+            rule {
+                enabled = true
+                element = "CLASS"
+                limit {
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = 0.80
+                }
+                excludes += Qdomains.stream()
+                        .map(s -> s.replace("/", "."))
+                        .collect(Collectors.toList()) +
+                        excludeFromCoverage.stream()
+                                .map(s -> s.replace("/", "."))
+                                .collect(Collectors.toList())
+            }
+        }
+    }
+
+    check.dependsOn jacocoRootCoverageVerification
 }

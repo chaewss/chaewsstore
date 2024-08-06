@@ -10,6 +10,7 @@ import com.chaewsstore.core.infra.exception.JwtErrorCode;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
@@ -64,6 +65,14 @@ class TokenProviderTest {
     }
 
     @Test
+    @DisplayName("헤더가 Bearer로 시작하지 않을 경우 토큰 추출에 실패한다")
+    void should_throw_exception_when_token_does_not_start_with_bearer() {
+        String token = "testToken";
+        String authHeader = "Digest " + token;
+        assertThrows(JwtErrorException.class, () -> tokenProvider.extractToken(authHeader));
+    }
+
+    @Test
     @DisplayName("액세스 토큰을 생성한다")
     void should_generate_access_token() {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -109,6 +118,20 @@ class TokenProviderTest {
     void should_throw_exception_for_invalid_token() {
         String invalidToken = "invalidToken";
         assertThrows(JwtErrorException.class, () -> tokenProvider.getAuthentication(invalidToken));
+    }
+
+    @Test
+    @DisplayName("토큰에서 주체를 추출한다")
+    void should_get_subject_from_token() {
+        String subject = "user";
+        String token = Jwts.builder()
+            .subject(subject)
+            .signWith(key)
+            .compact();
+
+        String result = tokenProvider.getSubjectFromToken(token);
+
+        assertThat(result).isEqualTo(subject);
     }
 
     @Test
@@ -162,6 +185,19 @@ class TokenProviderTest {
             () -> tokenProvider.getClaimsFromToken(token));
 
         assertEquals(JwtErrorCode.EXPIRED_TOKEN, result.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("지원되지 않는 JWT 토큰일 경우 토큰에서 클레임을 추출하는데 실패한다")
+    void should_throw_exception_for_unsupported_jwt() {
+        String token = Jwts.builder()
+            .signWith(key)
+            .compact();
+
+        JwtErrorException result = assertThrows(JwtErrorException.class,
+            () -> tokenProvider.getClaimsFromToken(token));
+
+        assertEquals(JwtErrorCode.UNSUPPORTED_TOKEN, result.getErrorCode());
     }
 
     @Test

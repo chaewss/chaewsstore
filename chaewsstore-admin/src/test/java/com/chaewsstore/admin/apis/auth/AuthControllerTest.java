@@ -40,6 +40,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+@DisplayName("AuthController 클래스")
 @ExtendWith(RestDocumentationExtension.class)
 @WebMvcTest(AuthController.class)
 class AuthControllerTest {
@@ -94,7 +95,7 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("해당 이메일을 가진 계정이 존재하지 않으면 로그인 API 호출시 HTTP 404를 응답한다")
+    @DisplayName("로그인 API 호출시 해당 이메일을 가진 계정이 존재하지 않으면 HTTP 404를 응답한다")
     void respond_404_when_login_but_user_does_not_exist() throws Exception {
         LoginRequestDto requestDto = new LoginRequestDto("admin@gmail.com", "password1!");
 
@@ -108,7 +109,7 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("비밀번호가 일치하지 않으면 로그인 API 호출시 HTTP 401을 응답한다")
+    @DisplayName("로그인 API 호출시 비밀번호가 일치하지 않으면 HTTP 401을 응답한다")
     void respond_401_when_password_is_not_correct() throws Exception {
         LoginRequestDto requestDto = new LoginRequestDto("admin@gmail.com", "password1!");
 

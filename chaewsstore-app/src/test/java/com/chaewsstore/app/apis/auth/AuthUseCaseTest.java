@@ -1,5 +1,6 @@
 package com.chaewsstore.app.apis.auth;
 
+import static com.chaewsstore.core.domain.UserFixture.USER;
 import static com.chaewsstore.core.infra.jwt.AuthConstants.BEARER_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,12 +23,12 @@ import com.chaewsstore.app.common.helper.PasswordEncoderHelper;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserErrorCode;
 import com.chaewsstore.core.domain.user.UserService;
-import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.infra.jwt.Jwts;
 import com.globalutils.exception.NotFoundException;
 import com.globalutils.exception.UnauthorizedException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +37,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 
+@DisplayName("AuthUseCase 클래스")
 @ExtendWith(MockitoExtension.class)
 class AuthUseCaseTest {
 
@@ -54,111 +56,120 @@ class AuthUseCaseTest {
     @Mock
     private UserService userService;
 
-    @Test
-    @DisplayName("로그인에 성공하면 토큰을 얻는다")
-    void succeed_to_login() {
-        LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
-        Authentication authentication = mock(Authentication.class);
+    @Nested
+    @DisplayName("login 메서드는")
+    class login {
 
-        given(userService.readByUsername(requestDto.email())).willReturn(Optional.of(user));
-        given(passwordEncoderHelper.matches(requestDto.password(), user.getPassword())).willReturn(
-            true);
+        @Test
+        @DisplayName("로그인에 성공하면 토큰을 반환한다")
+        void succeed_to_login() {
+            LoginRequestDto requestDto = new LoginRequestDto("email@gmail.com", "password1!");
+            Authentication authentication = mock(Authentication.class);
 
-        given(authenticationManager.authenticate(any())).willReturn(authentication);
+            given(userService.readByUsername(requestDto.email())).willReturn(Optional.of(user));
+            given(passwordEncoderHelper.matches(requestDto.password(),
+                user.getPassword())).willReturn(true);
 
-        given(jwtAuthHelper.generateTokensAndSave(any(), any())).willReturn(token);
+            given(authenticationManager.authenticate(any())).willReturn(authentication);
 
-        LoginResponseDto responseDto = authUseCase.login(requestDto);
+            given(jwtAuthHelper.generateTokensAndSave(any(), any())).willReturn(token);
 
-        assertThat(responseDto.token().accessToken()).isEqualTo(accessToken);
-        assertThat(responseDto.token().refreshToken()).isEqualTo(refreshToken);
-        then(userService).should(times(1)).readByUsername(any());
-        then(passwordEncoderHelper).should(times(1)).matches(any(), any());
-        then(jwtAuthHelper).should(times(1)).generateTokensAndSave(any(), any());
+            LoginResponseDto responseDto = authUseCase.login(requestDto);
+
+            assertThat(responseDto.token().accessToken()).isEqualTo(accessToken);
+            assertThat(responseDto.token().refreshToken()).isEqualTo(refreshToken);
+            then(userService).should(times(1)).readByUsername(any());
+            then(passwordEncoderHelper).should(times(1)).matches(any(), any());
+            then(jwtAuthHelper).should(times(1)).generateTokensAndSave(any(), any());
+        }
+
+        @Test
+        @DisplayName("해당하는 이메일을 가진 사용자가 없으면 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_user_tries_to_login_but_user_does_not_exist() {
+            LoginRequestDto request = new LoginRequestDto("whoareyou@gmail.com", "password1!");
+
+            given(userService.readByUsername(any())).willReturn(Optional.empty());
+
+            assertThrows(NotFoundException.class, () -> authUseCase.login(request));
+
+            then(userService).should(times(1)).readByUsername(any());
+        }
+
+        @Test
+        @DisplayName("비밀번호가 일치하지 않으면 UnauthorizedException이 발생한다")
+        void should_throw_UnauthorizedException_when_password_is_not_correct() {
+            LoginRequestDto request = new LoginRequestDto("email@gmail.com", "incorrectPassword!");
+
+            given(userService.readByUsername(any())).willReturn(Optional.of(user));
+
+            assertThrows(UnauthorizedException.class, () -> authUseCase.login(request));
+
+            then(userService).should(times(1)).readByUsername(any());
+        }
     }
 
-    @Test
-    @DisplayName("해당하는 아이디를 가진 사용자가 없으면 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_user_tries_to_login_but_user_does_not_exist() {
-        LoginRequestDto request = new LoginRequestDto("whoareyou@gmail.com", "password1!");
+    @Nested
+    @DisplayName("reissueToken 메서드는")
+    class reissue_token {
 
-        given(userService.readByUsername(any())).willReturn(Optional.empty());
+        @Test
+        @DisplayName("토큰 재발급에 성공하면 토큰을 반환한다")
+        void succeed_to_reissue_token() {
+            ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
+                "refresh_token");
 
-        assertThrows(NotFoundException.class, () -> authUseCase.login(request));
+            given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
+                user.getUsername());
+            given(userService.readByUsername(any())).willReturn(Optional.of(user));
 
-        then(userService).should(times(1)).readByUsername(any());
+            given(jwtAuthHelper.reissueToken(any(), any())).willReturn(token);
+
+            ReissueTokenResponseDto response = authUseCase.reissueToken(request);
+
+            assertThat(response.token().accessToken()).isEqualTo(accessToken);
+            assertThat(response.token().refreshToken()).isEqualTo(refreshToken);
+            then(jwtAuthHelper).should(times(1)).getSubject(any());
+            then(userService).should(times(1)).readByUsername(any());
+            then(jwtAuthHelper).should(times(1)).reissueToken(any(), any());
+        }
+
+        @Test
+        @DisplayName("사용자 계정이 존재하지 않는 경우 NotFoundException이 발생한다")
+        void should_throw_NotFoundException_when_reissue_token_but_user_does_not_exist() {
+            ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
+                "refresh_token");
+
+            given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
+                user.getUsername());
+            given(userService.readByUsername(any())).willReturn(Optional.empty());
+
+            NotFoundException result = assertThrows(NotFoundException.class,
+                () -> authUseCase.reissueToken(request));
+
+            then(jwtAuthHelper).should(times(1)).getSubject(any());
+            then(userService).should(times(1)).readByUsername(any());
+            assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
+        }
     }
 
-    @Test
-    @DisplayName("비밀번호가 일치하지 않으면 UnauthorizedException이 발생한다")
-    void should_throw_UnauthorizedException_when_password_is_not_correct() {
-        LoginRequestDto request = new LoginRequestDto("email@gmail.com", "incorrectPassword!");
+    @Nested
+    @DisplayName("logout 메서드는")
+    class logout {
 
-        given(userService.readByUsername(any())).willReturn(Optional.of(user));
+        @Test
+        @DisplayName("로그아웃에 성공하면 토큰을 삭제한다")
+        void succeed_to_logout() {
+            LogoutRequestDto request = new LogoutRequestDto(refreshToken);
 
-        assertThrows(UnauthorizedException.class, () -> authUseCase.login(request));
+            willDoNothing().given(jwtAuthHelper).removeRefreshToken(any(), any());
 
-        then(userService).should(times(1)).readByUsername(any());
+            authUseCase.logout(user, request);
+
+            then(jwtAuthHelper).should(times(1)).removeRefreshToken(any(), any());
+        }
     }
 
-    @Test
-    @DisplayName("토큰 재발급에 성공한다")
-    void succeed_to_reissue_token() {
-        ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
-            "refresh_token");
-
-        given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
-            user.getUsername());
-        given(userService.readByUsername(any())).willReturn(Optional.of(user));
-
-        given(jwtAuthHelper.reissueToken(any(), any())).willReturn(token);
-
-        ReissueTokenResponseDto response = authUseCase.reissueToken(request);
-
-        assertThat(response.token().accessToken()).isEqualTo(accessToken);
-        assertThat(response.token().refreshToken()).isEqualTo(refreshToken);
-        then(jwtAuthHelper).should(times(1)).getSubject(any());
-        then(userService).should(times(1)).readByUsername(any());
-        then(jwtAuthHelper).should(times(1)).reissueToken(any(), any());
-    }
-
-    @Test
-    @DisplayName("사용자 계정이 존재하지 않는 경우 NotFoundException이 발생한다")
-    void should_throw_NotFoundException_when_reissue_token_but_user_does_not_exist() {
-        ReissueTokenRequestDto request = new ReissueTokenRequestDto("access_token",
-            "refresh_token");
-
-        given(jwtAuthHelper.getSubject(request.accessToken())).willReturn(
-            user.getUsername());
-        given(userService.readByUsername(any())).willReturn(Optional.empty());
-
-        NotFoundException result = assertThrows(NotFoundException.class,
-            () -> authUseCase.reissueToken(request));
-
-        then(jwtAuthHelper).should(times(1)).getSubject(any());
-        then(userService).should(times(1)).readByUsername(any());
-        assertEquals(UserErrorCode.NOT_FOUND_USER, result.getResponseCode());
-    }
-
-    @Test
-    @DisplayName("로그아웃에 성공한다")
-    void succeed_to_logout() {
-        LogoutRequestDto request = new LogoutRequestDto(refreshToken);
-
-        willDoNothing().given(jwtAuthHelper).removeRefreshToken(any(), any());
-
-        authUseCase.logout(user, request);
-
-        then(jwtAuthHelper).should(times(1)).removeRefreshToken(any(), any());
-    }
-
-    User user = User.builder()
-        .id(1L)
-        .username("email@gmail.com")
-        .password("password1!")
-        .nickname("nickname")
-        .role(Role.ASSOCIATE)
-        .build();
+    User user = USER.getUser();
 
     String accessToken = "Bearer (accessToken)";
     String refreshToken = "(refreshToken)";
