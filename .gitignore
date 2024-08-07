@@ -5,7 +5,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-$buildDir
+chaewsstore-core/domain/src/main/generated
 api-doc.html
 
 ### STS ###

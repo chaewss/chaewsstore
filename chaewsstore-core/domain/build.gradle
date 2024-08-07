@@ -6,7 +6,7 @@ plugins {
 bootJar { enabled = false }
 jar { enabled = true }
 
-apply from: '../../gradle/querydsl.gradle'
+apply from: './querydsl.gradle'
 
 dependencies {
     implementation project(':global-utils')
