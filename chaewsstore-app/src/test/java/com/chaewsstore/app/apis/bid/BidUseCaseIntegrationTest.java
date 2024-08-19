@@ -22,6 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.TestPropertySource;
 
+@Slf4j
 @ExtendWith(DatabaseClearExtension.class)
 @TestPropertySource(properties = "SECRET_KEY=helloThisIsChaewsstoreSecretKeyAndItNeedsToBeLongerThan256Bits")
 @SpringBootTest
@@ -117,14 +119,22 @@ class BidUseCaseIntegrationTest {
         AtomicInteger failCount = new AtomicInteger();
 
         for (int i = 0; i < threadCount; i++) {
+            final int threadId = i + 1;
             executor.submit(() -> {
                 try {
+                    log.info("스레드 {} 시작", threadId);
                     bidUseCase.depositBid(buyer, inTransactionBuyBid.getId());
                     successCount.getAndIncrement();
+                    log.info("스레드 {} 성공", threadId);
                 } catch (ObjectOptimisticLockingFailureException e) {
                     failCount.getAndIncrement();
+                    log.info("스레드 {} 실패", threadId);
+                } catch (Exception e) {
+                    failCount.getAndIncrement();
+                    log.info("스레드 {} 실패: {}", threadId, e.getMessage());
                 } finally {
                     latch.countDown();
+                    log.info("스레드 {} 완료", threadId);
                 }
             });
         }
@@ -132,6 +142,8 @@ class BidUseCaseIntegrationTest {
         latch.await();
         executor.shutdown();
 
+        log.info("성공 스레드 수: {}", successCount.get());
+        log.info("실패 스레드 수: {}", failCount.get());
         Long afterSellerBalance = userService.readByUsername(seller.getUsername()).get()
             .getAccount();
         Long afterBuyerBalance = userService.readByUsername(buyer.getUsername()).get().getAccount();
