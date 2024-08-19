@@ -2,12 +2,14 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.0.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "org.sonarqube" version "5.0.0.4638"
 }
 
 apply from: 'gradle/jacoco.gradle'
 apply from: 'gradle/junit.gradle'
 apply from: 'gradle/lombok.gradle'
 apply from: 'gradle/spring.gradle'
+apply from: 'gradle/sonar.gradle'
 
 allprojects {
     group = 'com.chaewsstore'
@@ -27,9 +29,15 @@ allprojects {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
+    apply plugin: 'org.sonarqube'
     compileJava.options.encoding = 'UTF-8'
 
     dependencies {
         implementation 'org.apache.commons:commons-collections4:4.4'
+    }
+    sonar {
+        properties {
+            property 'sonar.java.binaries', "${buildDir}/classes"
+        }
     }
 }
