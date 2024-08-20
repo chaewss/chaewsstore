@@ -1,7 +1,8 @@
 sonar {
     properties {
-        property "sonar.projectKey", "chaewsstore"
-        property "sonar.projectName", "chaewsstore"
+        property "sonar.projectKey", "chaewss_chaewsstore"
+        property "sonar.organization", "chaewss"
+        property "sonar.host.url", "https://sonarcloud.io"
         property 'sonar.sources', 'src'
         property 'sonar.language', 'java'
         property 'sonar.sourceEncoding', 'UTF-8'
