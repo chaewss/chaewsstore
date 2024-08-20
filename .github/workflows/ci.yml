@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "feature#50" ]
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
 
 jobs:
   build_and_analyze:
