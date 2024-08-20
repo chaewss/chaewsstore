@@ -75,14 +75,22 @@ class BidUseCaseIntegrationTest {
             liveSellBid.getPrice());
 
         for (int i = 0; i < threadCount; i++) {
+            final int threadId = i + 1;
             executor.submit(() -> {
                 try {
+                    log.info("스레드 {} 시작", threadId);
                     bidUseCase.transactSellBid(seller, request);
                     successCount.getAndIncrement();
+                    log.info("스레드 {} 성공", threadId);
                 } catch (ObjectOptimisticLockingFailureException e) {
                     failCount.getAndIncrement();
+                    log.info("스레드 {} 실패", threadId);
+                } catch (Exception e) {
+                    failCount.getAndIncrement();
+                    log.info("스레드 {} 실패: {}", threadId, e.getMessage());
                 } finally {
                     latch.countDown();
+                    log.info("스레드 {} 완료", threadId);
                 }
             });
         }
@@ -90,6 +98,8 @@ class BidUseCaseIntegrationTest {
         latch.await();
         executor.shutdown();
 
+        log.info("성공 스레드 수: {}", successCount.get());
+        log.info("실패 스레드 수: {}", failCount.get());
         assertAll(
             () -> assertThat(successCount.get()).isEqualTo(1),
             () -> assertThat(failCount.get()).isEqualTo(9)
