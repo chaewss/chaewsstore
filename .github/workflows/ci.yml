@@ -38,7 +38,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            build/classes
 
   sonarCloud:
     needs: build
@@ -60,7 +62,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build/libs/*.jar
+          path: ./
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
