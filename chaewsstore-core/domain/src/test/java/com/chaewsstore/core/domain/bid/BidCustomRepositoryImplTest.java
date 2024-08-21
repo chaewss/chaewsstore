@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+@DisplayName("BidCustomRepositoryImpl 클래스")
 @Import(TestConfig.class)
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @DataJpaTest

@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
+@DisplayName("ProductService 클래스")
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 

@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
+@DisplayName("ProductRepository 클래스")
 @Import(TestConfig.class)
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @DataJpaTest
