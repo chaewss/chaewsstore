@@ -1,5 +1,6 @@
 package com.chaewsstore.core.domain.bid;
 
+import static com.chaewsstore.core.domain.BidFixture.BUY_BID_IN_TRANSACTION;
 import static com.chaewsstore.core.domain.BidFixture.SELL_BID_AUTHENTICATED;
 import static com.chaewsstore.core.domain.BidFixture.SELL_BID_IN_TRANSACTION;
 import static com.chaewsstore.core.domain.ProductFixture.PRODUCT;
@@ -7,6 +8,7 @@ import static com.chaewsstore.core.domain.UserFixture.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 
 import com.chaewsstore.core.domain.bid.Bid.BidType;
 import com.chaewsstore.core.domain.common.Status;
@@ -78,7 +80,7 @@ class BidTest {
             Bid buyBid = Bid.create(1500, product, user, Bid.BidType.BUY);
 
             // when
-            Bid sellBid = Bid.transactSellBidAndCreateBuyBid(user, buyBid);
+            Bid sellBid = Bid.transactBuyBidAndCreateSellBid(user, buyBid);
 
             // then
             assertThat(buyBid.getStatus()).isEqualTo(Status.IN_TRANSACTION);
@@ -118,7 +120,7 @@ class BidTest {
         }
 
         @Test
-        @DisplayName("점수가 95 이상이면 상태가 ACCREDITED로 변경된다")
+        @DisplayName("IN_TRANSACTION 상태에서 95점 이상이면 상태가 ACCREDITED로 변경된다")
         void should_update_status_to_accredited_when_score_is_95_or_above() {
             // given
             bid.updateStatus(Status.IN_TRANSACTION);
@@ -131,7 +133,7 @@ class BidTest {
         }
 
         @Test
-        @DisplayName("점수가 95 미만이면 상태가 AUTHENTICATED_FAILED로 변경되고 관련 입찰은 CANCELLED 된다")
+        @DisplayName("95점 미만이면 상태가 AUTHENTICATED_FAILED로 변경되고 관련 입찰은 CANCELLED 된다")
         void should_update_status_to_authenticated_failed_and_cancel_related_bid_when_score_is_below_95() {
             // given
             Bid relatedBid = SELL_BID_IN_TRANSACTION.getBid();
@@ -145,6 +147,93 @@ class BidTest {
             assertThat(bid.getStatus()).isEqualTo(Status.AUTHENTICATED_FAILED);
             assertThat(relatedBid.getStatus()).isEqualTo(Status.CANCELLED);
         }
+    }
+
+    @Nested
+    @DisplayName("calculateFinalPrice 메서드는")
+    class calculateFinalPrice {
+
+        Bid transactionBid = BUY_BID_IN_TRANSACTION.getBid();
+        Bid relatedBid = SELL_BID_AUTHENTICATED.getBid();
+
+        @Test
+        @DisplayName("관련 입찰의 상태가 ACCREDITED인 경우, 최종 가격이 85%로 계산되어야 한다")
+        void should_return_discount_price_when_calculate_final_price_but_related_bid_is_accredited() {
+            // given
+            Integer price = 1000;
+            relatedBid.updateStatus(Status.ACCREDITED);
+            transactionBid.relateBid(relatedBid);
+
+            // when
+            Long finalPrice = transactionBid.calculateFinalPrice(price);
+
+            // then
+            assertThat(finalPrice).isEqualTo(850L);
+        }
+
+        @Test
+        @DisplayName("관련 입찰의 상태가 AUTHENTICATED인 경우, 최종 가격이 전체 금액으로 계산되어야 한다")
+        void should_return_full_price_when_calculate_final_price_and_related_bid_is_authenticated() {
+            // given
+            Integer price = 1000;
+            transactionBid.relateBid(relatedBid);
+
+            // when
+            Long finalPrice = transactionBid.calculateFinalPrice(price);
+
+            // then
+            assertThat(finalPrice).isEqualTo(1000L);
+        }
+
+        @ParameterizedTest(name = "상태 값이 {0}일 때")
+        @EnumSource(mode = EXCLUDE, names = {"IN_TRANSACTION"})
+        @DisplayName("입찰 상태가 IN_TRANSACTION이 아닌 경우 BadRequestException이 발생한다")
+        void should_throw_BadRequestException_when_bid_status_is_not_in_transaction(Status status) {
+            // given
+            Integer price = 1000;
+            transactionBid.relateBid(relatedBid);
+            transactionBid.updateStatus(status);
+
+            // when
+            BadRequestException result = assertThrows(BadRequestException.class,
+                () -> transactionBid.calculateFinalPrice(price));
+
+            // then
+            assertEquals(BidErrorCode.BID_NOT_IN_TRANSACTION, result.getResponseCode());
+        }
+
+        @ParameterizedTest(name = "상태 값이 {0}일 때")
+        @EnumSource(mode = EXCLUDE, names = {"AUTHENTICATED", "ACCREDITED"})
+        @DisplayName("관련 입찰의 상태가 AUTHENTICATED 또는 ACCREDITED가 아닌 경우 BadRequestException이 발생한다")
+        void should_throw_BadRequestException_when_related_bid_status_is_not_authenticated_or_accredited(Status status) {
+            // given
+            Integer price = 1000;
+            transactionBid.relateBid(relatedBid);
+            relatedBid.updateStatus(status);
+
+            // when
+            BadRequestException result = assertThrows(BadRequestException.class,
+                () -> transactionBid.calculateFinalPrice(price));
+
+            // then
+            assertEquals(BidErrorCode.BID_NOT_INSPECT, result.getResponseCode());
+        }
+    }
+
+    @Test
+    @DisplayName("updateStatusAfterDeposit 메서드는 입금 후 입찰 상태를 DELIVERING으로 변경하고, 관련 입찰 상태를 FINISHED로 변경한다")
+    void should_update_status_to_delivering_and_related_bid_status_to_finished_after_deposit() {
+        // given
+        Bid transactionBid = BUY_BID_IN_TRANSACTION.getBid();
+        Bid relatedBid = SELL_BID_AUTHENTICATED.getBid();
+        transactionBid.relateBid(relatedBid);
+
+        // when
+        transactionBid.updateStatusAfterDeposit();
+
+        // then
+        assertThat(transactionBid.getStatus()).isEqualTo(Status.DELIVERING);
+        assertThat(transactionBid.getRelatedBid().getStatus()).isEqualTo(Status.FINISHED);
     }
 
     @Nested
