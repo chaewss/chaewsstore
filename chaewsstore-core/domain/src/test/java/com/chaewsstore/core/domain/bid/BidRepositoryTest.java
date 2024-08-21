@@ -1,6 +1,8 @@
 package com.chaewsstore.core.domain.bid;
 
-import static com.chaewsstore.core.domain.BidFixture.BID;
+import static com.chaewsstore.core.domain.BidFixture.ANOTHER_USER_BID;
+import static com.chaewsstore.core.domain.BidFixture.BUY_BID_LIVE;
+import static com.chaewsstore.core.domain.BidFixture.SELL_BID_LIVE;
 import static com.chaewsstore.core.domain.ProductFixture.PRODUCT1;
 import static com.chaewsstore.core.domain.UserFixture.ANOTHER_USER;
 import static com.chaewsstore.core.domain.UserFixture.USER;
@@ -44,15 +46,15 @@ class BidRepositoryTest {
 
         product = entityManager.merge(PRODUCT1.getProductWithBrand(brand));
 
-        sellBid = entityManager.merge(
-            BID.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(user, product, 800,
+        sellBid = bidRepository.save(
+            SELL_BID_LIVE.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(user, product, 800,
                 BidType.SELL, Status.LIVE));
-        oldBuyBid = entityManager.merge(
-            BID.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(user, product, 800,
+        oldBuyBid = bidRepository.save(
+            BUY_BID_LIVE.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(user, product, 800,
                 BidType.BUY, Status.LIVE));
-        newBuyBid = entityManager.merge(
-            BID.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(anotherUser, product, 800,
-                BidType.BUY, Status.LIVE));
+        newBuyBid = bidRepository.save(
+            ANOTHER_USER_BID.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(anotherUser,
+                product, 800, BidType.BUY, Status.LIVE));
     }
 
     @Test

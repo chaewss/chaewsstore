@@ -1,12 +1,14 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:tcp://localhost/~/chaewsstoretest
+    url: jdbc:h2:mem:chaewsstoretest;MODE=MySQL;NON_KEYWORDS=USER
     username: sa
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
+      dialect: org.hibernate.dialect.H2Dialect
+
 jwt:
   header: Authorization
   secret: ${SECRET_KEY}

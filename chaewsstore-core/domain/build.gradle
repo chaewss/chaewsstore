@@ -3,9 +3,6 @@ plugins {
     id 'java-test-fixtures'
 }
 
-bootJar { enabled = false }
-jar { enabled = true }
-
 apply from: './querydsl.gradle'
 
 dependencies {

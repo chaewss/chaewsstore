@@ -1,8 +1,11 @@
 package com.chaewsstore.app.apis.bid;
 
+import static com.chaewsstore.core.domain.BidFixture.BID;
+import static com.chaewsstore.core.domain.ProductFixture.PRODUCT;
+import static com.chaewsstore.core.domain.UserFixture.BUYER;
+import static com.chaewsstore.core.domain.UserFixture.SELLER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.chaewsstore.app.apis.bid.dto.TransactBidRequestDto;
 import com.chaewsstore.app.apis.bid.usecase.BidUseCase;
@@ -13,7 +16,6 @@ import com.chaewsstore.core.domain.bid.BidService;
 import com.chaewsstore.core.domain.common.Status;
 import com.chaewsstore.core.domain.product.Product;
 import com.chaewsstore.core.domain.product.ProductService;
-import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserService;
 import java.util.concurrent.CountDownLatch;
@@ -28,9 +30,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.test.context.TestPropertySource;
 
 @Slf4j
 @ExtendWith(DatabaseClearExtension.class)
+@TestPropertySource(properties = "SECRET_KEY=helloThisIsChaewsstoreSecretKeyAndItNeedsToBeLongerThan256Bits")
 @SpringBootTest
 class BidUseCaseIntegrationTest {
 
@@ -48,46 +52,17 @@ class BidUseCaseIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        seller = User.builder()
-            .username("seller@gmail.com")
-            .password("aaaa1111!!")
-            .nickname("seller")
-            .account(20000L)
-            .role(Role.ASSOCIATE)
-            .isDeleted(false)
-            .build();
-        userService.create(seller);
-
-        buyer = User.builder()
-            .username("buyer@gmail.com")
-            .password("aaaa1111!!")
-            .nickname("buyer")
-            .account(100000L)
-            .role(Role.ASSOCIATE)
-            .isDeleted(false)
-            .build();
-        userService.create(buyer);
-
-        product = Product.builder()
-            .name("상품1")
-            .price(40000)
-            .isDeleted(false)
-            .build();
-        productService.create(product);
+        seller = userService.create(SELLER.getUser());
+        buyer = userService.create(BUYER.getUser());
+        product = productService.create(PRODUCT.getProduct());
     }
 
     @Test
     @DisplayName("멀티 스레드 환경에서 판매 입찰에 대한 구매 입찰을 동시에 생성하는 경우 첫 번째 요청만 주문 생성이 보장된다")
     void succeed_to_create_order_in_multi_thread() throws InterruptedException {
-        Bid liveBuyBid = Bid.builder()
-            .product(product)
-            .bidder(buyer)
-            .price(60000)
-            .bidType(BidType.SELL)
-            .status(Status.LIVE)
-            .isDeleted(false)
-            .build();
-        bidService.create(liveBuyBid);
+        Bid liveSellBid = BID.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(seller, product,
+            600, BidType.SELL, Status.LIVE);
+        bidService.create(liveSellBid);
 
         int threadCount = 10;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -97,17 +72,25 @@ class BidUseCaseIntegrationTest {
         AtomicInteger failCount = new AtomicInteger();
 
         TransactBidRequestDto request = new TransactBidRequestDto(product.getId(),
-            liveBuyBid.getPrice());
+            liveSellBid.getPrice());
 
         for (int i = 0; i < threadCount; i++) {
+            final int threadId = i + 1;
             executor.submit(() -> {
                 try {
-                    bidUseCase.transactSellBid(buyer, request);
+                    log.info("스레드 {} 시작", threadId);
+                    bidUseCase.transactSellBid(seller, request);
                     successCount.getAndIncrement();
+                    log.info("스레드 {} 성공", threadId);
                 } catch (ObjectOptimisticLockingFailureException e) {
                     failCount.getAndIncrement();
+                    log.info("스레드 {} 실패", threadId);
+                } catch (Exception e) {
+                    failCount.getAndIncrement();
+                    log.info("스레드 {} 실패: {}", threadId, e.getMessage());
                 } finally {
                     latch.countDown();
+                    log.info("스레드 {} 완료", threadId);
                 }
             });
         }
@@ -115,6 +98,8 @@ class BidUseCaseIntegrationTest {
         latch.await();
         executor.shutdown();
 
+        log.info("성공 스레드 수: {}", successCount.get());
+        log.info("실패 스레드 수: {}", failCount.get());
         assertAll(
             () -> assertThat(successCount.get()).isEqualTo(1),
             () -> assertThat(failCount.get()).isEqualTo(9)
@@ -124,27 +109,14 @@ class BidUseCaseIntegrationTest {
     @Test
     @DisplayName("멀티 스레드 환경에서 구매자가 입찰 상품 금액을 동시에 입금하는 경우 첫 번째 요청의 입금 · 출금이 보장된다")
     void succeed_to_deposit__bid_in_multi_thread() throws InterruptedException {
-        Bid authenticatedSellBid = Bid.builder()
-            .product(product)
-            .bidder(seller)
-            .price(6000)
-            .bidType(BidType.SELL)
-            .status(Status.AUTHENTICATED)
-            .isDeleted(false)
-            .build();
+        Bid authenticatedSellBid = BID.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(seller,
+            product, 600, BidType.SELL, Status.AUTHENTICATED);
         bidService.create(authenticatedSellBid);
 
-        Bid inTransactionBuyBid = Bid.builder()
-            .product(product)
-            .bidder(buyer)
-            .price(6000)
-            .bidType(BidType.BUY)
-            .status(Status.IN_TRANSACTION)
-            .relatedBid(authenticatedSellBid)
-            .isDeleted(false)
-            .build();
+        Bid inTransactionBuyBid = BID.getBidWithUserAndProductAndPriceAndBidTypeAndStatus(buyer,
+            product, 600, BidType.BUY, Status.IN_TRANSACTION);
+        inTransactionBuyBid.relateBid(authenticatedSellBid);
         bidService.create(inTransactionBuyBid);
-        authenticatedSellBid.relateBid(inTransactionBuyBid);
 
         int threadCount = 10;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -157,14 +129,22 @@ class BidUseCaseIntegrationTest {
         AtomicInteger failCount = new AtomicInteger();
 
         for (int i = 0; i < threadCount; i++) {
+            final int threadId = i + 1;
             executor.submit(() -> {
                 try {
+                    log.info("스레드 {} 시작", threadId);
                     bidUseCase.depositBid(buyer, inTransactionBuyBid.getId());
                     successCount.getAndIncrement();
+                    log.info("스레드 {} 성공", threadId);
                 } catch (ObjectOptimisticLockingFailureException e) {
                     failCount.getAndIncrement();
+                    log.info("스레드 {} 실패", threadId);
+                } catch (Exception e) {
+                    failCount.getAndIncrement();
+                    log.info("스레드 {} 실패: {}", threadId, e.getMessage());
                 } finally {
                     latch.countDown();
+                    log.info("스레드 {} 완료", threadId);
                 }
             });
         }
@@ -172,6 +152,8 @@ class BidUseCaseIntegrationTest {
         latch.await();
         executor.shutdown();
 
+        log.info("성공 스레드 수: {}", successCount.get());
+        log.info("실패 스레드 수: {}", failCount.get());
         Long afterSellerBalance = userService.readByUsername(seller.getUsername()).get()
             .getAccount();
         Long afterBuyerBalance = userService.readByUsername(buyer.getUsername()).get().getAccount();
