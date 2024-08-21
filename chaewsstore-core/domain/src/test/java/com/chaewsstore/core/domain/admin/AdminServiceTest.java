@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@DisplayName("AdminService 클래스")
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
 
