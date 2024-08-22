@@ -119,13 +119,17 @@ class BidUseCaseTest {
             then(bidService).should(times(1)).readAllByProduct(any(), any(), any());
         }
 
-        @Test
+        @ParameterizedTest(name = "bidType 값이 {0}일 때")
+        @EnumSource(value = BidType.class)
         @DisplayName("상품이 존재하지 않는 경우 NotFoundException이 발생한다")
-        void should_throw_NotFoundException_when_read_product_bid_list_but_product_does_not_exist() {
+        void should_throw_NotFoundException_when_read_product_bid_list_but_product_does_not_exist(
+            BidType bidType) {
+            Long productId = 999L;
+            Pageable pageable = Pageable.unpaged();
             given(productService.readById(anyLong())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.readProductBidList(999L, any(), Pageable.unpaged()));
+                () -> bidUseCase.readProductBidList(productId, bidType, pageable));
 
             then(productService).should(times(1)).readById(anyLong());
             assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
@@ -177,7 +181,7 @@ class BidUseCaseTest {
             given(productService.readById(anyLong())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.createBid(any(), 999L, request, BidType.SELL));
+                () -> bidUseCase.createBid(user, 999L, request, BidType.SELL));
 
             then(productService).should(times(1)).readById(anyLong());
             assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
@@ -214,14 +218,14 @@ class BidUseCaseTest {
             given(productService.readById(any())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.transactSellBid(any(), request));
+                () -> bidUseCase.transactSellBid(buyer, request));
 
             then(productService).should(times(1)).readById(any());
             assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
         }
 
         @Test
-        @DisplayName("주어진 조건의 판매 가능한 입찰이 없는 경우 NotFoundException이 발생한다")
+        @DisplayName("주어진 조건의 판매 입찰이 없는 경우 NotFoundException이 발생한다")
         void should_throw_NotFoundException_when_transact_sell_bid_but_bid_does_not_exist() {
             TransactBidRequestDto request = new TransactBidRequestDto(1L, 9876543);
 
@@ -229,7 +233,7 @@ class BidUseCaseTest {
             given(bidService.readFirstValidBid(any(), any(), any())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.transactSellBid(any(), request));
+                () -> bidUseCase.transactSellBid(buyer, request));
 
             then(productService).should(times(1)).readById(any());
             then(bidService).should(times(1)).readFirstValidBid(any(), any(), any());
@@ -244,7 +248,6 @@ class BidUseCaseTest {
         @Test
         @DisplayName("LIVE 상태인 구매 입찰을 IN_TRANSACTION으로 변경하고 관련된 판매 입찰을 생성한다")
         void succeed_to_transact_buy_bid_and_create_sell_bid() {
-            Bid buyBidLive = BUY_BID_LIVE.getBid();
             Bid sellBidInTransaction = SELL_BID_IN_TRANSACTION.getBid();
             TransactBidRequestDto request = new TransactBidRequestDto(1L, 6000);
 
@@ -268,14 +271,14 @@ class BidUseCaseTest {
             given(productService.readById(any())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.transactBuyBid(any(), request));
+                () -> bidUseCase.transactBuyBid(seller, request));
 
             then(productService).should(times(1)).readById(any());
             assertEquals(ProductErrorCode.NOT_FOUND_PRODUCT, result.getResponseCode());
         }
 
         @Test
-        @DisplayName("주어진 조건의 구매 가능한 입찰이 없는 경우 NotFoundException이 발생한다")
+        @DisplayName("주어진 조건의 구매 입찰이 없는 경우 NotFoundException이 발생한다")
         void should_throw_NotFoundException_when_transact_buy_bid_but_bid_does_not_exist() {
             TransactBidRequestDto request = new TransactBidRequestDto(1L, 9876543);
 
@@ -283,7 +286,7 @@ class BidUseCaseTest {
             given(bidService.readFirstValidBid(any(), any(), any())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.transactBuyBid(any(), request));
+                () -> bidUseCase.transactBuyBid(seller, request));
 
             then(productService).should(times(1)).readById(any());
             then(bidService).should(times(1)).readFirstValidBid(any(), any(), any());
@@ -294,6 +297,8 @@ class BidUseCaseTest {
     @Nested
     @DisplayName("depositBid 메서드는")
     class deposit_bid {
+
+        Long bidId = buyBidInTransaction.getId();
 
         @Test
         @DisplayName("구매 입찰이 IN_TRANSACTION 상태이고, 관련 판매 입찰이 AUTHENTICATED 상태인 경우 구매자가 입찰 금액을 판매자에게 입금한다")
@@ -358,13 +363,13 @@ class BidUseCaseTest {
         @Test
         @DisplayName("아직 상품이 검수되지 않은 경우 BadRequestException이 발생한다")
         void should_throw_BadRequestException_when_deposit_bid_but_bid_not_inspect() {
-            Bid notInspectSellBid = Bid.builder().status(Status.IN_TRANSACTION).build();
+            Bid notInspectSellBid = SELL_BID_IN_TRANSACTION.getBid();
             buyBidInTransaction.relateBid(notInspectSellBid);
 
             given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
 
             BadRequestException result = assertThrows(BadRequestException.class,
-                () -> bidUseCase.depositBid(buyer, anyLong()));
+                () -> bidUseCase.depositBid(buyer, bidId));
 
             then(bidService).should(times(1)).readById(anyLong());
             assertEquals(BidErrorCode.BID_NOT_INSPECT, result.getResponseCode());
@@ -380,7 +385,7 @@ class BidUseCaseTest {
             given(bidService.readById(anyLong())).willReturn(Optional.of(expensiveBuyBid));
 
             BadRequestException result = assertThrows(BadRequestException.class,
-                () -> bidUseCase.depositBid(buyer, anyLong()));
+                () -> bidUseCase.depositBid(buyer, bidId));
 
             then(bidService).should(times(1)).readById(anyLong());
             assertEquals(UserErrorCode.INSUFFICIENT_BALANCE, result.getResponseCode());
@@ -395,7 +400,7 @@ class BidUseCaseTest {
             given(userService.readByIdWithOptimisticLock(anyLong())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.depositBid(buyer, anyLong()));
+                () -> bidUseCase.depositBid(buyer, bidId));
 
             then(bidService).should(times(1)).readById(anyLong());
             then(userService).should(times(1)).readByIdWithOptimisticLock(anyLong());
@@ -412,7 +417,7 @@ class BidUseCaseTest {
                 .willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.depositBid(buyer, anyLong()));
+                () -> bidUseCase.depositBid(buyer, bidId));
 
             then(bidService).should(times(1)).readById(anyLong());
             then(userService).should(times(2)).readByIdWithOptimisticLock(anyLong());
@@ -431,7 +436,7 @@ class BidUseCaseTest {
                 Optional.of(poorUser));
 
             BadRequestException result = assertThrows(BadRequestException.class,
-                () -> bidUseCase.depositBid(buyer, anyLong()));
+                () -> bidUseCase.depositBid(buyer, bidId));
 
             then(bidService).should(times(1)).readById(anyLong());
             then(userService).should(times(1)).readByIdWithOptimisticLock(anyLong());
@@ -473,12 +478,13 @@ class BidUseCaseTest {
         @Test
         @DisplayName("입찰자가 아닌 사용자가 입찰 수정을 시도할 경우 ForbiddenException이 발생한다")
         void should_throw_ForbiddenException_when_update_bid_but_user_is_not_bidder() {
+            Long bidId = buyBidLive.getId();
             UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
             given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
             ForbiddenException result = assertThrows(ForbiddenException.class,
-                () -> bidUseCase.updateBid(seller, anyLong(), request));
+                () -> bidUseCase.updateBid(seller, bidId, request));
 
             then(bidService).should(times(1)).readById(anyLong());
             assertEquals(BidErrorCode.FORBIDDEN_BID, result.getResponseCode());
@@ -487,12 +493,13 @@ class BidUseCaseTest {
         @Test
         @DisplayName("입찰이 이미 진행중인 경우 BadRequestException이 발생한다")
         void should_throw_BadRequestException_when_update_bid_but_bid_status_is_not_live() {
+            Long bidId = buyBidInTransaction.getId();
             UpdateBidRequestDto request = new UpdateBidRequestDto(7000);
 
             given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidInTransaction));
 
             BadRequestException result = assertThrows(BadRequestException.class,
-                () -> bidUseCase.updateBid(buyer, anyLong(), request));
+                () -> bidUseCase.updateBid(buyer, bidId, request));
 
             then(bidService).should(times(1)).readById(anyLong());
             assertEquals(BidErrorCode.BID_NOT_IN_LIVE, result.getResponseCode());
@@ -560,10 +567,11 @@ class BidUseCaseTest {
         @Test
         @DisplayName("입찰자가 아닌 사용자가 입찰 삭제를 시도할 경우 ForbiddenException이 발생한다")
         void should_throw_ForbiddenException_when_delete_bid_but_user_is_not_bidder() {
+            Long bidId = buyBidLive.getId();
             given(bidService.readById(anyLong())).willReturn(Optional.of(buyBidLive));
 
             ForbiddenException result = assertThrows(ForbiddenException.class,
-                () -> bidUseCase.deleteBid(seller, anyLong()));
+                () -> bidUseCase.deleteBid(seller, bidId));
 
             then(bidService).should(times(1)).readById(anyLong());
             assertEquals(BidErrorCode.FORBIDDEN_BID, result.getResponseCode());
@@ -577,7 +585,7 @@ class BidUseCaseTest {
             given(bidService.readById(anyLong())).willReturn(Optional.of(bid));
 
             BadRequestException result = assertThrows(BadRequestException.class,
-                () -> bidUseCase.deleteBid(user, anyLong()));
+                () -> bidUseCase.deleteBid(user, 1L));
 
             then(bidService).should(times(1)).readById(anyLong());
             assertEquals(BidErrorCode.BID_CANNOT_CANCEL, result.getResponseCode());

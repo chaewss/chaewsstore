@@ -99,11 +99,12 @@ class AdminUseCaseTest {
         @DisplayName("이미 이메일이 존재하는 경우 DuplicateException이 발생한다")
         void should_throw_DuplicateException_when_username_is_duplicate() {
             // given
-            given(adminService.existsByUsername(any())).willReturn(true);
+            String username = "existingUsername";
+            given(adminService.existsByUsername(username)).willReturn(true);
 
             // when
             DuplicateException result = assertThrows(DuplicateException.class,
-                () -> adminUseCase.checkUsername(any()));
+                () -> adminUseCase.checkUsername(username));
 
             // then
             then(adminService).should(times(1)).existsByUsername(any());
