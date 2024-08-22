@@ -5,12 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.chaewsstore.core.infra.exception.JwtErrorException;
 import com.chaewsstore.core.infra.exception.JwtErrorCode;
+import com.chaewsstore.core.infra.exception.JwtErrorException;
 import com.chaewsstore.core.infra.jwt.TokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
