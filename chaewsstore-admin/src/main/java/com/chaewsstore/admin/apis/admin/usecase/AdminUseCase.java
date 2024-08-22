@@ -28,7 +28,7 @@ public class AdminUseCase {
      */
     @Transactional
     public AdminResponseDto signup(AdminSignupRequestDto request) {
-        checkUsername(request.username());
+        checkUsernameDuplication(request.username());
 
         String encodedPassword = passwordEncoderHelper.encodePassword(request.password());
         Admin admin = request.toEntity(encodedPassword);
@@ -45,6 +45,10 @@ public class AdminUseCase {
      */
     @Transactional(readOnly = true)
     public void checkUsername(String username) {
+        checkUsernameDuplication(username);
+    }
+
+    private void checkUsernameDuplication(String username) {
         if (Boolean.TRUE.equals(adminService.existsByUsername(username))) {
             throw ADMIN_DUPLICATION;
         }
