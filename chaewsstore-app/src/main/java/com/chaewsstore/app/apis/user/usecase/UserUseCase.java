@@ -31,8 +31,8 @@ public class UserUseCase {
      */
     @Transactional(rollbackFor = Exception.class)
     public UserResponseDto signup(SignupRequestDto request) {
-        checkUsername(request.username());
-        checkNickname(request.nickname());
+        checkUsernameDuplication(request.username());
+        checkNicknameDuplication(request.nickname());
 
         String encodedPassword = passwordEncoderHelper.encodePassword(request.password());
         User user = request.toEntity(encodedPassword, Role.ASSOCIATE);
@@ -49,9 +49,7 @@ public class UserUseCase {
      */
     @Transactional(readOnly = true)
     public void checkUsername(String username) {
-        if (Boolean.TRUE.equals(userService.existsByUsername(username))) {
-            throw USER_DUPLICATION;
-        }
+        checkUsernameDuplication(username);
     }
 
     /**
@@ -62,6 +60,16 @@ public class UserUseCase {
      */
     @Transactional(readOnly = true)
     public void checkNickname(String nickname) {
+        checkNicknameDuplication(nickname);
+    }
+
+    private void checkUsernameDuplication(String username) {
+        if (Boolean.TRUE.equals(userService.existsByUsername(username))) {
+            throw USER_DUPLICATION;
+        }
+    }
+
+    private void checkNicknameDuplication(String nickname) {
         if (Boolean.TRUE.equals(userService.existsByNickname(nickname))) {
             throw NICKNAME_DUPLICATION;
         }

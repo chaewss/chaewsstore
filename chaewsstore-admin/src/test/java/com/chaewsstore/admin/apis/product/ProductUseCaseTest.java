@@ -163,12 +163,13 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("브랜드가 존재하지 않는 경우 NotFoundException이 발생한다")
         void should_throw_NotFoundException_when_update_product_but_brand_does_not_exist() {
+            Long productId = product1.getId();
             UpdateProductRequestDto request = new UpdateProductRequestDto("product1", 600, "???");
 
             given(brandService.readByName(any())).willReturn(Optional.empty());
 
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> productUseCase.updateProduct(product1.getId(), request));
+                () -> productUseCase.updateProduct(productId, request));
 
             then(brandService).should(times(1)).readByName(any());
             assertEquals(BrandErrorCode.NOT_FOUND_BRAND, result.getResponseCode());
@@ -193,6 +194,7 @@ class ProductUseCaseTest {
         @Test
         @DisplayName("해당 상품이 이미 존재하는 경우 DuplicateException이 발생한다")
         void should_throw_DuplicateException_when_update_product_but_product_is_duplicate() {
+            Long productId = product1.getId();
             UpdateProductRequestDto request = new UpdateProductRequestDto("duplicateProduct", 8000, "brand1");
 
             given(brandService.readByName(any())).willReturn(Optional.of(brand));
@@ -200,7 +202,7 @@ class ProductUseCaseTest {
             given(productService.existsByName(any())).willReturn(true);
 
             DuplicateException result = assertThrows(DuplicateException.class,
-                () -> productUseCase.updateProduct(product1.getId(), request));
+                () -> productUseCase.updateProduct(productId, request));
 
             then(brandService).should(times(1)).readByName(any());
             then(productService).should(times(1)).readById(anyLong());

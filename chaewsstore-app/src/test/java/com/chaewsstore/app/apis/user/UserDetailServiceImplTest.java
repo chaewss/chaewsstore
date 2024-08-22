@@ -10,7 +10,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 import com.chaewsstore.app.apis.user.service.UserDetailServiceImpl;
-import com.chaewsstore.core.domain.user.Role;
 import com.chaewsstore.core.domain.user.User;
 import com.chaewsstore.core.domain.user.UserErrorCode;
 import com.chaewsstore.core.domain.user.UserService;

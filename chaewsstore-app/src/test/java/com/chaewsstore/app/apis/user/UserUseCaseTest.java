@@ -121,11 +121,12 @@ class UserUseCaseTest {
         @DisplayName("이미 이메일이 존재하는 경우 DuplicateException이 발생한다")
         void should_throw_DuplicateException_when_username_is_duplicate() {
             // given
+            String username = "existingUsername";
             given(userService.existsByUsername(any())).willReturn(true);
 
             // when
             DuplicateException result = assertThrows(DuplicateException.class,
-                () -> userUseCase.checkUsername(any()));
+                () -> userUseCase.checkUsername(username));
 
             // then
             then(userService).should(times(1)).existsByUsername(any());
@@ -154,11 +155,12 @@ class UserUseCaseTest {
         @DisplayName("이미 닉네임이 존재하는 경우 DuplicateException이 발생한다")
         void should_throw_DuplicateException_when_nickname_is_duplicate() {
             // mocking
+            String nickname = "existingUsername";
             given(userService.existsByNickname(any())).willReturn(true);
 
             // when
             DuplicateException result = assertThrows(DuplicateException.class,
-                () -> userUseCase.checkNickname(any()));
+                () -> userUseCase.checkNickname(nickname));
 
             // then
             verify(userService, times(1)).existsByNickname(any());

@@ -29,13 +29,13 @@ public class UserController {
     }
 
     @GetMapping("check-username/{username}/exists")
-    public SuccessResponse checkUsername(@PathVariable String username) {
+    public SuccessResponse<Void> checkUsername(@PathVariable String username) {
         userUseCase.checkUsername(username);
         return SuccessResponse.create();
     }
 
     @GetMapping("check-nickname/{nickname}/exists")
-    public SuccessResponse checkNickname(@PathVariable String nickname) {
+    public SuccessResponse<Void> checkNickname(@PathVariable String nickname) {
         userUseCase.checkNickname(nickname);
         return SuccessResponse.create();
     }

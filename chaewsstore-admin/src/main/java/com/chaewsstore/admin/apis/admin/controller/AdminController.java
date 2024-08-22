@@ -31,7 +31,7 @@ public class AdminController {
     }
 
     @GetMapping("/check-username/{username}/exists")
-    public SuccessResponse checkUsername(@PathVariable String username) {
+    public SuccessResponse<Void> checkUsername(@PathVariable String username) {
         adminUseCase.checkUsername(username);
         return SuccessResponse.create();
     }

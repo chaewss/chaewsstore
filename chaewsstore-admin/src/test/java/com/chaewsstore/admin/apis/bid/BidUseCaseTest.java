@@ -84,14 +84,15 @@ class BidUseCaseTest {
         @Test
         @DisplayName("입찰이 존재하지 않는 경우 NotFoundException이 발생한다")
         void should_throw_NotFountException_when_inspect_bid_product_but_bid_does_not_exist() {
+            Long bidId = 100L;
             InspectBidProductRequestDto request = new InspectBidProductRequestDto(100);
 
             // given
-            given(bidService.readById(any())).willReturn(Optional.empty());
+            given(bidService.readById(bidId)).willReturn(Optional.empty());
 
             // when
             NotFoundException result = assertThrows(NotFoundException.class,
-                () -> bidUseCase.inspectBidProduct(anyLong(), request));
+                () -> bidUseCase.inspectBidProduct(bidId, request));
 
             // then
             then(bidService).should(times(1)).readById(any());
@@ -102,14 +103,16 @@ class BidUseCaseTest {
         @DisplayName("입찰 상태가 거래중(IN_TRANSACTION)이 아닌 경우 NotFoundException이 발생한다")
         void should_throw_BadRequestException_when_inspect_bid_product_but_bid_status_is_not_in_transaction() {
             Bid notInTransactionBid = SELL_BID_LIVE.getBid();
+            Long notInTransactionBidId = notInTransactionBid.getId();
             InspectBidProductRequestDto request = new InspectBidProductRequestDto(100);
 
             // given
-            given(bidService.readById(any())).willReturn(Optional.of(notInTransactionBid));
+            given(bidService.readById(notInTransactionBidId)).willReturn(
+                Optional.of(notInTransactionBid));
 
             // when
             BadRequestException result = assertThrows(BadRequestException.class,
-                () -> bidUseCase.inspectBidProduct(anyLong(), request));
+                () -> bidUseCase.inspectBidProduct(notInTransactionBidId, request));
 
             // then
             then(bidService).should(times(1)).readById(any());
