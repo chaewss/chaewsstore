@@ -161,8 +161,8 @@ public class Bid extends BaseTimeEntity {
     }
 
     private void updateRelatedBidStatus(Status status) {
-        Bid relatedBid = this.getRelatedBid();
-        relatedBid.updateStatus(status);
+        Bid targetBid = this.getRelatedBid();
+        targetBid.updateStatus(status);
     }
 
     private void updateStatusForInspect(Integer score) {
