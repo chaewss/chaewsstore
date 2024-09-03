@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @EnableChaewsstoreConfig({
     ChaewsstoreConfigGroup.JWT,
+    ChaewsstoreConfigGroup.P6SPY,
 })
 class InfraConfig {
 
