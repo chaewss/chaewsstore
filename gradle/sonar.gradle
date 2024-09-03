@@ -10,7 +10,7 @@ sonar {
         property 'sonar.test.inclusions', '**/*Test.java'
         property 'sonar.exclusions', '**/Q*.java, **/config/**, **/common/**, **/importer/**, ' +
                 '**/*Application*.java, **/*Dto*.java, **/*Exception*.java, **/*ErrorCode*.java, ' +
-                '**/*Constants*.java, **/*Util*.java, **/Jwts.java, **/*DetailService*.java'
+                '**/*Constants*.java, **/*Util*.java, **/*Config*.java, **/Jwts.java, **/*DetailService*.java'
         property 'sonar.java.coveragePlugin', 'jacoco'
         property 'sonar.coverage.jacoco.xmlReportPaths', "${project.rootDir}/support/jacoco/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml"
     }
